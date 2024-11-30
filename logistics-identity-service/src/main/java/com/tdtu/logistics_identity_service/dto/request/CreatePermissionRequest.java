@@ -1,13 +1,15 @@
 package com.tdtu.logistics_identity_service.dto.request;
 
-import lombok.AccessLevel;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationRequest {
-    String username;
+public class CreatePermissionRequest {
+    String name;
 
-    String password;
+    String description;
 }
