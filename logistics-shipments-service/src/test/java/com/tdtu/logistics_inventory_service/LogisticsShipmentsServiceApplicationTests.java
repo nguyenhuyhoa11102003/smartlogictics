@@ -1,4 +1,4 @@
-package com.tdtu.logistics_shipments_service;
+package com.tdtu.logistics_inventory_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
