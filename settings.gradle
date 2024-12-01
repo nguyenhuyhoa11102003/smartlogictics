@@ -1,2 +1,0 @@
-rootProject.name = 'smartlogistics'
-include 'logistics-goods-service', 'logistics-identity-service', 'common', 'logistics-shipments-service'  , 'logistics-warehouse-service','logistics-inventory-service'
