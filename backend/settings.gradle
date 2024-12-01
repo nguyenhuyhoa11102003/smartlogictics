@@ -1,2 +1,12 @@
 rootProject.name = 'smartlogistics'
-include 'logistics-goods-service', 'logistics-identity-service', 'common', 'logistics-shipments-service'  , 'logistics-warehouse-service','logistics-inventory-service'
+include 'logistics-goods-service',
+        'logistics-identity-service',
+        'common',
+        'logistics-shipments-service',
+        'logistics-warehouse-service',
+        'logistics-inventory-service',
+        'logistics-api-gateway-service',
+        'logistics-users-service',
+        'logistics-notification-service',
+        'logistics-files-storage-service',
+        'logistics-orders-service'

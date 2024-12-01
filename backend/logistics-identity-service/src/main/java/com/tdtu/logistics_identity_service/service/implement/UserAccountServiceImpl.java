@@ -1,7 +1,6 @@
 package com.tdtu.logistics_identity_service.service.implement;
 
 
-import com.nimbusds.jose.proc.SecurityContext;
 import com.tdtu.logistics_identity_service.dto.request.ChangesPasswordRequest;
 import com.tdtu.logistics_identity_service.dto.request.CreateAccountRequest;
 import com.tdtu.logistics_identity_service.dto.request.CreateProfileRequest;
@@ -24,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -88,7 +89,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 
     @Override
     public UserInfResponseDTO getUserInfo() {
-        SecurityContext context = SecurityContextHolder.getContext();
+        org.springframework.security.core.context.SecurityContext context = SecurityContextHolder.getContext();
         String author = context.getAuthentication().getName();
         log.debug("Get user info by username: {}", author);
 
