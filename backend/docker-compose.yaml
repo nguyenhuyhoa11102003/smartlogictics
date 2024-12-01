@@ -1,4 +1,4 @@
-
+  
 services:
   identity-db:
     image: postgres:latest
