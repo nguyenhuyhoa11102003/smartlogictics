@@ -9,7 +9,7 @@ import com.tdtu.logistics_identity_service.dto.response.CreateAccountResponseDTO
 import com.tdtu.logistics_identity_service.dto.response.UserInfResponseDTO;
 import com.tdtu.logistics_identity_service.entity.Role;
 import com.tdtu.logistics_identity_service.entity.UserAccount;
-import com.tdtu.logistics_identity_service.enumrator.ErrorCode;
+import com.tdtu.logistics_identity_service.exception.ErrorCode;
 import com.tdtu.logistics_identity_service.exception.AppException;
 import com.tdtu.logistics_identity_service.mapper.UserAccountMapper;
 import com.tdtu.logistics_identity_service.repository.RoleRepository;

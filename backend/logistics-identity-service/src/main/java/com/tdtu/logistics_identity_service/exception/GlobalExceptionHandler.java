@@ -1,7 +1,6 @@
 package com.tdtu.logistics_identity_service.exception;
 
 import com.tdtu.logistics_identity_service.dto.response.ErrorsResponse;
-import com.tdtu.logistics_identity_service.enumrator.ErrorCode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
