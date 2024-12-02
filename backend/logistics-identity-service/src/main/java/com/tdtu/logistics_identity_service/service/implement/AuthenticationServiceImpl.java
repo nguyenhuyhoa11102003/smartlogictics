@@ -14,7 +14,7 @@ import com.tdtu.logistics_identity_service.dto.response.AuthenticationResponseDT
 import com.tdtu.logistics_identity_service.dto.response.IntrospectTokenResponseDTO;
 import com.tdtu.logistics_identity_service.entity.InvalidatedToken;
 import com.tdtu.logistics_identity_service.entity.UserAccount;
-import com.tdtu.logistics_identity_service.enumrator.ErrorCode;
+import com.tdtu.logistics_identity_service.exception.ErrorCode;
 import com.tdtu.logistics_identity_service.exception.AppException;
 import com.tdtu.logistics_identity_service.repository.InvalidTokenRepository;
 import com.tdtu.logistics_identity_service.repository.UserAccountRepository;

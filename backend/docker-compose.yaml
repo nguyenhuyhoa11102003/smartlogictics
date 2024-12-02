@@ -12,6 +12,18 @@ services:
     volumes:
       - identity-db-data:/var/lib/postgresql/data # Persist identity-service data
 
+  order-db:
+    image: postgres:latest
+    container_name: order-db
+    environment:
+      POSTGRES_DB: order_service_db
+      POSTGRES_USER: order_user
+      POSTGRES_PASSWORD: tranleduy
+    ports:
+      - "5433:5432" # Expose PostgreSQL for order-service on localhost
+    volumes:
+      - order-db-data:/var/lib/postgresql/data # Persist order-service data
+
 #  kafka:
 #    image: 'bitnami/kafka:3.7.0'
 #    container_name: kafka
@@ -75,6 +87,8 @@ services:
 
 volumes:
   identity-db-data:
+    driver: local
+  order-db-data: # Thêm volume cho order-db
     driver: local
   vault-data:
     driver: local

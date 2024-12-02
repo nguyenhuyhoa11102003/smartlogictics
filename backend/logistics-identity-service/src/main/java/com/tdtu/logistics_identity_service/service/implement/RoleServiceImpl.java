@@ -6,7 +6,7 @@ import com.tdtu.logistics_identity_service.dto.request.UpdateRoleRequest;
 import com.tdtu.logistics_identity_service.dto.response.RoleResponseDTO;
 import com.tdtu.logistics_identity_service.entity.Permission;
 import com.tdtu.logistics_identity_service.entity.Role;
-import com.tdtu.logistics_identity_service.enumrator.ErrorCode;
+import com.tdtu.logistics_identity_service.exception.ErrorCode;
 import com.tdtu.logistics_identity_service.exception.AppException;
 import com.tdtu.logistics_identity_service.mapper.RoleMapper;
 import com.tdtu.logistics_identity_service.repository.PermissionRepository;

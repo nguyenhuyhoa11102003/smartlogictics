@@ -4,7 +4,7 @@ package com.tdtu.logistics_identity_service.service.implement;
 import com.tdtu.logistics_identity_service.dto.request.CreatePermissionRequest;
 import com.tdtu.logistics_identity_service.dto.response.PermissionResponseDTO;
 import com.tdtu.logistics_identity_service.entity.Permission;
-import com.tdtu.logistics_identity_service.enumrator.ErrorCode;
+import com.tdtu.logistics_identity_service.exception.ErrorCode;
 import com.tdtu.logistics_identity_service.exception.AppException;
 import com.tdtu.logistics_identity_service.mapper.PermissionMapper;
 import com.tdtu.logistics_identity_service.repository.PermissionRepository;

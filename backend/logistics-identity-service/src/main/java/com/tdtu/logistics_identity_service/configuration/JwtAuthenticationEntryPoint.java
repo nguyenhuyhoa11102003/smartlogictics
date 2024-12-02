@@ -3,7 +3,7 @@ package com.tdtu.logistics_identity_service.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tdtu.logistics_identity_service.dto.response.ApiResponse;
-import com.tdtu.logistics_identity_service.enumrator.ErrorCode;
+import com.tdtu.logistics_identity_service.exception.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

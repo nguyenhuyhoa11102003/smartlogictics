@@ -1,7 +1,5 @@
 package com.tdtu.logistics_identity_service.exception;
 
-import com.tdtu.logistics_identity_service.enumrator.ErrorCode;
-
 public class AppException extends RuntimeException {
     private ErrorCode errorCode;
 
