@@ -18,144 +18,75 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from "@/components/ui/sidebar"
-// This is sample data.
+
 const data = {
-    versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
     navMain: [
         {
-            title: "Getting Started",
+            title: "Trang chủ",
             url: "#",
             items: [
-                {
-                    title: "Installation",
-                    url: "#",
-                },
-                {
-                    title: "Project Structure",
-                    url: "#",
-                },
+
             ],
         },
         {
-            title: "Building Your Application",
+            title: "Tạo đơn",
             url: "#",
             items: [
                 {
-                    title: "Routing",
+                    title: "Tạo đơn lẻ",
                     url: "#",
                 },
                 {
-                    title: "Data Fetching",
+                    title: "Nhập Excel",
                     url: "#",
                     isActive: true,
                 },
+            ],
+        },
+        {
+            title: "Quản lý",
+            url: "#",
+            items: [
                 {
-                    title: "Rendering",
+                    title: "Quản lý vận đơn",
                     url: "#",
                 },
                 {
-                    title: "Caching",
+                    title: "Thống kê tiền hàng ",
                     url: "#",
                 },
                 {
-                    title: "Styling",
+                    title: "Thống kê doanh thu",
                     url: "#",
                 },
                 {
-                    title: "Optimizing",
+                    title: "Đơn hàng cần xử lý",
                     url: "#",
                 },
                 {
-                    title: "Configuring",
-                    url: "#",
-                },
-                {
-                    title: "Testing",
-                    url: "#",
-                },
-                {
-                    title: "Authentication",
-                    url: "#",
-                },
-                {
-                    title: "Deploying",
-                    url: "#",
-                },
-                {
-                    title: "Upgrading",
-                    url: "#",
-                },
-                {
-                    title: "Examples",
+                    title: "Danh sách người nhận",
                     url: "#",
                 },
             ],
         },
         {
-            title: "API Reference",
+            title: "Tra cứu",
             url: "#",
             items: [
                 {
-                    title: "Components",
+                    title: "Tra cứu bưu cục",
                     url: "#",
                 },
                 {
-                    title: "File Conventions",
-                    url: "#",
-                },
-                {
-                    title: "Functions",
-                    url: "#",
-                },
-                {
-                    title: "next.config.js Options",
-                    url: "#",
-                },
-                {
-                    title: "CLI",
-                    url: "#",
-                },
-                {
-                    title: "Edge Runtime",
+                    title: "ƯỚC PHÍ",
                     url: "#",
                 },
             ],
         },
         {
-            title: "Architecture",
+            title: "Cài đặt tài khoản",
             url: "#",
-            items: [
-                {
-                    title: "Accessibility",
-                    url: "#",
-                },
-                {
-                    title: "Fast Refresh",
-                    url: "#",
-                },
-                {
-                    title: "Next.js Compiler",
-                    url: "#",
-                },
-                {
-                    title: "Supported Browsers",
-                    url: "#",
-                },
-                {
-                    title: "Turbopack",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Community",
-            url: "#",
-            items: [
-                {
-                    title: "Contribution Guide",
-                    url: "#",
-                },
-            ],
+            items: [],
         },
     ],
 }
