@@ -313,7 +313,7 @@ const callsToAction = [
     { name: 'Watch demo', href: '#', icon: PlayCircleIcon },
     { name: 'Contact sales', href: '#', icon: PhoneIcon },
 ]
-
+import Link from 'next/link'
 const Header = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     return (
@@ -395,9 +395,9 @@ const Header = () => {
                     </a>
                 </PopoverGroup>
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                    <a href="#" className="text-sm/6 font-semibold text-gray-900">
+                    <Link href="/login" className="text-sm/6 font-semibold text-gray-900">
                         Log in <span aria-hidden="true">&rarr;</span>
-                    </a>
+                    </Link>
                 </div>
             </nav>
             <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
