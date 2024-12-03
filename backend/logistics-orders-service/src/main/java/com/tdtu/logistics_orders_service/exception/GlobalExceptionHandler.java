@@ -53,17 +53,6 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
-    @ExceptionHandler(value = IllegalStateException.class)
-    public ResponseEntity<ErrorsResponse> handlingIllegalStateException(IllegalStateException exception) {
-        log.error("IllegalStateException Error: {}, Class: {}", exception.getCause(), exception.getClass());
-
-        return ResponseEntity.badRequest()
-                .body(ErrorsResponse.builder()
-                        .message(ErrorCode.USER_EXISTED.getMessage())
-                        .code(ErrorCode.USER_EXISTED.getStatusCode())
-                        .build());
-    }
-
     @ExceptionHandler(value = AuthorizationDeniedException.class)
     public ResponseEntity<ErrorsResponse> authorizationDeniedException(AuthorizationDeniedException exception) {
         log.error("AuthorizationDeniedException Error: {}, Class: {}", exception.getCause(), exception.getClass());

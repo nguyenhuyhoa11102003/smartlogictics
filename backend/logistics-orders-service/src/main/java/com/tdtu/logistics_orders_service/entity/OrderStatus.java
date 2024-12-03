@@ -1,5 +1,6 @@
 package com.tdtu.logistics_orders_service.entity;
 
+import com.tdtu.logistics_orders_service.enumrator.StatusCategory;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -12,22 +13,21 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "order-good-detail")
+@Entity(name = "order_status")
 @EntityListeners(AuditingEntityListener.class)
-public class OrderGoodDetail {
+public class OrderStatus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(name = "good_id", nullable = false)
-    String goodId;
+    @Column(name = "status", nullable = false)
+    String status;
 
-    @Column(name = "quantity", nullable = false)
-    int quantity;
+    @Column(name = "description", nullable = false)
+    String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    @ToString.Exclude
-    Orders order; // Quan hệ với Orders
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    StatusCategory category;
 }
