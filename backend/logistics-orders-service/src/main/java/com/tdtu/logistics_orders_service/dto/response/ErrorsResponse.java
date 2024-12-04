@@ -5,7 +5,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
-import java.util.Set;
 
 @Data
 @Builder
@@ -13,7 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ErrorsResponse {
+public class ErrorsResponse<T> {
     @Builder.Default
     int code = 405;
 
@@ -22,7 +21,8 @@ public class ErrorsResponse {
 
     String message;
 
-    Set<String> errors;
+    T errors;
 
-    Date timestamp;
+    @Builder.Default
+    Date timestamp = new Date();
 }

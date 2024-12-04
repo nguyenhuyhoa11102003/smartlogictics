@@ -14,6 +14,8 @@ public enum ErrorCode {
 
     SENDER_NOT_FOUND(404, "sender_not_found", HttpStatus.NOT_FOUND),
     RECIPIENT_NOT_FOUND(404, "recipient_not_found", HttpStatus.NOT_FOUND),
+
+    PAYMENT_NOT_FOUND(404, "payment_not_found", HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int statusCode, String message, HttpStatus httpStatus) {

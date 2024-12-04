@@ -15,11 +15,23 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "orders")
-public class Orders {
+public class Orders extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
+
+    @Column(name = "shipment_code", unique = true, length = 13)
+    String shipmentCode; // Mã vận đơn
+
+    @Column(name = "note")
+    String note; // Ghi chú
+
+    @Column(name = "more_require")
+    String moreRequire; // Mô tả
+
+    @Column(name = "order_code")
+    String orderCode; // Mã vận đơn
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id", referencedColumnName = "id", nullable = false)

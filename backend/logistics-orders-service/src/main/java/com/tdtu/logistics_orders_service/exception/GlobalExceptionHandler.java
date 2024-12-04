@@ -8,13 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authorization.AuthorizationDeniedException;
+//import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,55 +28,52 @@ public class GlobalExceptionHandler {
     MessageSource messageSource;
 
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<ErrorsResponse> handlingRuntimeException(RuntimeException exception) {
+    public ResponseEntity<ErrorsResponse<String>> handlingRuntimeException(RuntimeException exception) {
 
-        log.error("Runtime Error by cause: {}, Throw by: {}", exception.getCause(), exception.getClass());
+        log.error("Runtime Error: {}", exception.getMessage(), exception);
 
         Set<String> errors = Set.of(exception.getMessage());
 
         return ResponseEntity.badRequest()
-                .body(ErrorsResponse.builder()
-                        .message(getLocalizedMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage()))
-                        .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getStatusCode())
-                        .errors(errors)
+                .body(ErrorsResponse.<String>builder()
+                        .message(getLocalizedMessage("error.uncategorized"))
+                        .code(500)
+                        .errors(String.valueOf(errors))
                         .build());
     }
 
     @ExceptionHandler(value = AppException.class)
-    public ResponseEntity<ErrorsResponse> handlingAppException(AppException exception) {
-        log.error("AppException Error: ", exception.getCause());
+    public ResponseEntity<ErrorsResponse<String>> handlingAppException(AppException exception) {
+        log.error("AppException: {}", exception.getMessage(), exception);
 
         return ResponseEntity.status(exception.getErrorCode().getHttpStatus())
-                .body(ErrorsResponse.builder()
+                .body(ErrorsResponse.<String>builder()
                         .message(getLocalizedMessage(exception.getErrorCode().getMessage()))
-                        .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getStatusCode())
-                        .errors(Set.of(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage()))
+                        .code(exception.getErrorCode().getStatusCode())
+                        .errors(String.valueOf(Set.of(exception.getMessage())))
                         .build());
     }
 
-    @ExceptionHandler(value = AuthorizationDeniedException.class)
-    public ResponseEntity<ErrorsResponse> authorizationDeniedException(AuthorizationDeniedException exception) {
-        log.error("AuthorizationDeniedException Error: {}, Class: {}", exception.getCause(), exception.getClass());
-
-        return ResponseEntity.badRequest()
-                .body(ErrorsResponse.builder()
-                        .message(ErrorCode.UNAUTHORIZED.getMessage())
-                        .code(ErrorCode.UNAUTHORIZED.getStatusCode())
-                        .build());
-    }
+//    @ExceptionHandler(value = AuthorizationDeniedException.class)
+//    public ResponseEntity<ErrorsResponse> authorizationDeniedException(AuthorizationDeniedException exception) {
+//        log.error("AuthorizationDeniedException Error: {}, Class: {}", exception.getCause(), exception.getClass());
+//
+//        return ResponseEntity.badRequest()
+//                .body(ErrorsResponse.builder()
+//                        .message(ErrorCode.UNAUTHORIZED.getMessage())
+//                        .code(ErrorCode.UNAUTHORIZED.getStatusCode())
+//                        .build());
+//    }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorsResponse> methodArgumentNotValidException(MethodArgumentNotValidException exception) {
-        Set<String> errors = exception.getBindingResult().getFieldErrors().stream()
-                .map(this::getLocalizedFieldError)
-                .collect(Collectors.toSet());
-
-        log.error("Invalid field instant: MethodArgumentNotValidException....");
+    public ResponseEntity<ErrorsResponse<Map<String, String>>> methodArgumentNotValidException(MethodArgumentNotValidException exception) {
+        Map<String, String> errors = exception.getBindingResult().getFieldErrors().stream()
+                .collect(Collectors.toMap(FieldError::getField, this::getLocalizedFieldError));
 
         return ResponseEntity.badRequest()
-                .body(ErrorsResponse.builder()
-                        .message(getLocalizedMessage(ErrorCode.INVALID_REQUEST.getMessage()))
-                        .code(ErrorCode.INVALID_REQUEST.getStatusCode())
+                .body(ErrorsResponse.<Map<String, String>>builder()
+                        .message(getLocalizedMessage("error.validation"))
+                        .code(400)
                         .errors(errors)
                         .build());
     }
