@@ -59,7 +59,7 @@ export default function Login() {
                             Email
                         </label>
                         <Input
-                            className=" px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className=" px-4 py-2 mt-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             type="email"
                             id="email"
                             placeholder="Nhập email của bạn"
