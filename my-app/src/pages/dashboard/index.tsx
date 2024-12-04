@@ -15,22 +15,46 @@ import CODForm from "@/components/CODFrom";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { useMutation, UseMutationResult } from '@tanstack/react-query';
+import RecipientForm from "@/components/RecipientForm";
+import { PickupData } from "@/modules/order/models/PickUpData";
+import { Address } from "@/modules/address/models/AddressModel";
+interface ProductData {
+    productName: string;
+    productWeight: number;
+}
+
+interface CODData {
+    codAmount: number;
+}
+
+
 
 interface FormData {
-    name: string;
-    email: string;
+    pickupData: PickupData;
+    recipientData: Address;
+    productData: ProductData;
+    codData: CODData;
 }
+
 
 interface ResponseData {
     message: string;
-    data: {
-        name: string;
-        email: string;
-    };
+    data: FormData;
 }
 
 export default function Dashboard() {
-    const [formData, setFormData] = useState<FormData>({ name: '', email: '' });
+    const [pickupData, setPickupData] = useState<PickupData>({
+        sender: '',
+        pickupLocation: 'Nhận tại nhà',
+        pickupDate: '',
+        postOfficeId: '',
+        pickupDay: '',
+        timePeriod: '',
+        isPostOfficePickup: false,
+    });
+    const [recipientData, setRecipientData] = useState<Address | null>(null);
+    const [productData, setProductData] = useState<ProductData>({ productName: '', productWeight: 0 });
+    const [codData, setCodData] = useState<CODData>({ codAmount: 0 });
 
     // Mutation để gửi dữ liệu đến API
     const mutation = useMutation<ResponseData, Error, FormData>({
@@ -54,19 +78,34 @@ export default function Dashboard() {
 
     }
 
-    // Handle input change
-    // const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     const { name, value } = event.target;
-    //     setFormData({
-    //         ...formData,
-    //         [name]: value,
-    //     });
-    // };
     const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        console.log("Form Data Submitted:", formData);
-        mutation.mutate(formData); // Gửi dữ liệu
+        if (recipientData) {
+            const formData: FormData = {
+                pickupData,
+                recipientData,
+                productData,
+                codData,
+            };
+            console.log("Form Data Submitted:", formData);
+            mutation.mutate(formData);
+        }
+        else {
+            alert('Error')
+        }
+
     }
+
+    const handlePickupDataChange = (data: PickupData) => {
+        setPickupData(data);
+    };
+
+    const handleAddressChange = (address: Address) => {
+        setRecipientData((prevData) => ({
+            ...prevData,
+            ...address,
+        }));
+    };
 
     return (
         <div>
@@ -79,59 +118,8 @@ export default function Dashboard() {
                     <TabsContent value="inside">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
                             <div className="p-6">
-                                <PickupForm />
-                                <div className="border-2 shadow-lg p-4 mt-4">
-                                    <h2 className="font-bold text-lg mb-4">NGƯỜI NHẬN</h2>
-                                    <form>
-                                        <div className="mb-4">
-                                            <Label>Tùy chọn nơi nhận</Label>
-                                            <div className="flex gap-4">
-                                                <label>
-                                                    <Input type="radio" name="deliveryMethod" value="address" />
-                                                    Theo địa chỉ KH nhận
-                                                </label>
-                                                <label>
-                                                    <Input type="radio" name="deliveryMethod" value="smartBox" />
-                                                    Nhận tại từ Smart Box
-                                                </label>
-                                                <label>
-                                                    <Input type="radio" name="deliveryMethod" value="postOffice" />
-                                                    Nhận tại bưu cục
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <Label htmlFor="recipientPhone">Điện thoại</Label>
-                                            <Input
-                                                id="recipientPhone"
-                                                type="tel"
-                                                placeholder="Nhập số điện thoại"
-                                                className="w-full"
-                                            />
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <Label htmlFor="recipientName">Họ tên</Label>
-                                            <Input
-                                                id="recipientName"
-                                                type="text"
-                                                placeholder="Nhập tên người nhận"
-                                                className="w-full"
-                                            />
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <Label htmlFor="recipientAddress">Địa chỉ</Label>
-                                            <Input
-                                                id="recipientAddress"
-                                                type="text"
-                                                placeholder="Nhập địa chỉ"
-                                                className="w-full"
-                                            />
-                                        </div>
-                                    </form>
-                                </div>
+                                <PickupForm onPickupDataChange={handlePickupDataChange} />
+                                <RecipientForm onRecipientDataChange={handleAddressChange} />
                             </div>
                             <div className="p-6">
                                 <ProductForm />

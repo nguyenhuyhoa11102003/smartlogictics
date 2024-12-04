@@ -4,6 +4,7 @@ import com.tdtu.logistics_orders_service.entity.Order;
 import com.tdtu.logistics_orders_service.entity.OrderAddress;
 import com.tdtu.logistics_orders_service.entity.OrderGood;
 import com.tdtu.logistics_orders_service.entity.enumeration.EDeliveryStatus;
+import com.tdtu.logistics_orders_service.repository.OrderGoodRepository;
 import com.tdtu.logistics_orders_service.repository.OrderRepository;
 import com.tdtu.logistics_orders_service.service.OrderService;
 import com.tdtu.logistics_orders_service.viewmodel.order.OrderPostVm;
@@ -24,9 +25,11 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderServiceImpl implements OrderService {
 	OrderRepository orderRepository;
+	OrderGoodRepository orderGoodRepository;
 
 	@Override
 	public OrderVm createOrder(OrderPostVm orderPostVm) {
+		// địa chỉ thanh toán đơn hàng
 		OrderAddressPostVm billingAddressPostVm = orderPostVm.billingAddressPostVm();
 		OrderAddress billOrderAddress = OrderAddress.builder()
 				.phone(billingAddressPostVm.phone())
@@ -43,6 +46,7 @@ public class OrderServiceImpl implements OrderService {
 				.countryName(billingAddressPostVm.countryName())
 				.build();
 
+		// địa chỉ giao hàng đơn hàng
 		OrderAddressPostVm shipOrderAddressPostVm = orderPostVm.shippingAddressPostVm();
 		OrderAddress shippOrderAddress = OrderAddress.builder()
 				.phone(shipOrderAddressPostVm.phone())
@@ -76,11 +80,9 @@ public class OrderServiceImpl implements OrderService {
 						.order(order)
 						.build())
 				.collect(Collectors.toSet());
-
-
+		this.orderGoodRepository.saveAll(orderGoods);
+		order.setOrderGoods(orderGoods);
 		orderRepository.save(order);
-
-
 		return null;
 	}
 }
