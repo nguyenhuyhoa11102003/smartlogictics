@@ -6,28 +6,28 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-//@Getter
-//@Setter
-//@Builder
-//@ToString
-//@NoArgsConstructor
-//@AllArgsConstructor
-//@FieldDefaults(level = AccessLevel.PRIVATE)
-//@Entity(name = "order_status")
-//@EntityListeners(AuditingEntityListener.class)
-//public class OrderStatus {
-//
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.UUID)
-//    String id;
-//
-//    @Column(name = "status", nullable = false)
-//    String status;
-//
-//    @Column(name = "description", nullable = false)
-//    String description;
-//
-//    @Enumerated(EnumType.STRING)
-//    @Column(name = "category")
-//    StatusCategory category;
-//}
+@Getter
+@Setter
+@Builder
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity(name = "order_status")
+@EntityListeners(AuditingEntityListener.class)
+public class OrderStatus {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
+
+    @Column(name = "status", nullable = false)
+    String status;
+
+    @Column(name = "description", nullable = false)
+    String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    StatusCategory category;
+}

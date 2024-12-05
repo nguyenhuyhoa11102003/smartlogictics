@@ -1,6 +1,6 @@
 package com.tdtu.logistics_orders_service.service.implement;
 
-import com.tdtu.logistics_orders_service.repository.OrderGoodRepository;
+import com.tdtu.logistics_orders_service.repository.OrderGoodDetailRepository;
 import com.tdtu.logistics_orders_service.service.OrderGoodDetailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderGoodDetailServiceImpl implements OrderGoodDetailService {
 
-    OrderGoodRepository orderGoodRepository;
+    OrderGoodDetailRepository orderGoodDetailRepository;
 
 
 

@@ -26,8 +26,8 @@ public class SenderController {
     @PostMapping(value = "/create",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<SenderInfResponseDTO> createSender(
-            @RequestBody @Valid CreateSenderRequestDTO createSenderRequestDTO) {
+    public ApiResponse<SenderInfResponseDTO> createSender(@RequestBody @Valid CreateSenderRequestDTO createSenderRequestDTO) {
+
         return ApiResponse.<SenderInfResponseDTO>builder()
                 .code(HttpStatus.CREATED.value())
                 .message("Create sender successfully")
@@ -38,8 +38,7 @@ public class SenderController {
     @PutMapping(value = "/update/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<SenderInfResponseDTO> updateSender(
-            @PathVariable String id,
+    public ApiResponse<SenderInfResponseDTO> updateSender(@PathVariable String id,
             @RequestBody @Valid UpdateSenderRequestDTO updateSenderRequestDTO) {
 
         return ApiResponse.<SenderInfResponseDTO>builder()
@@ -51,6 +50,7 @@ public class SenderController {
 
     @GetMapping(value = "/{id}")
     public ApiResponse<SenderInfResponseDTO> getSenderById(@PathVariable String id) {
+
         return ApiResponse.<SenderInfResponseDTO>builder()
                 .code(HttpStatus.OK.value())
                 .result(senderService.getSenderById(id))
@@ -60,6 +60,7 @@ public class SenderController {
 
     @GetMapping("/email/{email}")
     public ApiResponse<SenderInfResponseDTO> getSenderByEmail(@PathVariable String email) {
+
         return ApiResponse.<SenderInfResponseDTO>builder()
                 .code(HttpStatus.OK.value())
                 .result(senderService.getSenderByEmail(email))
