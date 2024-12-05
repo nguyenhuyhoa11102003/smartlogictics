@@ -26,7 +26,8 @@ public class RecipientController {
     @PostMapping(value = "/create",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<RecipientInfResponseDTO> createRecipient(@RequestBody @Valid CreateRecipientRequestDTO recipientRequestDTO) {
+    public ApiResponse<RecipientInfResponseDTO> createRecipient(
+            @RequestBody @Valid CreateRecipientRequestDTO recipientRequestDTO) {
 
         return ApiResponse.<RecipientInfResponseDTO>builder()
                 .code(HttpStatus.CREATED.value())
@@ -38,7 +39,9 @@ public class RecipientController {
     @PutMapping(value = "/update/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<RecipientInfResponseDTO> updateRecipient(@PathVariable String id, @RequestBody @Valid UpdateRecipientRequestDTO updateRecipientRequestDTO) {
+    public ApiResponse<RecipientInfResponseDTO> updateRecipient(
+            @PathVariable String id,
+            @RequestBody @Valid UpdateRecipientRequestDTO updateRecipientRequestDTO) {
 
         return ApiResponse.<RecipientInfResponseDTO>builder()
                 .code(HttpStatus.OK.value())
@@ -48,7 +51,8 @@ public class RecipientController {
     }
 
     @GetMapping(value = "/{id}")
-    public ApiResponse<RecipientInfResponseDTO> getRecipientById(@PathVariable String id) {
+    public ApiResponse<RecipientInfResponseDTO> getRecipientById(
+            @PathVariable String id) {
 
         return ApiResponse.<RecipientInfResponseDTO>builder()
                 .code(HttpStatus.OK.value())
@@ -58,7 +62,8 @@ public class RecipientController {
     }
 
     @GetMapping(value = "/email/{email}")
-    public ApiResponse<RecipientInfResponseDTO> getRecipientByEmail(@PathVariable String email) {
+    public ApiResponse<RecipientInfResponseDTO> getRecipientByEmail(
+            @PathVariable String email) {
 
         return ApiResponse.<RecipientInfResponseDTO>builder()
                 .code(HttpStatus.OK.value())
@@ -68,7 +73,8 @@ public class RecipientController {
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    public void deleteRecipientById(@PathVariable String id) {
+    public void deleteRecipientById(
+            @PathVariable String id) {
         recipientService.deleteRecipientById(id);
     }
 }

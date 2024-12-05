@@ -25,7 +25,7 @@ public class Recipient extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @NotBlank(message = "Full name is required")
+    @NotBlank(message = "Full name is r equired")
     @Size(max = 50, message = "Full name must not exceed 100 characters")
     @Column(name = "full_name", nullable = false)
     String fullName;
