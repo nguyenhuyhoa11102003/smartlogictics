@@ -1,14 +1,34 @@
 import { useState, useEffect } from 'react';
 import { Label } from "@/components/ui/label";
 import { Checkbox } from './ui/checkbox';
+import { PickupData } from '@/modules/order/models/PickUpData';
 
+interface PickupFormProps {
+    onPickupDataChange: (data: PickupData) => void;
+}
 
-export default function PickupForm() {
+export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
+    const [pickupData, setPickupData] = useState<PickupData>({
+        sender: '',
+        pickupLocation: 'Nhận tại nhà',
+        pickupDate: '',
+        postOfficeId: '',
+        pickupDay: '',
+        timePeriod: '',
+        isPostOfficePickup: false,
+    });
+
     const [pickupDay, setPickupDay] = useState<string>('');
     const [timePeriod, setTimePeriod] = useState<string>('');
     const [currentDate, setCurrentDate] = useState<string>('');
     const [showPostOffices, setShowPostOffices] = useState<boolean>(false);
     const [selectedPostOffice, setSelectedPostOffice] = useState<string>('');
+    const [selectedSender, setSelectedSender] = useState<string>('');
+    const postOffices = [
+        { id: 'post1', name: 'Bưu cục A - 123 Đường ABC' },
+        { id: 'post2', name: 'Bưu cục B - 456 Đường XYZ' },
+        { id: 'post3', name: 'Bưu cục C - 789 Đường 123' },
+    ];
 
     useEffect(() => {
         // Get today's date in format DD/MM/YYYY
@@ -30,11 +50,29 @@ export default function PickupForm() {
         return `${day < 10 ? '0' + day : day}/${month < 10 ? '0' + month : month}/${year}`;
     };
 
-    const postOffices = [
-        { id: 'post1', name: 'Bưu cục A - 123 Đường ABC' },
-        { id: 'post2', name: 'Bưu cục B - 456 Đường XYZ' },
-        { id: 'post3', name: 'Bưu cục C - 789 Đường 123' },
-    ];
+    useEffect(() => {
+        const pickupLocation = showPostOffices
+            ? postOffices.find((p) => p.id === selectedPostOffice)?.name || 'Chưa chọn bưu cục'
+            : 'Nhận tại nhà';
+
+        const pickupDate = pickupDay && timePeriod
+            ? `${pickupDay} - ${timePeriod}`
+            : 'Chưa chọn thời gian';
+
+        const updatedData: PickupData = {
+            sender: selectedSender,
+            pickupLocation,
+            pickupDate,
+            postOfficeId: selectedPostOffice,
+            pickupDay,
+            timePeriod,
+            isPostOfficePickup: showPostOffices,
+        };
+
+        setPickupData(updatedData);
+        onPickupDataChange(updatedData); 
+    }, [showPostOffices, selectedSender, pickupDay, timePeriod, selectedPostOffice]);
+
 
     return (
         <div className="border-2 shadow-lg p-4">
@@ -57,7 +95,12 @@ export default function PickupForm() {
             <form>
                 <div className="mb-4">
                     <Label htmlFor="senderName">Người gửi</Label>
-                    <select id="senderName" className="w-full border rounded p-2">
+                    <select
+                        id="senderName"
+                        className="w-full border rounded p-2"
+                        value={selectedSender}
+                        onChange={(e) => setSelectedSender(e.target.value)}
+                    >
                         <option value="">Chọn người gửi...</option>
                         <option value="Nguyễn Huy Hòa">Nguyễn Huy Hòa - 266/58, Tôn Đản...</option>
                         <option value="Nguyễn Văn A">Nguyễn Văn A - 123 Đường ABC...</option>
@@ -65,7 +108,7 @@ export default function PickupForm() {
                     </select>
                 </div>
 
-                {showPostOffices && (<>
+                {!showPostOffices && (<>
                     <div className="mb-4">
                         <label htmlFor="pickupDay" className="block font-bold mb-2">
                             Chọn ngày nhận
@@ -103,7 +146,7 @@ export default function PickupForm() {
                     </div>
                 </>)}
 
-                {!showPostOffices && (<div className="mb-4">
+                {showPostOffices && (<div className="mb-4">
                     <label htmlFor="postOffice" className="block font-bold mb-2">
                         Chọn bưu cục
                     </label>

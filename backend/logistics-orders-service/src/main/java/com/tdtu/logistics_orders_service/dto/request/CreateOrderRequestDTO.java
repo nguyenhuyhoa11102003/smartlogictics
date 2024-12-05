@@ -1,6 +1,7 @@
 package com.tdtu.logistics_orders_service.dto.request;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
@@ -8,6 +9,7 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateOrderRequestDTO {
     String shipmentCode; // Mã vận đơn
 
