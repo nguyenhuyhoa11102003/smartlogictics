@@ -39,6 +39,15 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
         });
     }
 
+    const handleAddressChange = (update: Address) => {
+        setRecipientData((prevData) => ({
+            ...prevData,
+            ...update,
+        }));
+    };
+
+
+
     const validate = () => {
         const newErrors: { [key in keyof Address]?: string } = {};
 
@@ -66,6 +75,9 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
     useEffect(() => {
         if (validate()) {
             onRecipientDataChange(recipientData);
+        }
+        else {
+            console.log('error validate recipient form')
         }
     }, [recipientData]);
 
@@ -101,21 +113,7 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
                     {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
                 </div>
 
-                {/* Address Line 1 */}
-                <div className="mb-4">
-                    <Label htmlFor="addressLine1">Địa chỉ dòng 1</Label>
-                    <Input
-                        id="addressLine1"
-                        type="text"
-                        placeholder="Nhập địa chỉ dòng 1"
-                        className="w-full"
-                        value={recipientData.addressLine1}
-                        onChange={handleChange}
-                    />
-                    {errors.addressLine1 && <p className="text-red-500 text-sm">{errors.addressLine1}</p>}
-                </div>
-
-                <AddressForm onAddressChange={() => { }} />
+                <AddressForm onAddressChange={handleAddressChange} />
 
                 {/* Zip Code */}
                 <div className="mb-4">

@@ -22,7 +22,7 @@ interface AddressFormProps {
     onAddressChange: (data: Address) => void;
 }
 
-export default function AddressForm({ onAddressChange }: AddressFormProps) {
+export default function AddressForm({  onAddressChange }: AddressFormProps) {
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [districts, setDistricts] = useState<District[]>([]);
     const [wards, setWards] = useState<Ward[]>([]);

@@ -18,6 +18,7 @@ import { useMutation, UseMutationResult } from '@tanstack/react-query';
 import RecipientForm from "@/components/RecipientForm";
 import { PickupData } from "@/modules/order/models/PickUpData";
 import { Address } from "@/modules/address/models/AddressModel";
+import { Product } from "@/modules/catalog/models/Product";
 interface ProductData {
     productName: string;
     productWeight: number;
@@ -55,6 +56,7 @@ export default function Dashboard() {
     const [recipientData, setRecipientData] = useState<Address | null>(null);
     const [productData, setProductData] = useState<ProductData>({ productName: '', productWeight: 0 });
     const [codData, setCodData] = useState<CODData>({ codAmount: 0 });
+    const [isChecked, setIsChecked] = useState<boolean>(false);
 
     // Mutation để gửi dữ liệu đến API
     const mutation = useMutation<ResponseData, Error, FormData>({
@@ -80,32 +82,59 @@ export default function Dashboard() {
 
     const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        if (recipientData) {
-            const formData: FormData = {
-                pickupData,
-                recipientData,
-                productData,
-                codData,
-            };
-            console.log("Form Data Submitted:", formData);
-            mutation.mutate(formData);
-        }
-        else {
-            alert('Error')
+        if (!isChecked) {
+            alert('Vui lòng đồng ý với Điều khoản quy định');
+            return;
         }
 
+        alert(JSON.stringify({
+            pickupData,
+            recipientData,
+            productData,
+            codData,
+        }))
+        
+        // if (!recipientData) {
+        //     alert('Vui lòng điền đầy đủ thông tin người nhận');
+        //     return;
+        // }
+        // const formData: FormData = {
+        //     pickupData,
+        //     recipientData,
+        //     productData,
+        //     codData,
+        // };
+        // alert("Form Data Submitted:", formData);
+        // mutation.mutate(formData);
     }
 
+
+
     const handlePickupDataChange = (data: PickupData) => {
+        console.log(data)
         setPickupData(data);
     };
 
     const handleAddressChange = (address: Address) => {
+        console.log(address)
         setRecipientData((prevData) => ({
             ...prevData,
             ...address,
         }));
     };
+
+    const handleProductChange = (product: Product) => {
+        console.log(product)
+        setProductData((prevData) => ({
+            ...prevData,
+            ...product,
+        }))
+    }
+
+    const handleCheckboxChange = (checked: boolean) => {
+        setIsChecked(checked);
+    };
+
 
     return (
         <div>
@@ -122,7 +151,7 @@ export default function Dashboard() {
                                 <RecipientForm onRecipientDataChange={handleAddressChange} />
                             </div>
                             <div className="p-6">
-                                <ProductForm />
+                                <ProductForm onSubmit={handleProductChange} />
                                 <CODForm />
                             </div>
                         </div>
@@ -135,8 +164,8 @@ export default function Dashboard() {
                                 <div className="flex flex-col items-center  gap-1">
                                     <div className="">
                                         <Checkbox
-                                            checked={true}
-                                        // onCheckedChange={(checked: boolean) => setSaveInfo(checked)}
+                                            checked={isChecked}
+                                            onCheckedChange={handleCheckboxChange}
                                         />
                                         <Label className="ml-2">Tôi đã đọc và đồng ý với Điều khoản quy định</Label>
                                     </div>
