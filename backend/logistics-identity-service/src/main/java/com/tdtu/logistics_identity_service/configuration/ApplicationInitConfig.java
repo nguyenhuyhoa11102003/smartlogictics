@@ -1,9 +1,8 @@
 package com.tdtu.logistics_identity_service.configuration;
 
-
 import com.tdtu.logistics_identity_service.constant.PredefinedRole;
+import com.tdtu.logistics_identity_service.entity.Account;
 import com.tdtu.logistics_identity_service.entity.Role;
-import com.tdtu.logistics_identity_service.entity.UserAccount;
 import com.tdtu.logistics_identity_service.repository.RoleRepository;
 import com.tdtu.logistics_identity_service.repository.UserAccountRepository;
 import lombok.AccessLevel;
@@ -24,6 +23,7 @@ import java.util.HashSet;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ApplicationInitConfig {
+
     PasswordEncoder passwordEncoder;
 
     @NonFinal
@@ -33,10 +33,6 @@ public class ApplicationInitConfig {
     static final String ADMIN_PASSWORD = "admin";
 
     @Bean
-    @ConditionalOnProperty(
-            prefix = "spring.datasource",
-            value = "driver-class-name",
-            havingValue = "org.postgresql.Driver")
     ApplicationRunner applicationRunner(UserAccountRepository userAccountRepository, RoleRepository roleRepository) {
         log.info("Initializing application.....");
 
@@ -55,16 +51,16 @@ public class ApplicationInitConfig {
                 var roles = new HashSet<Role>();
                 roles.add(adminRole);
 
-                UserAccount account = UserAccount.builder()
+                Account account = Account.builder()
                         .username(ADMIN_USER_NAME)
                         .password(passwordEncoder.encode(ADMIN_PASSWORD))
                         .roles(roles)
                         .build();
 
                 userAccountRepository.save(account);
-                log.warn("admin user has been created with default password: admin, please change it");
+                log.warn("Admin user has been created with default password: '{}', please change it", ADMIN_PASSWORD);
             }
-            log.info("Application initialization completed .....");
+            log.info("Application initialization completed.");
         };
     }
 }

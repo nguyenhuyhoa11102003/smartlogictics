@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class InvalidatedToken extends BaseEntity{
+public class InvalidatedToken {
     @Id
     String id;
 
