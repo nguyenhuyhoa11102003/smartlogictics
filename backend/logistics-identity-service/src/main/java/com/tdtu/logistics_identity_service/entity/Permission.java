@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class Permission extends BaseEntity {
+public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
