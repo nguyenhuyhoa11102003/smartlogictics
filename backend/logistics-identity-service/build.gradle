@@ -40,7 +40,7 @@ dependencies {
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final' // Thêm MapStruct
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign' // Thêm OpenFeign
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0' // Thêm SpringDoc
-	implementation 'org.postgresql:postgresql' // Thêm PostgreSQL
+	runtimeOnly 'com.mysql:mysql-connector-j' // Thay PostgreSQL bằng MySQL
 
 	// Spring Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
