@@ -13,7 +13,7 @@ import com.tdtu.logistics_identity_service.dto.request.RefreshTokenRequest;
 import com.tdtu.logistics_identity_service.dto.response.AuthenticationResponseDTO;
 import com.tdtu.logistics_identity_service.dto.response.IntrospectTokenResponseDTO;
 import com.tdtu.logistics_identity_service.entity.InvalidatedToken;
-import com.tdtu.logistics_identity_service.entity.UserAccount;
+import com.tdtu.logistics_identity_service.entity.Account;
 import com.tdtu.logistics_identity_service.exception.ErrorCode;
 import com.tdtu.logistics_identity_service.exception.AppException;
 import com.tdtu.logistics_identity_service.repository.InvalidTokenRepository;
@@ -67,7 +67,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         log.info("Authenticating user: {}", request.getUsername());
 
-        UserAccount account = userAccountRepository
+        Account account = userAccountRepository
                 .findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -130,7 +130,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     }
 
-    private String generateRefreshToken(UserAccount userAccount) {
+    private String generateRefreshToken(Account userAccount) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .issuer(ISSUER)
@@ -171,7 +171,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-    private String generateToken(UserAccount account) {
+    private String generateToken(Account account) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
@@ -230,7 +230,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-    private String buildScope(UserAccount account) {
+    private String buildScope(Account account) {
         StringJoiner stringJoiner = new StringJoiner(" ");
 
         if (!CollectionUtils.isEmpty(account.getRoles()))

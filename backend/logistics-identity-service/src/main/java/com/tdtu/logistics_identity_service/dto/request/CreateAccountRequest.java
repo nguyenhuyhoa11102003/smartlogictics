@@ -1,13 +1,13 @@
 package com.tdtu.logistics_identity_service.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tdtu.logistics_identity_service.entity.Role;
 import com.tdtu.logistics_identity_service.enumrator.Gender;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.context.annotation.Role;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -26,8 +26,6 @@ public class CreateAccountRequest {
     @NotNull
     @Size(min = 8, max = 50, message = "invalid_password")
     String password;
-
-    String profileId;
 
     @NotNull
     String fullName;
