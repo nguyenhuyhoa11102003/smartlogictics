@@ -1,8 +1,6 @@
 package com.tdtu.logistics_users_service.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,7 +10,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "customers")
 public class Customer extends User {
 
-    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String customerCode; // Mã khách hàng định danh.
 
     @Column

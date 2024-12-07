@@ -34,18 +34,18 @@ public class ReceiverServiceImpl implements ReceiverService {
     public ReceiverInfResponse createReceiver(CreateReceiverRequest createReceiverRequest) {
         log.info("Logistics-Users-Service -> Receiver-Service -> Create-Receiver: Create receiver: {}", createReceiverRequest.getFullName());
 
+        //Fix add customer id
+
         Receiver receiver = receiverMapper.toReceiver(createReceiverRequest);
 
         return receiverMapper.toReceiverInfResponse(receiverRepository.save(receiver));
     }
 
-
-
     @Override
     public ReceiverInfResponse getReceiverById(String id) {
         log.info("Logistics-Users-Service -> Receiver-Service -> Get-Receiver-By-ID: Get receiver by id: {}", id);
 
-        Receiver receiver = receiverRepository.findById(id).orElseThrow(() -> {
+        Receiver receiver = receiverRepository.findById(UUID.fromString(id)).orElseThrow(() -> {
                     log.error("Logistics-Users-Service -> Receiver-Service -> Get-Receiver: Receiver not found with id: {}", id);
                     return new AppException(ErrorCode.RECEIVER_NOT_EXISTED);}
             );
@@ -62,11 +62,12 @@ public class ReceiverServiceImpl implements ReceiverService {
         return receivers.stream().map(receiverMapper::toReceiverInfResponse).toList();
     }
 
+    @Transactional
     @Override
     public ReceiverInfResponse updateReceiver(String id, UpdateReceiverRequest updateReceiverRequest) {
         log.info("Logistics-Users-Service -> Receiver-Service -> Update-Receiver-By-ID: Update receiver with id: {}", id);
 
-        if (receiverRepository.existsById(id)) {
+        if (receiverRepository.existsById(UUID.fromString(id))) {
             Receiver receiver = receiverMapper.toReceiver(updateReceiverRequest);
             receiver.setId(UUID.fromString(id));
 

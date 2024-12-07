@@ -21,6 +21,7 @@ public enum ErrorCode {
     INVALID_REQUEST(400, "invalid_request", HttpStatus.BAD_REQUEST),
 
     RECEIVER_NOT_EXISTED(404, "receiver_not_existed", HttpStatus.NOT_FOUND),
+    CUSTOMER_NOT_EXISTED(404, "customer_not_existed", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int statusCode, String message, HttpStatus httpStatus) {
