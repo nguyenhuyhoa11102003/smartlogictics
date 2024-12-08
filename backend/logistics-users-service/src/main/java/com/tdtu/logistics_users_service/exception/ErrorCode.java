@@ -22,6 +22,10 @@ public enum ErrorCode {
 
     RECEIVER_NOT_EXISTED(404, "receiver_not_existed", HttpStatus.NOT_FOUND),
     CUSTOMER_NOT_EXISTED(404, "customer_not_existed", HttpStatus.NOT_FOUND),
+
+    ADDRESS_NOT_EXISTED(404, "address_not_existed", HttpStatus.NOT_FOUND),
+
+    SHIPPER_NOT_EXISTED(404, "shipper_not_existed", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int statusCode, String message, HttpStatus httpStatus) {

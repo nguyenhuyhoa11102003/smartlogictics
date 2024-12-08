@@ -1,5 +1,6 @@
 package com.tdtu.logistics_users_service.entity;
 
+import com.tdtu.logistics_users_service.enumrators.StaffPosition;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,7 +21,7 @@ public class Staff extends User {
     private Department department; // Phòng ban.
 
     @Column(nullable = false)
-    private String position; // Vị trí công việc (VD: Manager, Employee).
+    private StaffPosition position; // Vị trí công việc (VD: Manager, Employee).
 
     @Column(nullable = false)
     private LocalDate startDate; // Ngày bắt đầu làm việc.
