@@ -7,16 +7,15 @@ import requests
 
 from config import HERE_API_KEY
 from models import LocationRequest, PredictionRequest, RouteResponse
-from services import get_distance
-
 app = FastAPI()
+
 
 
 
 model = joblib.load('random_forest_model.pkl')
 
 
-@app.post("/predict/estimate")
+@app.post("/delivery/predict/estimate")
 async def predict(request: PredictionRequest):
     try:
         data = np.array([[request.serviceType, request.weight, request.shippingDistance]])
@@ -25,13 +24,13 @@ async def predict(request: PredictionRequest):
 
     except Exception as e:
         return {"error": str(e)}
-
-@app.get("/routes")
+    
+@app.get("/delivery/routes")
 async def get_routes(
     origin: str,
     destination: str,
     return_summary: str = "summary",
-    transportMode: str = "car",
+    transport_mode: str = "car",
 ):
     try:
         # Parse the origin and destination coordinates from the query string
@@ -41,7 +40,7 @@ async def get_routes(
         # URL for the GET request to HERE API
         url = "https://router.hereapi.com/v8/routes"
         params = {
-            "transportMode": transportMode,
+            "transportMode": transport_mode,
             "origin": f"{origin_lat},{origin_lng}",
             "destination": f"{destination_lat},{destination_lng}",
             "return": return_summary,
@@ -71,7 +70,7 @@ async def get_routes(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/geocode")
+@app.get("/delivery/geocode")
 async def geocode_address(address : str):
     try:
         url = "https://geocode.search.hereapi.com/v1/geocode"
