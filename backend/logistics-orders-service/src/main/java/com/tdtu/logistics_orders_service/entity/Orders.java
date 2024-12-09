@@ -1,10 +1,12 @@
 package com.tdtu.logistics_orders_service.entity;
 
+import com.tdtu.logistics_orders_service.enumrator.DeliveryServiceType;
+import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
+import com.tdtu.logistics_orders_service.enumrator.ReceivingMethod;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
 
 @Getter
 @Setter
@@ -19,7 +21,10 @@ public class Orders extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
+    String id; // UUID của đơn hàng
+
+    @Enumerated(EnumType.STRING)
+    OrderStatus status; // Trạng thái đơn hàng
 
     @Column(name = "shipment_code", unique = true, length = 13)
     String shipmentCode; // Mã vận đơn
@@ -28,32 +33,52 @@ public class Orders extends BaseEntity {
     String note; // Ghi chú
 
     @Column(name = "more_require")
-    String moreRequire; // Mô tả
+    String moreRequire; // Yêu cầu bổ sung
 
     @Column(name = "order_code")
-    String orderCode; // Mã vận đơn
+    String orderCode; // Mã đơn hàng bán
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipient_id", referencedColumnName = "id", nullable = false)
-    Recipient recipient; // Liên kết đến người nhận
+    @Column(name = "recipient_id")
+    String recipientId; // Liên kết đến người nhận
 
-    @ManyToOne
-    @JoinColumn(name = "sender_id", referencedColumnName = "id", nullable = false)
-    Sender sender; // Liên kết đến người gửi
+    @Column(name = "sender_id")
+    String senderId; // Liên kết đến người gửi
 
-    @ManyToOne
-    @JoinColumn(name = "status_id", referencedColumnName = "id", nullable = false)
-    OrderStatus status;
+    @Column(name = "branch_code")
+    String branchCode; // Mã chi nhánh warehouse
 
-    @ManyToOne
-    @JoinColumn(name = "shipper_id", referencedColumnName = "id")
-    Shipper shipper; // Liên kết đến shipper
+    @Enumerated(EnumType.STRING)
+    @Column(name = "service_code")
+    DeliveryServiceType serviceCode; // Mã dịch vụ giao hàng
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    List<OrderGoodDetail> orderGoodDetails; // Liên kết danh sách OrderGoodDetail
+    @Enumerated(EnumType.STRING)
+    @Column(name = "receiving_method")
+    ReceivingMethod receivingMethod; // Phương thức nhận hàng
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id", referencedColumnName = "id", nullable = false)
-    Payment payment; // Liên kết với Payment
+    @Column(name = "vehicle")
+    String vehicle; // Loại phương tiện vận chuyển
+
+    @Column(name = "is_broken")
+    boolean isBroken; // Hàng hóa có bị hư hỏng không
+
+    @Column(name = "delivery_time")
+    String deliveryTime; // Thời gian giao hàng dự kiến
+
+    @Column(name = "delivery_require")
+    String deliveryRequire; // Yêu cầu giao hàng
+
+    @Column(name = "delivery_instruction")
+    String deliveryInstruction; // Hướng dẫn giao hàng
+
+    @Column(name = "weight")
+    String weight; // Trọng lượng đơn vị hàng (gram)
+
+    @Column(name = "width")
+    String width; // Chiều rộng của hàng hóa
+
+    @Column(name = "length")
+    String length; // Chiều dài của hàng hóa
+
+    @Column(name = "height")
+    String height; // Chiều cao của hàng hóa
 }

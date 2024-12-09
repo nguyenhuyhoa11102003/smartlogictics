@@ -1,62 +1,82 @@
 package com.tdtu.logistics_orders_service.service.implement;
 
-import com.tdtu.logistics_orders_service.dto.request.CreateOrderRequestDTO;
+import com.tdtu.logistics_orders_service.dto.request.CreateOrderRequest;
 import com.tdtu.logistics_orders_service.dto.response.OrderInfResponse;
 import com.tdtu.logistics_orders_service.entity.Orders;
-import com.tdtu.logistics_orders_service.entity.Payment;
-import com.tdtu.logistics_orders_service.entity.Recipient;
-import com.tdtu.logistics_orders_service.entity.Sender;
+import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
+import com.tdtu.logistics_orders_service.exception.AppException;
+import com.tdtu.logistics_orders_service.exception.ErrorCode;
+import com.tdtu.logistics_orders_service.mapper.OrderMapper;
 import com.tdtu.logistics_orders_service.mapper.PaymentMapper;
-import com.tdtu.logistics_orders_service.mapper.RecipientMapper;
-import com.tdtu.logistics_orders_service.mapper.SenderMapper;
 import com.tdtu.logistics_orders_service.repository.OrdersRepository;
-import com.tdtu.logistics_orders_service.repository.ShipperRepository;
 import com.tdtu.logistics_orders_service.service.*;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.query.Order;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrdersServiceImpl implements OrdersService {
 
-	RecipientService recipientService;
+    final OrdersRepository ordersRepository;
 
-	SenderService senderService;
+    final OrderMapper orderMapper;
 
-	PaymentService paymentService;
+    @Transactional
+    @Override
+    public OrderInfResponse createOrder(CreateOrderRequest requestDTO) {
+        log.info("Logistic-Order-Service: Order-Service: Method-Create-order: {}", requestDTO);
 
-	OrdersRepository ordersRepository;
+        Orders orders = orderMapper.toEntity(requestDTO.getInformationOrder());
+        orders.setStatus(requestDTO.getOrderCreationStatus());
 
-	SenderMapper senderMapper;
+        return orderMapper.toOrderInfResponse(ordersRepository.save(orders));
+    }
 
-	RecipientMapper recipientMapper;
+    @Transactional
+    @Override
+    public OrderInfResponse updateOrderStatus(String orderId, OrderStatus orderStatus) {
+        log.info("Logistic-Order-Service: Order-Service: Method-Update-order-status: {}", orderId);
 
-	PaymentMapper paymentMapper;
+        if (ordersRepository.existsById(orderId)) {
 
-	@Override
-	public Orders createOrder(CreateOrderRequestDTO createOrderRequestDTO) {
+            ordersRepository.updateOrderStatusById(orderId, orderStatus);
+            Orders orders = ordersRepository.findByOrderId(orderId);
 
-		Sender sender = senderMapper.toSender(createOrderRequestDTO.getSender());
-		Recipient recipient = recipientMapper.toRecipient(createOrderRequestDTO.getRecipient());
-		Payment payment = paymentMapper.toPayment(createOrderRequestDTO.getPayment());
+            log.info("Logistic-Order-Service: Order-Service: Method-Update-order-status: {}", orders);
+            return orderMapper.toOrderInfResponse(ordersRepository.save(orders));
+        } else {
+            throw new AppException(ErrorCode.ORDER_NOT_FOUND);
+        }
+    }
 
-		Orders orders = Orders.builder()
-				.shipmentCode(createOrderRequestDTO.getShipmentCode())
-				.note(createOrderRequestDTO.getNote())
-				.moreRequire(createOrderRequestDTO.getMoreRequire())
-				.orderCode(createOrderRequestDTO.getOrderCode())
-				.recipient(recipient)
-				.sender(sender)
-//				.status(createOrderRequestDTO.getStatusId())
-//				.shipperId(createOrderRequestDTO.getShipperId())
-				.payment(payment)
-				.build();
+    @Override
+    public OrderInfResponse getOrderById(String orderId) {
+        log.info("Logistic-Order-Service: Order-Service: Method-Get-order-by-id: {}", orderId);
 
-		return ordersRepository.save(orders);
-	}
+        Orders orders = ordersRepository.findById(orderId).orElseThrow(() -> {
+            log.error("Logistic-Order-Service: Order-Service: Method-Get-order-by-id: Order not");
+
+            return new AppException(ErrorCode.ORDER_NOT_FOUND);
+        });
+
+        return orderMapper.toOrderInfResponse(orders);
+    }
+
+    @Override
+    public List<OrderInfResponse> getOrderBySenderIdAndStatus(String senderId, OrderStatus status) {
+        log.info("Logistic-Order-Service: Order-Service: Method-Get-order-by-sender-id-and-status: {}", senderId);
+
+        List<Orders> orders = ordersRepository.findBySenderIdAndStatus(senderId, status);
+
+        return orders.stream().map(orderMapper::toOrderInfResponse).toList();
+    }
 }

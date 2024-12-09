@@ -29,5 +29,6 @@ public class OrderGoodDetail {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     @ToString.Exclude
-    Orders order; // Quan hệ với Orders
+    Orders order; // Quan hệ với đơn hàng, mỗi chi tiết đơn hàng thuộc một đơn hàng
+
 }
