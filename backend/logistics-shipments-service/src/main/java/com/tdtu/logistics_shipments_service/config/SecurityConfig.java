@@ -1,4 +1,4 @@
-package com.tdtu.logistics_inventory_service.config;//package com.tdtu.logistics_goods_service.config;
+package com.tdtu.logistics_warehouse_service.config;//package com.tdtu.logistics_goods_service.config;
 //
 //import org.springframework.context.annotation.Bean;
 //import org.springframework.context.annotation.Configuration;
