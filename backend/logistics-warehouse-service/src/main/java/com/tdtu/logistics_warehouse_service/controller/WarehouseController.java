@@ -39,8 +39,8 @@ public class WarehouseController {
 				.build();
 	}
 
-	@PostMapping(
-			value = "/update",
+	@PutMapping(
+			value = "/update/{id}",
 			consumes = "application/json",
 			produces = "application/json")
 	public ApiResponse<WarehouseInfResponse> updateWarehouse(

@@ -36,7 +36,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA for database operations
 	implementation 'org.springframework.boot:spring-boot-starter-validation' // Validation support for Java beans
 	implementation 'org.springframework.boot:spring-boot-starter-web' // Web support for REST APIs
-//	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server' // OAuth2 resource server support
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server' // OAuth2 resource server support
 	implementation 'org.springframework.boot:spring-boot-starter-actuator' // Spring Boot actuator for monitoring and management
 
 	// JSON support

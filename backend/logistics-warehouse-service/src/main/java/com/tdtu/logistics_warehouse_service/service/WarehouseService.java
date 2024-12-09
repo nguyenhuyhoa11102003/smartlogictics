@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface WarehouseService {
 
-
 	WarehouseInfResponse createWarehouse(CreateWarehouseRequest createWarehouseRequest);
 
 	Optional<WarehouseInfResponse> getWareHouseById(Long id);
