@@ -15,7 +15,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -40,24 +39,30 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerInfResponse updateCustomer(String id, UpdateCustomerRequest customerRequest) {
         log.info("Logistics-Users-Service -> Customer-Service -> Update-Customer: Update customer: {}", id);
 
-        if (customerRepository.existsById(UUID.fromString(id))) {
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> {
+                    log.error("Logistics-Users-Service -> Customer-Service -> Update-Customer: Customer not found with id: {}", id);
+                    return new AppException(ErrorCode.CUSTOMER_NOT_EXISTED);}
+            );
 
-            Customer customer = customerMapper.toCustomer(customerRequest);
-            customer.setId(UUID.fromString(id));
+        return customerMapper.toCustomerInfResponse(customerRepository.save(updateCustomerFromRequest(customer, customerRequest)));
+    }
 
-            return customerMapper.toCustomerInfResponse(customerRepository.save(customer));
-        } else {
-            log.error("Logistics-Users-Service -> Customer-Service -> Update-Customer: Customer not found with id: {}", id);
+    private Customer updateCustomerFromRequest(Customer customer, UpdateCustomerRequest customerRequest) {
 
-            throw new AppException(ErrorCode.CUSTOMER_NOT_EXISTED);
-        }
+        customer.setPhoneNumber(customerRequest.getPhoneNumber());
+        customer.setFullName(customerRequest.getFullName());
+
+        customer.setDateOfBirth(customerRequest.getDateOfBirth());
+        customer.setGender(customerRequest.getGender());
+
+        return customer;
     }
 
     @Override
     public CustomerInfResponse getCustomerById(String id) {
         log.info("Logistics-Users-Service -> Customer-Service -> Get-Customer-By-ID: Get customer by id: {}", id);
 
-        Customer customer = customerRepository.findById(UUID.fromString(id)).orElseThrow(() -> {
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> {
                     log.error("Logistics-Users-Service -> Customer-Service -> Get-Customer: Customer not found with id: {}", id);
                     return new AppException(ErrorCode.CUSTOMER_NOT_EXISTED);}
             );

@@ -3,7 +3,6 @@ package com.tdtu.logistics_users_service.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.UUID;
 
 @Data
 @Entity
@@ -11,8 +10,8 @@ import java.util.UUID;
 public class Receiver {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)

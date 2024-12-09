@@ -10,7 +10,6 @@ import lombok.EqualsAndHashCode;
 @Table(name = "customers")
 public class Customer extends User {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String customerCode; // Mã khách hàng định danh.
 
     @Column

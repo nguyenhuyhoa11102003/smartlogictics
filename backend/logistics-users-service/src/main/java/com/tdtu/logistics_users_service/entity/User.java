@@ -11,7 +11,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(of = "id")
@@ -22,8 +21,8 @@ import java.util.UUID;
 public abstract class User {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(nullable = false, unique = true)
     private String email;

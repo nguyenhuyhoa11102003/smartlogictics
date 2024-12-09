@@ -31,7 +31,7 @@ public class ShipperServiceImpl implements ShipperService {
     public ShipperInfResponse getShipperInfById(String id) {
         log.info("Logistics-Users-Service -> Shipper-Service -> Get-Shipper-By-ID: Get shipper by id: {}", id);
 
-        Shipper shipper = shipperRepository.findById(UUID.fromString(id)).orElseThrow(
+        Shipper shipper = shipperRepository.findById(id).orElseThrow(
                 () -> {
                     log.error("Logistics-Users-Service -> Shipper-Service -> Get-Shipper: Shipper not found with id: {}", id);
                     return new AppException(ErrorCode.SHIPPER_NOT_EXISTED);

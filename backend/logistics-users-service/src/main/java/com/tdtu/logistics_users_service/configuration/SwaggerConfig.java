@@ -17,9 +17,9 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("Logistics Identity Service API")
+                        .title("Logistics User Service API")
                         .version("1.0")
-                        .description("Logistics Identity Service API"))
+                        .description("Logistics User Service API"))
                 .addSecurityItem(new SecurityRequirement().addList("bearer-jwt"))
                 .components(new Components().addSecuritySchemes("bearer-jwt",
                         new SecurityScheme()
