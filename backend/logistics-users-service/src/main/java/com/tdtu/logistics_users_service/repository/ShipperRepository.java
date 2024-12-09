@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ShipperRepository extends JpaRepository<Shipper, UUID> {
+public interface ShipperRepository extends JpaRepository<Shipper, String> {
 
     Optional<Shipper> findByEmployeeCode(String employeeCode);
 

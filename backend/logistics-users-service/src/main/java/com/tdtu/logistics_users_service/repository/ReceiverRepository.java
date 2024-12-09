@@ -5,11 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.UUID;
 
 @Repository
-public interface ReceiverRepository extends JpaRepository<Receiver, UUID> {
+public interface ReceiverRepository extends JpaRepository<Receiver, String> {
 
-    List<Receiver> findByCustomer(String customerId);
+    List<Receiver> findReceiverByCustomer_Id(String customerId);
 
 }

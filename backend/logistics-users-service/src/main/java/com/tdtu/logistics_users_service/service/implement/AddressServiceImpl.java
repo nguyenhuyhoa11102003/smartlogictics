@@ -43,7 +43,7 @@ public class AddressServiceImpl implements AddressService {
     public AddressInfResponse updateAddress(String userId, UpdateAddressRequest updateAddressRequest) {
         log.info("Logistics-Users-Service -> Address-Service -> Update-Address: Update address: {}", userId);
 
-        Address address = addressRepository.findByUserId(UUID.fromString(userId)).orElseThrow(() -> {
+        Address address = addressRepository.findByUserId(userId).orElseThrow(() -> {
                     log.error("Logistics-Users-Service -> Address-Service -> Update-Address: Address not found with user id: {}", userId);
                     return new AppException(ErrorCode.ADDRESS_NOT_EXISTED);
                 }
@@ -56,7 +56,7 @@ public class AddressServiceImpl implements AddressService {
     public AddressInfResponse getAddressByUserId(String userId) {
         log.info("Logistics-Users-Service -> Address-Service -> Get-Address-By-User-ID: Get address by user id: {}", userId);
 
-        Address address = addressRepository.findByUserId(UUID.fromString(userId)).orElseThrow(() -> {
+        Address address = addressRepository.findByUserId(userId).orElseThrow(() -> {
                     log.error("Logistics-Users-Service -> Address-Service -> Get-Address: Address not found with user id: {}", userId);
                     return new AppException(ErrorCode.ADDRESS_NOT_EXISTED);
                 }

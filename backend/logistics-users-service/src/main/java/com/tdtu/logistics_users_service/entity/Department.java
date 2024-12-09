@@ -4,7 +4,6 @@ import com.tdtu.logistics_users_service.enumrators.DepartmentType;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.UUID;
 
 @Data
 @Entity
@@ -12,8 +11,8 @@ import java.util.UUID;
 public class Department {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(nullable = false)
     private String name; // Tên phòng ban/chi nhánh.

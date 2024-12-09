@@ -1,7 +1,10 @@
 package com.tdtu.logistics_users_service.dto.response;
 
+import lombok.Data;
+
 import java.util.UUID;
 
+@Data
 public class ReceiverInfResponse {
     UUID id; // ID của người nhận (tự sinh).
 
