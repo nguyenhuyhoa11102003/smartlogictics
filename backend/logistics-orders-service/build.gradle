@@ -29,6 +29,9 @@ ext {
 }
 
 dependencies {
+
+	implementation project(':common')
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -44,7 +47,10 @@ dependencies {
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final' // Thêm MapStruct
-	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign' // Thêm OpenFeign
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation 'com.squareup.okhttp3:okhttp'
+	// Thêm OpenFeign
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0' // Thêm SpringDoc
 	runtimeOnly 'com.mysql:mysql-connector-j' // Thay PostgreSQL bằng MySQL
 

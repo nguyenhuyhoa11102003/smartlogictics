@@ -10,7 +10,7 @@ public interface OrdersService {
 
 	OrderInfResponse createOrder(CreateOrderRequest requestDTO);
 
-	OrderInfResponse updateOrderStatus(String orderId, OrderStatus orderStatus);
+	boolean updateOrderStatus(String branchCode, String orderId, OrderStatus orderStatus);
 
 	OrderInfResponse getOrderById(String orderId);
 

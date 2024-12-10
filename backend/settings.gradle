@@ -1,4 +1,5 @@
 rootProject.name = 'smartlogistics'
+
 include 'logistics-goods-service',
         'logistics-identity-service',
         'common',

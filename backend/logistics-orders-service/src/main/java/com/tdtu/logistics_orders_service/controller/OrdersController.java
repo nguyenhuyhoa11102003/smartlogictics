@@ -3,7 +3,6 @@ package com.tdtu.logistics_orders_service.controller;
 import com.tdtu.logistics_orders_service.dto.request.CreateOrderRequest;
 import com.tdtu.logistics_orders_service.dto.response.ApiResponse;
 import com.tdtu.logistics_orders_service.dto.response.OrderInfResponse;
-import com.tdtu.logistics_orders_service.entity.Orders;
 import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
 import com.tdtu.logistics_orders_service.service.OrdersService;
 import jakarta.validation.Valid;
@@ -38,14 +37,19 @@ public class OrdersController {
 				.build();
 	}
 
-	@PutMapping(value = "/update-status/{orderId}",
+	@PutMapping(value = "/{branchCode}/update-status/{orderId}",
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ApiResponse<OrderInfResponse> updateOrderStatus(@PathVariable String orderId, @RequestParam OrderStatus orderStatus) {
+	public ApiResponse<OrderInfResponse> updateOrderStatus(
+			@PathVariable String branchCode,
+			@PathVariable String orderId,
+			@RequestParam OrderStatus orderStatus) {
+
+		String message = ordersService.updateOrderStatus(branchCode, orderId, orderStatus) ?
+				"Update order status successfully" : "Update order status failed";
 
 		return ApiResponse.<OrderInfResponse>builder()
 				.code(HttpStatus.OK.value())
-				.message("Update order status successfully")
-				.result(ordersService.updateOrderStatus(orderId, orderStatus))
+				.message(message)
 				.build();
 	}
 
