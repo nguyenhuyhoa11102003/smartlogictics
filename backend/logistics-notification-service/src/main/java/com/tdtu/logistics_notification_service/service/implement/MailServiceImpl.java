@@ -66,7 +66,6 @@ public class MailServiceImpl implements MailService {
         }
     }
 
-
     @Override
     public MailResponse sentNotification(MailClientRequest request) {
         try {
@@ -90,7 +89,7 @@ public class MailServiceImpl implements MailService {
                     .to(List.of(Recipient.builder()
                             .email(mailUpdateOrderStatus.getTo())
                             .build()))
-                    .htmlContent(mailUpdateOrderStatus.getHtmlContent()) // Sử dụng HTML content
+                    .htmlContent(mailUpdateOrderStatus.getHtmlContent()) // Đặt nội dung HTML
                     .build();
 
             log.info("Sending update order status email to: {}", mailUpdateOrderStatus.getTo());

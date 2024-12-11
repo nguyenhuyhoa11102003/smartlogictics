@@ -26,7 +26,7 @@ public class InformationOrderDTO {
 //    private String senderCommuneName; // Tên xã/phường của người gửi
 
     // Thông tin người nhận
-    private String receiverId; // Tên người nhận
+    private String recipientId; // Tên người nhận
 
 //    private String receiverAddress; // Địa chỉ người nhận
 //    private String receiverProvinceCode; // Mã tỉnh/thành phố của người nhận

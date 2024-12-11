@@ -1,6 +1,7 @@
 package com.tdtu.logistics_orders_service.service.implement;
 
-import com.tdtu.common.user_service.dto.AddressInfResponse;
+import com.tdtu.common.constant.KafkaTopic;
+import com.tdtu.common.dto.MailUpdateOrderStatus;
 import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import com.tdtu.common.user_service.dto.ReceiverInfResponse;
 import com.tdtu.logistics_orders_service.dto.request.CreateOrderRequest;
@@ -19,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,6 +37,8 @@ public class OrdersServiceImpl implements OrdersService {
 
     final UserServiceClient userServiceClient;
 
+    final KafkaTemplate<String, Object> kafkaTemplate;
+
     @Transactional
     @Override
     public OrderInfResponse createOrder(CreateOrderRequest requestDTO) {
@@ -42,6 +46,14 @@ public class OrdersServiceImpl implements OrdersService {
 
         Orders orders = orderMapper.toEntity(requestDTO.getInformationOrder());
         orders.setStatus(requestDTO.getOrderCreationStatus());
+
+        CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
+        MailUpdateOrderStatus mailUpdateOrderStatus = MailUpdateOrderStatus.builder()
+                .to(customerInfResponse.getEmail())
+                .subject("Dear"+ customerInfResponse.getFullName() +"Your order have bean status update: "+orders.getOrderCode())
+                .build();
+
+        kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
 
         return orderMapper.toOrderInfResponse(ordersRepository.save(orders));
     }
@@ -57,8 +69,30 @@ public class OrdersServiceImpl implements OrdersService {
                 }
         );
 
-        if (OrderStatusValidator.isValid(orders.getStatus())) {
-            orderMapper.toOrderInfResponse(ordersRepository.save(orders));
+        log.error("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order status: {}", orders.getStatus());
+
+        if (!OrderStatusValidator.inValid(orders.getStatus())) {
+
+            ordersRepository.updateOrderStatusById(branchCode, orderId, orderStatus);
+
+            // Send message to notification service
+            CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
+            MailUpdateOrderStatus mailUpdateOrderStatus = MailUpdateOrderStatus.builder()
+                    .to(customerInfResponse.getEmail())
+                    .subject("Dear "+ customerInfResponse.getFullName() +" Your order id:" + orders.getId() + " have bean status update: "+orderStatus)
+                    .build();
+
+            kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
+
+            ReceiverInfResponse receiverInfResponse = userServiceClient.getReceiverById(orders.getRecipientId()).getResult();
+            MailUpdateOrderStatus mailUpdateOrderStatusReceiver = MailUpdateOrderStatus.builder()
+                    .to(receiverInfResponse.getEmail())
+                    .subject("Dear"+ receiverInfResponse.getFullName() +"Your order have bean status update: "+orders.getOrderCode())
+                    .build();
+            kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatusReceiver);
+
+            log.info("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order status updated have been sent to notification service");
+
             return true;
         } else {
             throw new AppException(ErrorCode.ORDER_STATUS_NOT_VALID);

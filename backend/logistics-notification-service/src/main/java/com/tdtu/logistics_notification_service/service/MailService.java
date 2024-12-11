@@ -13,4 +13,5 @@ public interface MailService {
     MailResponse sentNotification(MailClientRequest mailRequest);
 
     MailResponse sentUpdateOrderStatus(MailUpdateOrderStatus mailUpdateOrderStatus);
+
 }
