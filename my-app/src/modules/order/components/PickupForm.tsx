@@ -3,7 +3,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from '@/components/ui/checkbox';
 import { PickupData } from '@/modules/order/models/PickUpData';
 import { Warehouse } from '@/modules/warehouse/models/Warehouse';
-import { Warehouse } from 'lucide-react';
 import { getAllWarehouses } from '@/modules/warehouse/services/WarehouseService';
 import { error } from 'console';
 
@@ -51,7 +50,10 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
         const fetchWarehouses = async () => {
             getAllWarehouses()
                 .then((data) => setWarehouses(data))
-                .catch((error) => { console.error('Error fetching warehouses:', error); })
+                .catch((error) => {
+                    setWarehouses([])
+                    console.error('Error fetching warehouses:', error);
+                })
         };
         fetchWarehouses();
     }, []);
