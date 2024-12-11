@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MailController {
+
     MailService mailService;
 
 

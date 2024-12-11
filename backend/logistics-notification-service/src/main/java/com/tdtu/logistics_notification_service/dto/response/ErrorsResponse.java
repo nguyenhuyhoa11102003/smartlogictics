@@ -1,6 +1,5 @@
 package com.tdtu.logistics_notification_service.dto.response;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

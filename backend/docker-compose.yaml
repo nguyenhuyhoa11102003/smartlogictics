@@ -2,7 +2,7 @@ services:
 
   kafka:
     image: 'bitnami/kafka:3.7.0'
-    container_name: kafka
+    container_name: kafka-logistics
     hostname: kafka
     ports:
       - '9094:9094'
@@ -17,7 +17,7 @@ services:
 
   redis-cache:
     image: redis:7.0-alpine
-    container_name: redis-cache
+    container_name: redis-cache-logistics
     ports:
       - "6379:6379"           # Expose Redis on localhost
     volumes:
@@ -25,7 +25,7 @@ services:
 
   vault:
     image: hashicorp/vault:1.18 # Updated image
-    container_name: vault
+    container_name: vault-logistics
     ports:
       - "8200:8200" # Expose Vault on localhost
     environment:
@@ -35,7 +35,6 @@ services:
 
     volumes:
       - vault-data:/vault/file # Persist Vault data
-
 
   mysqlcontainer:
     image: mysql:latest

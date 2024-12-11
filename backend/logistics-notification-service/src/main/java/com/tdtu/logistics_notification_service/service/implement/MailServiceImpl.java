@@ -1,16 +1,18 @@
 package com.tdtu.logistics_notification_service.service.implement;
 
 
+import com.tdtu.common.dto.MailUpdateOrderStatus;
 import com.tdtu.common.dto.MailVerifyAccount;
 import com.tdtu.logistics_notification_service.configuration.BaseSender;
 import com.tdtu.logistics_notification_service.dto.request.MailClientRequest;
 import com.tdtu.logistics_notification_service.dto.request.Recipient;
 import com.tdtu.logistics_notification_service.dto.request.Sender;
 import com.tdtu.logistics_notification_service.dto.response.MailResponse;
+import com.tdtu.logistics_notification_service.exception.AppException;
+import com.tdtu.logistics_notification_service.exception.ErrorCode;
 import com.tdtu.logistics_notification_service.service.MailService;
 import feign.FeignException;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,12 +20,9 @@ import org.springframework.stereotype.Service;
 
 import com.tdtu.logistics_notification_service.repository.httpClient.MailClient;
 
-
 import java.util.List;
 
 @Slf4j
-@Data
-@Builder
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @Service
 public class MailServiceImpl implements MailService {
@@ -67,6 +66,7 @@ public class MailServiceImpl implements MailService {
         }
     }
 
+
     @Override
     public MailResponse sentNotification(MailClientRequest request) {
         try {
@@ -76,4 +76,31 @@ public class MailServiceImpl implements MailService {
             throw new AppException(ErrorCode.MAIL_SENDING_FAILED);
         }
     }
+
+    @Override
+    public MailResponse sentUpdateOrderStatus(MailUpdateOrderStatus mailUpdateOrderStatus) {
+        try {
+            // Tạo request gửi email
+            MailClientRequest request = MailClientRequest.builder()
+                    .subject(mailUpdateOrderStatus.getSubject())
+                    .sender(Sender.builder()
+                            .email(baseSender.getEmail())
+                            .name(baseSender.getName())
+                            .build())
+                    .to(List.of(Recipient.builder()
+                            .email(mailUpdateOrderStatus.getTo())
+                            .build()))
+                    .htmlContent(mailUpdateOrderStatus.getHtmlContent()) // Sử dụng HTML content
+                    .build();
+
+            log.info("Sending update order status email to: {}", mailUpdateOrderStatus.getTo());
+
+            return mailClient.sendEmail(apiKey, request);
+        } catch (FeignException e) {
+            log.error("Failed to send email: {}", e.getMessage(), e);
+            throw new AppException(ErrorCode.MAIL_SENDING_FAILED);
+        }
+    }
+
+
 }

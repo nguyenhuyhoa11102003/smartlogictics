@@ -10,4 +10,6 @@ import lombok.*;
 public class Sender {
     protected String name;
     protected String email;
+
+
 }
