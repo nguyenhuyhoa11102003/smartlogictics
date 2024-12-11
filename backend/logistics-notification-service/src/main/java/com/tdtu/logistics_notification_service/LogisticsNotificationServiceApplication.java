@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
-@EnableFeignClients
+@EnableFeignClients(basePackages = "com.tdtu.logistics_notification_service.repository.httpClient")
 public class LogisticsNotificationServiceApplication {
 
 	public static void main(String[] args) {

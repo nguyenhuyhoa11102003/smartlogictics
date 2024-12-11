@@ -1,6 +1,7 @@
 package com.tdtu.logistics_notification_service.controller;
 
 import com.tdtu.common.constant.KafkaTopic;
+import com.tdtu.common.dto.MailUpdateOrderStatus;
 import com.tdtu.common.dto.MailVerifyAccount;
 import com.tdtu.logistics_notification_service.dto.request.MailClientRequest;
 import com.tdtu.logistics_notification_service.dto.response.ApiResponse;
@@ -16,18 +17,24 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MailController {
+
     MailService mailService;
 
+    @KafkaListener(topics = KafkaTopic.UPDATE_ORDER)
+    public void sentStatusOrderChange(MailUpdateOrderStatus mailUpdateOrderStatus){
+        log.info("Message received update order: {}", mailUpdateOrderStatus.toString());
+
+        mailService.sentUpdateOrderStatus(mailUpdateOrderStatus);
+    }
 
     @KafkaListener(topics = KafkaTopic.CREATE_ACCOUNT)
     public void sentMailVerifyAccount(MailVerifyAccount mailVerifyAccount){
-        log.info("Message received: {}", mailVerifyAccount.toString());
+        log.info("Message received verify account: {}", mailVerifyAccount.toString());
 
         mailService.sentVerifyAccount(mailVerifyAccount);
     }

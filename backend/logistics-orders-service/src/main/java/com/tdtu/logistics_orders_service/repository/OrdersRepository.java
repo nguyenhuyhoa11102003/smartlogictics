@@ -15,11 +15,11 @@ import java.util.Optional;
 public interface OrdersRepository extends JpaRepository<Orders, String> {
 
     @Modifying
-    @Query("UPDATE Orders o SET o.status = :status WHERE o.id = :orderId")
-    int updateOrderStatusById(String orderId, OrderStatus status);
+    @Query("UPDATE Orders o SET o.status = :status WHERE o.id = :orderId and o.branchCode = :branchCode")
+    int updateOrderStatusById(String branchCode, String orderId, OrderStatus status);
 
-    @Query("SELECT o FROM Orders o WHERE o.id = :orderId")
-    Orders findByOrderId(String orderId);
+    @Query("SELECT o FROM Orders o WHERE o.id = :orderId and o.branchCode = :branchCode")
+    Optional<Orders> findByOrderIdAndBranchCode(String orderId, String branchCode);
 
     @Override
     Optional<Orders> findById(String orderId);

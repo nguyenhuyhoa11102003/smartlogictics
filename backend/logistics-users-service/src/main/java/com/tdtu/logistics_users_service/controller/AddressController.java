@@ -20,7 +20,6 @@ public class AddressController {
 
     AddressService addressService;
 
-
     @PutMapping(value = "/{userId}/update", consumes = "application/json", produces = "application/json")
     public ApiResponse<AddressInfResponse> updateAddress(
             @PathVariable String userId,
