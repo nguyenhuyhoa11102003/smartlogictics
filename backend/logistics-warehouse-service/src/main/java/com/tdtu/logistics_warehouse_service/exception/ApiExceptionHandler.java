@@ -46,7 +46,9 @@ public class ApiExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<String> handleGenericException(Exception ex) {
 		log.error("Unexpected error: {}", ex.getMessage(), ex);
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+		return ResponseEntity
+				.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body("An unexpected error occurred" );
 	}
 
 
@@ -58,7 +60,6 @@ public class ApiExceptionHandler {
 	}
 
 	@ExceptionHandler(value = {
-			WarehouseNotFoundException.class,
 			NotFoundException.class
 	})
 	public ResponseEntity<ErrorVm> handleNotFoundException(NotFoundException ex, WebRequest request) {

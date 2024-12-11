@@ -11,8 +11,13 @@ import com.tdtu.logistics_warehouse_service.service.WarehouseService;
 import com.tdtu.logistics_warehouse_service.enumarators.WarehouseStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -89,6 +94,17 @@ public class WarehouseServiceImpl implements WarehouseService {
 		Warehouse warehouseUpdate = warehouseRepository.findById(id).orElseThrow(() -> new NotFoundException("Warehouse not found"));
 		warehouseUpdate.setStatus(WarehouseStatus.CLOSED);
 		return WarehouseInfResponse.toWarehouseInfResponse(warehouseRepository.save(warehouseUpdate));
+	}
+
+	@Override
+	public List<WarehouseInfResponse> getAllWarehouses(int pageNo, int pageSize) {
+		Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo);
+		Page<Warehouse> warehouses = warehouseRepository.findAll(pageable);
+		List<WarehouseInfResponse> warehouseInfResponses = new ArrayList<>();
+		warehouses.getContent().forEach(warehouse -> {
+			warehouseInfResponses.add(WarehouseInfResponse.toWarehouseInfResponse(warehouse));
+		});
+		return warehouseInfResponses;
 	}
 
 	private String handleAddressDetail(String province, String ward, String commune, String street, String postalCode) {

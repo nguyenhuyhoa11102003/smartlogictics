@@ -29,7 +29,7 @@ public class OrdersController {
 	@PostMapping(value = "/create",
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ApiResponse<OrderInfResponse> createRecipient(@RequestBody @Valid CreateOrderRequest requestDTO) {
+	public ApiResponse<OrderInfResponse> createOrder(@RequestBody @Valid CreateOrderRequest requestDTO) {
 
 		return ApiResponse.<OrderInfResponse>builder()
 				.code(HttpStatus.CREATED.value())

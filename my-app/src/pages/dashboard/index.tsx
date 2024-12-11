@@ -9,16 +9,16 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import PickupForm from "@/components/PickupForm";
-import ProductForm from "@/components/ProductForm";
-import CODForm from "@/components/CODFrom";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { useMutation, UseMutationResult } from '@tanstack/react-query';
-import RecipientForm from "@/components/RecipientForm";
 import { PickupData } from "@/modules/order/models/PickUpData";
 import { Address } from "@/modules/address/models/AddressModel";
 import { Product } from "@/modules/catalog/models/Product";
+import PickupForm from "@/modules/order/components/PickupForm";
+import RecipientForm from "@/modules/order/components/RecipientForm";
+import ProductForm from "@/modules/order/components/ProductForm";
+import CODForm from "@/modules/order/components/CODFrom";
 interface ProductData {
     productName: string;
     productWeight: number;
@@ -42,6 +42,16 @@ interface ResponseData {
     message: string;
     data: FormData;
 }
+
+const saveToLocalStorage = (key: string, data: any) => {
+    localStorage.setItem(key, JSON.stringify(data));
+};
+
+const getFromLocalStorage = (key: string): unknown | null => {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+};
+
 
 export default function Dashboard() {
     const [pickupData, setPickupData] = useState<PickupData>({
@@ -87,13 +97,14 @@ export default function Dashboard() {
             return;
         }
 
-        alert(JSON.stringify({
+
+        console.log({
             pickupData,
             recipientData,
             productData,
             codData,
-        }))
-        
+        })
+
         // if (!recipientData) {
         //     alert('Vui lòng điền đầy đủ thông tin người nhận');
         //     return;
@@ -111,12 +122,10 @@ export default function Dashboard() {
 
 
     const handlePickupDataChange = (data: PickupData) => {
-        console.log(data)
         setPickupData(data);
     };
 
     const handleAddressChange = (address: Address) => {
-        console.log(address)
         setRecipientData((prevData) => ({
             ...prevData,
             ...address,
@@ -124,7 +133,6 @@ export default function Dashboard() {
     };
 
     const handleProductChange = (product: Product) => {
-        console.log(product)
         setProductData((prevData) => ({
             ...prevData,
             ...product,

@@ -1,4 +1,3 @@
-import { User } from 'src/types/user.type'
 
 export const localStorageEventTarget = new EventTarget()
 
@@ -18,10 +17,16 @@ export const clearLS = () => {
 }
 
 export const getAccessTokenFromLS = () => {
-  return localStorage.getItem('accessToken') || ''
+  if (typeof window !== "undefined") {
+    return localStorage.getItem('accessToken') || '';
+  }
+  return ""
 }
 export const getRefreshTokenFromLS = () => {
-  return localStorage.getItem('refreshToken') || ''
+  if (typeof window !== "undefined") {
+    return localStorage.getItem('refreshToken') || '';
+  }
+  return ""
 }
 
 export const getProfileFromLS = () => {
@@ -30,7 +35,7 @@ export const getProfileFromLS = () => {
   return result ? JSON.parse(result) : null
 }
 
-export const setProfileToLS = (profile: User) => {
-  // because profile is object, so we need to converts a js value stringify it to json
-  localStorage.setItem('profile', JSON.stringify(profile))
-}
+// export const setProfileToLS = (profile: User) => {
+//   // because profile is object, so we need to converts a js value stringify it to json
+//   localStorage.setItem('profile', JSON.stringify(profile))
+// }

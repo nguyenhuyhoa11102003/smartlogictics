@@ -15,9 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
-@RequestMapping("/warehouse")
+@RequestMapping("/api/v1/warehouses")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
@@ -36,6 +38,22 @@ public class WarehouseController {
 				.code(HttpStatus.CREATED.value())
 				.result(result)
 				.message("Create warehouse successfully")
+				.build();
+	}
+
+
+	@GetMapping(
+			value = "/all",
+			produces = "application/json")
+	public ApiResponse<?> getAllWarehouses(
+			@RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+			@RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+		List<WarehouseInfResponse> result = warehouseService.getAllWarehouses(pageNo, pageSize);
+		log.info(result.size() + "");
+		return ApiResponse.<List<WarehouseInfResponse>>builder()
+				.code(HttpStatus.OK.value())
+				.result(result)
+				.message("Get all warehouse successfully")
 				.build();
 	}
 

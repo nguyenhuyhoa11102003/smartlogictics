@@ -6,10 +6,18 @@ import { Helmet } from 'react-helmet-async';
 import * as yup from 'yup';
 import Input from '@/components/Input';
 import { useContext } from 'react';
+import Link from 'next/link';
 // import { AppContext } from '../contexts/app.context'; // Adjust path as needed
-// import { isAxiosError, isAxiosUnprocessableEntityError } from '../utils/utils'; // Adjust path as needed
+import { isAxiosError, isAxiosUnprocessableEntityError } from '@/utils/utils'; // Adjust path as needed
+import authApi from '@/modules/login/services/AuthService';
+import { LoginRequest } from '@/modules/login/dto/LoginRequest';
+import { toast } from 'react-toastify';
+
+
 const loginSchema = yup.object().shape({
-    email: yup.string().email('Invalid email').required('Email is required'),
+    username: yup.string()
+        // .email('Invalid email').required('Email is required'),
+        .required('Username hoặc Email là bắt buộc'),
     password: yup.string().required('Password is required'),
 });
 
@@ -26,28 +34,27 @@ export default function Login() {
         resolver: yupResolver(loginSchema),
     });
 
-    //   const loginAccountMutation = useMutation(authApi.loginAccount, {
-    //     onSuccess: (data) => {
-    //     //   setProfile(data.data.user);
-    //     //   setIsAuthenticated(true);
-    //       router.push('/');
-    //     },
-    //     onError: (error) => {
-    //       if (isAxiosUnprocessableEntityError(error)) {
-    //         const formError = error.response?.data?.data;
-    //         if (formError) {
-    //           Object.keys(formError).forEach((key) => {
-    //             setError(key, { type: 'Server', message: formError[key] }, { shouldFocus: true });
-    //           });
-    //         }
-    //       } else if (isAxiosError(error)) {
-    //         console.error('Error:', error);
-    //       }
-    //     },
-    //   });
+    const loginAccountMutation = useMutation({
+        mutationFn: (data: LoginRequest) => {
+            return authApi.loginAccount(data);
+        },
+        onSuccess: (data) => {
+            //   setProfile(data.data.user);
+            //   setIsAuthenticated(true);
+            alert('Login Successful! Please wait 3s move to Dashboash Page.')
+            setTimeout(() => {
+                router.push('/dashboard');
+            }, 3000);
+        },
+        onError: (error) => {
+            // alert('Thông tin đăng nhập ko hợp lệ')
+            console.log(JSON.stringify(error))
+        },
+    });
 
     const onSubmit = handleSubmit((data) => {
-        // loginAccountMutation.mutate(data);
+        console.log(JSON.stringify(data))
+        loginAccountMutation.mutate(data); // trigger 
     });
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-100">
@@ -60,12 +67,12 @@ export default function Login() {
                         </label>
                         <Input
                             className=" px-4 py-2 mt-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            type="email"
+                            // type="email"
                             id="email"
                             placeholder="Nhập email của bạn"
-                            name="email"
+                            name="username"
                             register={register}
-                            errorMessage={errors.email?.message}
+                            errorMessage={errors.username?.message}
                             required
                         />
                     </div>
@@ -87,8 +94,9 @@ export default function Login() {
                     </div>
                     <div>
                         <button
-                            type="submit"
+                            // type="submit"
                             className="w-full px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
+                            onClick={onSubmit}
                         >
                             Đăng nhập
                         </button>
@@ -96,56 +104,11 @@ export default function Login() {
                 </form>
                 <p className="text-sm text-center text-gray-600">
                     Chưa có tài khoản?{' '}
-                    <a href="/register" className="text-blue-500 hover:underline">
+                    <Link href="/register" className="text-blue-500 hover:underline">
                         Đăng ký
-                    </a>
+                    </Link>
                 </p>
             </div>
         </div>
-        // <div className="h-[600px] bg-orange">
-        //     {/* <Helmet>
-        //     <title>Login | Shopee Clone</title>
-        //     <meta name="description" content="Login | Shopee Clone" />
-        //   </Helmet> */}
-        //     <div className="container bg-shopee bg-contain bg-center bg-no-repeat">
-        //         <div className="grid grid-cols-1 py-12 lg:h-[470px] lg:grid-cols-5 lg:pr-10">
-        //             <div className="md:col-span-2 md:col-start-4 md:mx-8">
-        //                 <form className="rounded bg-white p-10 shadow-sm" onSubmit={onSubmit}>
-        //                     <div className="text-2xl">Login</div>
-        //                     <Input
-        //                         className="mt-6"
-        //                         type="email"
-        //                         placeholder="Email"
-        //                         name="email"
-        //                         register={register}
-        //                         errorMessage={errors.email?.message}
-        //                     />
-        //                     <Input
-        //                         className="my-2"
-        //                         type="password"
-        //                         placeholder="Password"
-        //                         name="password"
-        //                         register={register}
-        //                         errorMessage={errors.password?.message}
-        //                     />
-        //                     {/* <Button
-        //             type="submit"
-        //             isLoading={loginAccountMutation.isLoading}
-        //             disabled={loginAccountMutation.isLoading}
-        //             className="flex w-full justify-center bg-red-500 px-2 py-4 text-sm uppercase text-white hover:bg-red-600"
-        //           >
-        //             Login
-        //           </Button>
-        //           <div className="mt-9 flex items-center justify-center gap-1 text-center">
-        //             <span className="text-gray-400">Do not have an account?</span>
-        //             <a href="/register" className="text-red-400">
-        //               Register
-        //             </a>
-        //           </div> */}
-        //                 </form>
-        //             </div>
-        //         </div>
-        //     </div>
-        // </div>
     );
 }
