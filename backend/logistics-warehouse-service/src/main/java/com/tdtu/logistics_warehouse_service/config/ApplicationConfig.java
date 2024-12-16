@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfiguration;
 @Configurable
 public class ApplicationConfig {
 	@Bean
@@ -21,18 +23,5 @@ public class ApplicationConfig {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new JavaTimeModule());
 		return mapper;
-	}
-
-	@Bean
-	public WebMvcConfigurer corsConfigure() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**")
-						.allowedMethods("*")
-						.allowedOrigins("*")
-						.allowedHeaders("*");
-			}
-		};
 	}
 }

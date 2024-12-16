@@ -5,6 +5,7 @@ import lombok.*;
 import com.tdtu.logistics_warehouse_service.enumarators.WarehouseStatus;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 
 @NoArgsConstructor
@@ -41,7 +42,7 @@ public class WarehouseInfResponse {
 				.capacity(warehouse.getCapacity())
 				.status(warehouse.getStatus())
 				.address(AddressInfResponse.toAddressInfResponse(warehouse.getAddress()))
-				.createdAt(LocalDateTime.from(warehouse.getCreateAt()))
+				.createdAt(LocalDateTime.ofInstant(warehouse.getCreateAt(), ZoneId.systemDefault()))
 				.updatedAt(LocalDateTime.now())
 				.build();
 

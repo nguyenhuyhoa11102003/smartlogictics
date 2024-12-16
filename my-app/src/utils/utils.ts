@@ -1,8 +1,8 @@
 import axios, { AxiosError, HttpStatusCode } from 'axios'
-import config from 'src/constants/config'
+import config from '@/constants/config'
 
-import userImage from 'src/assets/images/user.svg'
-import { ErrorResponse } from 'src/types/utils.type'
+// import userImage from 'src/assets/images/user.svg'
+import { ErrorResponse } from '@/types/utils.type'
 
 export function isAxiosError<T>(error: unknown): error is AxiosError<T> {
   // eslint-disable-next-line import/no-named-as-default-member
@@ -53,9 +53,9 @@ export const getIdFromNameId = (nameId: string) => {
   return arr[arr.length - 1]
 }
 
-export const getAvatarUrl = (avatarName?: string) => {
-  if (avatarName) {
-    return `${config.baseUrl}images/${avatarName}`
-  }
-  return userImage
-}
+// export const getAvatarUrl = (avatarName?: string) => {
+//   if (avatarName) {
+//     return `${config.baseUrl}images/${avatarName}`
+//   }
+//   return userImage
+// }

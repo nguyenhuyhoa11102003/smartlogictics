@@ -1,22 +1,9 @@
-import { OrderItem } from './OrderItem';
-import { Address } from '@/modules/address/models/AddressModel';
-export type Order = {
-  id?: number;
-  email: string;
-  note?: string;
-  tax?: number;
-  discount?: number;
-  numberItem: number;
-  totalPrice: number;
-  deliveryFee?: number | 0;
-  couponCode?: string | '';
-  deliveryMethod: string;
-  deliveryStatus?: string;
-  paymentMethod: string;
-  paymentStatus: string;
-  orderItemPostVms: OrderItem[];
-  shippingAddressPostVm: Address;
-  billingAddressPostVm: Address;
+import { InformationOrder } from "./InformationOrder";
 
-  checkoutId?: string;
+export type Order = {
+  orderCreationStatus: string;  // Status of the order (e.g., RECEIVED, SHIPPED)
+  type: string;                 // Type of the order (e.g., string like "string")
+  customerCode: string;        // Customer's unique code
+  contractCode: string;        // Associated contract code
+  informationOrder: InformationOrder; // InformationOrder associated with the order
 };

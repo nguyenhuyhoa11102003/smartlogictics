@@ -1,5 +1,6 @@
 package com.tdtu.logistics_warehouse_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tdtu.logistics_warehouse_service.enumarators.WarehouseStatus;
 import jakarta.persistence.*;
 import lombok.*;

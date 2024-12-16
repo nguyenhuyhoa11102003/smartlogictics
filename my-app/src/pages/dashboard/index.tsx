@@ -9,26 +9,28 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import PickupForm from "@/components/PickupForm";
-import ProductForm from "@/components/ProductForm";
-import CODForm from "@/components/CODFrom";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { useMutation, UseMutationResult } from '@tanstack/react-query';
-import RecipientForm from "@/components/RecipientForm";
 import { PickupData } from "@/modules/order/models/PickUpData";
 import { Address } from "@/modules/address/models/AddressModel";
 import { Product } from "@/modules/catalog/models/Product";
-interface ProductData {
-    productName: string;
-    productWeight: number;
-}
+import PickupForm from "@/modules/order/components/PickupForm";
+import RecipientForm from "@/modules/order/components/RecipientForm";
+import ProductForm from "@/modules/order/components/ProductForm";
+import CODForm from "@/modules/order/components/CODFrom";
+import { Order } from "@/modules/order/models/Order";
+import { OrderStatus } from "@/modules/order/models/EOrderStatus";
+import { EDeliveryMethod } from "@/modules/order/models/EDeliveryMethod";
+import { EDeliveryServiceType } from "@/modules/order/models/EDeliveryServiceType";
+// interface ProductData {
+//     productName: string;
+//     productWeight: number;
+// }
 
 interface CODData {
     codAmount: number;
 }
-
-
 
 interface FormData {
     pickupData: PickupData;
@@ -36,7 +38,6 @@ interface FormData {
     productData: ProductData;
     codData: CODData;
 }
-
 
 interface ResponseData {
     message: string;
@@ -54,7 +55,7 @@ export default function Dashboard() {
         isPostOfficePickup: false,
     });
     const [recipientData, setRecipientData] = useState<Address | null>(null);
-    const [productData, setProductData] = useState<ProductData>({ productName: '', productWeight: 0 });
+    const [productData, setProductData] = useState<Product | null>(null);
     const [codData, setCodData] = useState<CODData>({ codAmount: 0 });
     const [isChecked, setIsChecked] = useState<boolean>(false);
 
@@ -69,7 +70,6 @@ export default function Dashboard() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         });
-        alert('ok')
 
         if (!response.ok) {
             throw new Error('Failed to submit form');
@@ -86,14 +86,43 @@ export default function Dashboard() {
             alert('Vui lòng đồng ý với Điều khoản quy định');
             return;
         }
+        // console.log({
+        //     pickupData,
+        //     recipientData,
+        //     productData,
+        //     codData,
+        // })
 
-        alert(JSON.stringify({
-            pickupData,
-            recipientData,
-            productData,
-            codData,
-        }))
-        
+        const orderData: Order = {
+            orderCreationStatus: OrderStatus.RECEIVED,  // Trạng thái có thể thay đổi tùy vào logic
+            type: "string",  // Thêm giá trị cụ thể cho type
+            customerCode: "KH0001",  // Cung cấp mã khách hàng
+            contractCode: "string",  // Cung cấp mã hợp đồng
+            informationOrder: {
+                senderId: pickupData.sender,  // Sử dụng sender từ pickupData
+                recipientId: recipientData?.id?.toString() ?? "",  // Dùng id từ recipientData (hoặc để trống nếu không có)
+                serviceCode: EDeliveryServiceType.ECONOMY,   // Giả sử là dịch vụ ECONOMY
+                addonService: [],  // Bạn có thể thêm dịch vụ bổ sung nếu có
+                additionRequest: [],  // Tương tự như addonService
+                branchCode: pickupData.postOfficeId ?? "",  // Mã chi nhánh, có thể lấy từ state nếu có
+                vehicle: "car",  // Phương tiện, có thể lấy từ state
+                receivingMethod: pickupData.isPostOfficePickup ? "POST_OFFICE" : "CUSTOMER_ADDRESS",  // Phương thức nhận
+                deliveryTime: pickupData.pickupDate,  // Thời gian giao hàng
+                deliveryRequire: "",  // Cung cấp yêu cầu giao hàng nếu có
+                deliveryInstruction: "",  // Cung cấp hướng dẫn giao hàng
+                saleOrderCode: "",  // Mã đơn hàng bán, bạn có thể cung cấp nếu có
+                contentNote: "",  // Ghi chú nội dung
+                weight: productData?.totalWeight.toString() ?? "",  // Cân nặng của sản phẩm
+                width: productData?.dimensions.width.toString() ?? "", // Chiều rộng có thể cung cấp nếu có
+                length: productData?.dimensions.length.toString() ?? "",  // Chiều dài có thể cung cấp nếu có
+                height: productData?.dimensions.height.toString() ?? "",  // Chiều cao có thể cung cấp nếu có
+                broken: false,  // Xác định tình trạng sản phẩm (có thể là true hoặc false tùy trường hợp)
+            }
+        };
+
+        console.log(orderData)
+
+
         // if (!recipientData) {
         //     alert('Vui lòng điền đầy đủ thông tin người nhận');
         //     return;
@@ -111,12 +140,10 @@ export default function Dashboard() {
 
 
     const handlePickupDataChange = (data: PickupData) => {
-        console.log(data)
         setPickupData(data);
     };
 
     const handleAddressChange = (address: Address) => {
-        console.log(address)
         setRecipientData((prevData) => ({
             ...prevData,
             ...address,
@@ -124,7 +151,6 @@ export default function Dashboard() {
     };
 
     const handleProductChange = (product: Product) => {
-        console.log(product)
         setProductData((prevData) => ({
             ...prevData,
             ...product,

@@ -21,7 +21,8 @@ export interface Product {
   value: number; // Giá trị sản phẩm (đơn vị: VNĐ hoặc đơn vị tiền tệ)
   totalWeight: number; // Tổng trọng lượng (tính theo quantity * weight)
   totalValue: number; // Tổng giá trị (tính theo quantity * value)
-  specialCharacteristics: SpecialCharacteristics; // Các đặc tính đặc biệt
+  specialCharacteristics: SpecialCharacteristics; // Các đặc tính của bưu kiện
+  documentCharacteristics: DocumentCharacteristics; // Các đặc tính của tài liệu
   dimensions: Dimensions; // Kích thước sản phẩm (dài, rộng, cao)
   orderId: string; // Mã đơn hàng liên quan
 }
@@ -35,6 +36,13 @@ interface SpecialCharacteristics {
   liquid: boolean; // Chất lỏng
   magnetic: boolean; // Từ tính
   coldGoods: boolean; // Hàng hóa cần giữ lạnh
+}
+
+
+interface DocumentCharacteristics{
+  gia_tri_cao: boolean; // Giá trị cao,
+  hoa_don_giay_chung_nhan: boolean;
+  ho_so_thau: boolean;
 }
 
 

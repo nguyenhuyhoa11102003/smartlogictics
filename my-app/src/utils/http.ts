@@ -1,8 +1,8 @@
 import axios, { AxiosError, AxiosInstance, HttpStatusCode, InternalAxiosRequestConfig } from 'axios'
 import { toast } from 'react-toastify'
-import { URL_LOGIN, URL_LOGOUT, URL_REFRESH_TOKEN, URL_REGISTER } from 'src/apis/auth.api'
-import { AuthResponse, RefreshTokenRespone } from 'src/types/auth.type'
-import { ErrorResponse } from 'src/types/utils.type'
+import { URL_LOGIN, URL_LOGOUT, URL_REFRESH_TOKEN, URL_REGISTER } from '@/modules/login/services/AuthService'
+import { AuthResponse, RefreshTokenRespone } from '@/modules/login/dto/auth.type'
+import { ErrorResponse } from '@/types/utils.type'
 import {
   clearLS,
   getAccessTokenFromLS,
@@ -16,14 +16,14 @@ export class Http {
   instance: AxiosInstance
   private accessToken: string
   private refreshToken: string
-  private refreshTokenRequest: Promise<any> | null = null
-  constructor() {
+  private refreshTokenRequest: Promise<unknown> | null = null
+  constructor(baseUrl: string = 'http://localhost:8080/') {
     // why do we need to use this.accessToken = getAccessTokenFromLS() here?
     // because when getdata from localstorage(hard drive) ALWAYS SLOWER than get accessToken from (Ram)
     this.accessToken = getAccessTokenFromLS()
     this.refreshToken = getRefreshTokenFromLS()
     this.instance = axios.create({
-      baseURL: 'https://api-ecom.duthanhduoc.com/',
+      baseURL: baseUrl,
       headers: {
         'Content-Type': 'application/json'
         // 'expire-access-token': 10,
@@ -49,13 +49,13 @@ export class Http {
         const { url } = response.config
 
         if (url?.includes(URL_LOGIN) || url?.includes(URL_REGISTER)) {
-          console.log('response', response)
+          // console.log('response', response)
           const dataResponse = response.data as AuthResponse
-          this.accessToken = dataResponse.data.access_token
-          this.refreshToken = dataResponse.data.refresh_token
+          this.accessToken = dataResponse.result.token
+          this.refreshToken = dataResponse.result.refreshToken
           setAccessTokenToLS(this.accessToken)
           setRefreshTokenToLS(this.refreshToken)
-          setProfileToLS(dataResponse.data.user)
+          // setProfileToLS(dataResponse.data.user)
         } else if (url?.includes(URL_LOGOUT)) {
           console.log('did logout')
           this.accessToken = ''
@@ -91,11 +91,11 @@ export class Http {
             this.refreshTokenRequest = this.refreshTokenRequest
               ? this.refreshTokenRequest
               : this.handleRefreshToken().finally(() => {
-                  //  Giữ refreshTokenRequest trong 10s cho những request tiếp theo nếu có 401 thì dùng
-                  setTimeout(() => {
-                    this.refreshTokenRequest = null
-                  }, 10000)
-                })
+                //  Giữ refreshTokenRequest trong 10s cho những request tiếp theo nếu có 401 thì dùng
+                setTimeout(() => {
+                  this.refreshTokenRequest = null
+                }, 10000)
+              })
             return this.refreshTokenRequest.then((access_token) => {
               // Nghĩa là chúng ta tiếp tục gọi lại request cũ vừa bị lỗi
               return this.instance({ ...config, headers: { ...config?.headers, authorization: access_token } })
@@ -134,6 +134,10 @@ export class Http {
         this.refreshToken = ''
         throw error
       })
+  }
+
+  setBaseURL(baseURL: string) {
+    this.instance.defaults.baseURL = baseURL;
   }
 }
 

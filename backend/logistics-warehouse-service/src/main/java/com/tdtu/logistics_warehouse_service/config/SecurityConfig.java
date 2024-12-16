@@ -4,19 +4,29 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.stereotype.Component;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -26,17 +36,20 @@ import java.util.stream.Collectors;
 
 
 @Configuration
+@EnableMethodSecurity
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig extends OncePerRequestFilter {
 	private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
-
 	private static final String[] WAREHOUSE_WHITELIST = {
 			"/swagger-ui/**",
 			"/swagger-ui-custom.html",
 			"/actuator/prometheus",
 			"/actuator/health/**",
-			"/v3/api-docs/**"
+			"/v3/api-docs/**",
+			"/api/v1/warehouses/**",
 	};
-
+	private final JwtDecoderConfig jwtDecoderConfig;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -46,7 +59,13 @@ public class SecurityConfig extends OncePerRequestFilter {
 						.anyRequest()
 						.authenticated()
 				);
-		httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+
+		httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer ->
+				jwtConfigurer
+						.decoder(jwtDecoderConfig)
+						.jwtAuthenticationConverter(jwtAuthenticationConverter())
+
+		));
 		httpSecurity.csrf(AbstractHttpConfigurer::disable);
 		return httpSecurity.build();
 	}
@@ -65,6 +84,17 @@ public class SecurityConfig extends OncePerRequestFilter {
 		return jwtAuthenticationConverter;
 	}
 
+
+	@Bean
+	public JwtAuthenticationConverter jwtAuthenticationConverter() {
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+
+		JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+		jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+		return jwtAuthenticationConverter;
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		String requestUri = request.getRequestURI();
@@ -77,4 +107,17 @@ public class SecurityConfig extends OncePerRequestFilter {
 		logger.info("Access Identity Service - IP: {}, Method: {}, URI: {}, Status: {}", clientIp, method, requestUri, status);
 	}
 
+	@Bean
+	public CorsFilter corsFilter() {
+		CorsConfiguration corsConfiguration = new CorsConfiguration();
+
+		corsConfiguration.addAllowedOrigin("*");
+		corsConfiguration.addAllowedMethod("*");
+		corsConfiguration.addAllowedHeader("*");
+
+		UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+		urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+
+		return new CorsFilter(urlBasedCorsConfigurationSource);
+	}
 }
