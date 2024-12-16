@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class TextUtil extends StatelessWidget {
   String text;
   Color? color;

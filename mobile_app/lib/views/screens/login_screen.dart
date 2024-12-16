@@ -2,10 +2,11 @@ import 'dart:ui';
 
 import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/mainwrapper.dart';
 import 'package:mobile_app/utils/animations.dart';
 import 'package:mobile_app/models/data/bg_data.dart';
 import 'package:mobile_app/utils/text_utils.dart';
-import 'package:mobile_app/views/screens/home_screen.dart';
+import 'package:mobile_app/views/screens/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     } else if (email == "admin@gmail.com" && password == "12345") {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen(title: "Fast Delivery")),
+        MaterialPageRoute(builder: (context) => const MainWrapper()),
       );
     } else {
       _showDialog("Login Failed", "Invalid email or password.");
@@ -171,10 +172,16 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         ),
                         const Spacer(),
                         Center(
-                          child: TextUtil(
-                            text: "Don't have an account? REGISTER",
-                            size: 12,
-                            weight: true,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
+                            },
+
+                            child: TextUtil(
+                              text: "Don't have an account? REGISTER",
+                              size: 12,
+                              weight: true,
+                            ),
                           ),
                         ),
                         const Spacer(),

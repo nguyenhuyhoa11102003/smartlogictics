@@ -5,6 +5,7 @@ import 'package:mobile_app/utils/animations.dart';
 import 'package:mobile_app/models/data/bg_data.dart';
 import 'package:mobile_app/utils/text_utils.dart';
 import 'package:mobile_app/views/screens/home_screen.dart';
+import 'package:mobile_app/views/screens/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -22,19 +23,17 @@ class _RegisterScreen extends State<RegisterScreen> with TickerProviderStateMixi
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
 
   void registration() {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
     String name = nameController.text.trim();
     String phone = phoneController.text.trim();
-    String address = addressController.text.trim();
 
-    if (email.isEmpty || password.isEmpty || name.isEmpty || phone.isEmpty || address.isEmpty) {
+    if (email.isEmpty || password.isEmpty || name.isEmpty || phone.isEmpty) {
       _showDialog("Error", "All fields are required.");
     } else {
-      // Simulate successful registration (this should be replaced with actual logic)
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen(title: "Fast Delivery")),
@@ -160,24 +159,6 @@ class _RegisterScreen extends State<RegisterScreen> with TickerProviderStateMixi
                           ),
                         ),
                         const Spacer(),
-                        // Address field
-                        TextUtil(text: "Address"),
-                        Container(
-                          height: 35,
-                          decoration: const BoxDecoration(
-                            border: Border(bottom: BorderSide(color: Colors.white)),
-                          ),
-                          child: TextFormField(
-                            controller: addressController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: const InputDecoration(
-                              suffixIcon: Icon(Icons.location_on, color: Colors.white),
-                              fillColor: Colors.white,
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
                         // Email field
                         TextUtil(text: "Email"),
                         Container(
@@ -234,10 +215,15 @@ class _RegisterScreen extends State<RegisterScreen> with TickerProviderStateMixi
                         ),
                         const Spacer(),
                         Center(
-                          child: TextUtil(
-                            text: "Already have an account? LOGIN",
-                            size: 12,
-                            weight: true,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+                            },
+                            child: TextUtil(
+                              text: "Already have an account? LOGIN",
+                              size: 12,
+                              weight: true,
+                            ),
                           ),
                         ),
                         const Spacer(),
