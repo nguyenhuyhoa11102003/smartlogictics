@@ -1,39 +1,44 @@
 import 'dart:ui';
-
-import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
+import 'package:animated_background/animated_background.dart';
 import 'package:mobile_app/utils/animations.dart';
 import 'package:mobile_app/models/data/bg_data.dart';
 import 'package:mobile_app/utils/text_utils.dart';
 import 'package:mobile_app/views/screens/home_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<StatefulWidget> createState() => _RegisterScreen();
 }
 
-class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
+class _RegisterScreen extends State<RegisterScreen> with TickerProviderStateMixin {
   int selectedIndex = 0;
   bool showOption = false;
 
+  // Controllers for new fields
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
 
-  void login() {
+  void registration() {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
+    String name = nameController.text.trim();
+    String phone = phoneController.text.trim();
+    String address = addressController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
-      _showDialog("Error", "Email and Password cannot be empty.");
-    } else if (email == "admin@gmail.com" && password == "12345") {
+    if (email.isEmpty || password.isEmpty || name.isEmpty || phone.isEmpty || address.isEmpty) {
+      _showDialog("Error", "All fields are required.");
+    } else {
+      // Simulate successful registration (this should be replaced with actual logic)
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen(title: "Fast Delivery")),
       );
-    } else {
-      _showDialog("Login Failed", "Invalid email or password.");
     }
   }
 
@@ -75,9 +80,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
               options: const ParticleOptions(
                 baseColor: Colors.white,
                 spawnMaxRadius: 18,
-                spawnMaxSpeed: 50, // Giá trị sửa
+                spawnMaxSpeed: 50, // Adjusted value
                 particleCount: 18,
-                spawnMinSpeed: 30, // Giá trị sửa
+                spawnMinSpeed: 30, // Adjusted value
                 minOpacity: 0.3,
                 spawnOpacity: 0.4,
                 image: Image(image: AssetImage('assets/snowflake.png')),
@@ -89,10 +94,10 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
               width: double.infinity,
             ),
           ),
-          // Login form
+          // Registration form
           Center(
             child: Container(
-              height: 400,
+              height: 500, // Adjusted height for more fields
               width: double.infinity,
               margin: const EdgeInsets.symmetric(horizontal: 30),
               decoration: BoxDecoration(
@@ -112,12 +117,68 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         const Spacer(),
                         Center(
                           child: TextUtil(
-                            text: "Login",
+                            text: "Registration",
                             weight: true,
                             size: 30,
                           ),
                         ),
                         const Spacer(),
+                        // Name field
+                        TextUtil(text: "Full Name"),
+                        Container(
+                          height: 35,
+                          decoration: const BoxDecoration(
+                            border: Border(bottom: BorderSide(color: Colors.white)),
+                          ),
+                          child: TextFormField(
+                            controller: nameController,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: const InputDecoration(
+                              suffixIcon: Icon(Icons.person, color: Colors.white),
+                              fillColor: Colors.white,
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        // Phone field
+                        TextUtil(text: "Phone Number"),
+                        Container(
+                          height: 35,
+                          decoration: const BoxDecoration(
+                            border: Border(bottom: BorderSide(color: Colors.white)),
+                          ),
+                          child: TextFormField(
+                            controller: phoneController,
+                            keyboardType: TextInputType.phone,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: const InputDecoration(
+                              suffixIcon: Icon(Icons.phone, color: Colors.white),
+                              fillColor: Colors.white,
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        // Address field
+                        TextUtil(text: "Address"),
+                        Container(
+                          height: 35,
+                          decoration: const BoxDecoration(
+                            border: Border(bottom: BorderSide(color: Colors.white)),
+                          ),
+                          child: TextFormField(
+                            controller: addressController,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: const InputDecoration(
+                              suffixIcon: Icon(Icons.location_on, color: Colors.white),
+                              fillColor: Colors.white,
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        // Email field
                         TextUtil(text: "Email"),
                         Container(
                           height: 35,
@@ -135,6 +196,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                           ),
                         ),
                         const Spacer(),
+                        // Password field
                         TextUtil(text: "Password"),
                         Container(
                           height: 35,
@@ -153,8 +215,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                           ),
                         ),
                         const Spacer(),
+                        // Register button
                         GestureDetector(
-                          onTap: login,
+                          onTap: registration,
                           child: Container(
                             height: 40,
                             width: double.infinity,
@@ -164,7 +227,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                             ),
                             alignment: Alignment.center,
                             child: TextUtil(
-                              text: "Log In",
+                              text: "Register",
                               color: Colors.black,
                             ),
                           ),
@@ -172,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         const Spacer(),
                         Center(
                           child: TextUtil(
-                            text: "Don't have an account? REGISTER",
+                            text: "Already have an account? LOGIN",
                             size: 12,
                             weight: true,
                           ),

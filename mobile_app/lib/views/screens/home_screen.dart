@@ -1,18 +1,19 @@
 import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key, required this.title});
 
   final String title;
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _HomePage();
-  }}
+    return _HomeScreen();
+  }
+}
 
-class _HomePage extends State<HomePage> with TickerProviderStateMixin {
+class _HomeScreen extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
