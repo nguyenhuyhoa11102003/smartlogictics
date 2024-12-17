@@ -24,11 +24,22 @@ repositories {
 }
 
 dependencies {
+	// Spring dependencies
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// Amazon S3 SDK
+	implementation 'software.amazon.awssdk:s3:2.28.24'
+
+	// Apache Tika for file content analysis
+	implementation 'org.apache.tika:tika-core:2.8.0'
+
+	// Test dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
