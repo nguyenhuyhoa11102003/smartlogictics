@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:mobile_app/views/navigations/homes_navigation.dart';
 import 'package:mobile_app/views/navigations/updates_navigation.dart';
 import 'package:mobile_app/views/navigations/wishlists_navigation.dart';
 
@@ -22,18 +22,10 @@ class MainWrapperState extends State<MainWrapper> {
   ];
 
   final List<Widget> _pages = const <Widget>[
-    Wishlist(), // Route 1: Wishlist
+    Home(), // Route 1: Home
     UpdatesNavigator(), // Route 2: Updates
     Placeholder(), // Route 3: Home
     Placeholder(), // Route 4: Profile
-  ];
-
-  // Danh sách màu sắc của các biểu tượng
-  final List<Color> _iconColors = [
-    Colors.white, // Màu mặc định của Wishlist
-    Colors.lightBlue, // Màu mặc định của Updates
-    Colors.lightBlue, // Màu mặc định của Home
-    Colors.lightBlue, // Màu mặc định của Profile
   ];
 
   Future<bool> _systemBackButtonPressed() async {
@@ -57,27 +49,34 @@ class MainWrapperState extends State<MainWrapper> {
           index: _selectedIndex,
           children: _pages,
         ),
-        bottomNavigationBar: CurvedNavigationBar(
-          backgroundColor: Colors.yellow[700]!, // Màu nền: vàng thương hiệu
-          color: Colors.white, // Màu thanh điều hướng
-          buttonBackgroundColor: Colors.blue[800]!, // Màu nút hiện tại
-          height: 60,
-          animationDuration: const Duration(milliseconds: 300),
-          index: _selectedIndex,
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed, // Không có hiệu ứng
+          currentIndex: _selectedIndex,
           onTap: (int index) {
             setState(() {
-              // Cập nhật màu sắc: nút được chọn thành trắng, các nút khác là LightBlue
-              for (int i = 0; i < _iconColors.length; i++) {
-                _iconColors[i] = (i == index) ? Colors.white : Colors.lightBlue;
-              }
               _selectedIndex = index;
             });
           },
-          items: [
-            Icon(Icons.favorite, size: 30, color: _iconColors[0]), // Wishlist
-            Icon(Icons.notifications, size: 30, color: _iconColors[1]), // Updates
-            Icon(Icons.home, size: 30, color: _iconColors[2]), // Home
-            Icon(Icons.person, size: 30, color: _iconColors[3]), // Profile
+          selectedItemColor: Colors.red[700], // Màu khi chọn
+          unselectedItemColor: Colors.grey, // Màu không chọn
+          backgroundColor: Colors.white, // Màu nền
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.receipt_long_sharp),
+              label: 'Order',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.notifications),
+              label: 'Notification',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Setting',
+            ),
           ],
         ),
       ),

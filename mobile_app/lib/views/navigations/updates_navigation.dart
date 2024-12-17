@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../fragments/updates/detail_updpates.dart';
+import '../fragments/updates/detail_updates.dart';
 import '../fragments/updates/updates.dart';
 
 class UpdatesNavigator extends StatefulWidget {

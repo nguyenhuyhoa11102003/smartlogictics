@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 baseColor: Colors.white,
                 spawnMaxRadius: 18,
                 spawnMaxSpeed: 50, // Giá trị sửa
-                particleCount: 18,
+                particleCount: 30,
                 spawnMinSpeed: 30, // Giá trị sửa
                 minOpacity: 0.3,
                 spawnOpacity: 0.4,
