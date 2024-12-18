@@ -1,6 +1,9 @@
 package com.tdtu.logistics_files_storage_service.controller;
 
+import com.tdtu.logistics_files_storage_service.dto.response.ApiResponse;
 import com.tdtu.logistics_files_storage_service.dto.response.FileRecordResponse;
+import com.tdtu.logistics_files_storage_service.exception.AppException;
+import com.tdtu.logistics_files_storage_service.exception.ErrorCode;
 import com.tdtu.logistics_files_storage_service.service.S3ClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +58,7 @@ public class S3ClientController {
                     .message("File uploaded successfully.")
                     .build();
         } catch (IOException e) {
-            throw new AppException(ErrorCode.S3_UPLOAD_FAILED);
+            throw new AppException(ErrorCode.EMAIL_INVALID);
         }
     }
 

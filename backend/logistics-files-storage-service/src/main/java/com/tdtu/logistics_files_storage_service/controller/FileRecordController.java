@@ -1,5 +1,6 @@
 package com.tdtu.logistics_files_storage_service.controller;
 
+import com.tdtu.logistics_files_storage_service.dto.response.ApiResponse;
 import com.tdtu.logistics_files_storage_service.dto.response.FileRecordResponse;
 import com.tdtu.logistics_files_storage_service.service.FileRecordService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/file")
+@RequestMapping("/file")
 @RequiredArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class FileRecordController {

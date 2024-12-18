@@ -3,6 +3,9 @@ package com.tdtu.logistics_files_storage_service.service.implement;
 import com.tdtu.logistics_files_storage_service.configuration.properties.S3ConfigProperties;
 import com.tdtu.logistics_files_storage_service.dto.response.FileRecordResponse;
 import com.tdtu.logistics_files_storage_service.entity.FileRecord;
+import com.tdtu.logistics_files_storage_service.exception.AppException;
+import com.tdtu.logistics_files_storage_service.exception.ErrorCode;
+import com.tdtu.logistics_files_storage_service.repository.FileRecordRepository;
 import com.tdtu.logistics_files_storage_service.service.FileRecordService;
 import com.tdtu.logistics_files_storage_service.service.S3ClientService;
 import lombok.RequiredArgsConstructor;
@@ -66,8 +69,6 @@ public class S3ClientServiceImpl implements S3ClientService {
                     .contentType("application/octet-stream")
                     .bucketName(s3ConfigProperties.getBucketName())
                     .s3Path(filePath)
-                    .eTag(response.eTag())
-                    .versionId(response.versionId())
                     .size(file.length())
                     .build();
 
@@ -87,7 +88,7 @@ public class S3ClientServiceImpl implements S3ClientService {
         log.info("Deleting file {} from bucket {}", fileId, s3ConfigProperties.getBucketName());
         try {
             FileRecord fileRecord = fileRecordRepository.findById(fileId)
-                    .orElseThrow(() -> new AppException(ErrorCode.FILE_NOT_FOUND));
+                    .orElseThrow(() -> new AppException(ErrorCode.S3_FILE_NOT_FOUND));
 
             s3Client.deleteObject(DeleteObjectRequest.builder()
                     .bucket(s3ConfigProperties.getBucketName())

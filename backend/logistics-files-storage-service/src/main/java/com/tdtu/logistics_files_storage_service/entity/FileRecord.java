@@ -1,10 +1,16 @@
 package com.tdtu.logistics_files_storage_service.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
+@Getter
+@Setter
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity(name = "file_record")
 public class FileRecord {
 
     @Id
@@ -26,12 +32,6 @@ public class FileRecord {
 
     @Column(name = "s3_path", nullable = false)
     String s3Path;
-
-    @Column(name = "e_tag", nullable = false)
-    String eTag;
-
-    @Column(name = "version_id")
-    String versionId;
 
     @Column(name = "content_type")
     String contentType;

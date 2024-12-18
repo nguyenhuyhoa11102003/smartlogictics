@@ -2,6 +2,10 @@ package com.tdtu.logistics_files_storage_service.service.implement;
 
 import com.tdtu.logistics_files_storage_service.dto.response.FileRecordResponse;
 import com.tdtu.logistics_files_storage_service.entity.FileRecord;
+import com.tdtu.logistics_files_storage_service.exception.AppException;
+import com.tdtu.logistics_files_storage_service.exception.ErrorCode;
+import com.tdtu.logistics_files_storage_service.mapper.FileRecordMapper;
+import com.tdtu.logistics_files_storage_service.repository.FileRecordRepository;
 import com.tdtu.logistics_files_storage_service.service.FileRecordService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +40,7 @@ public class FileRecordServiceImpl implements FileRecordService {
     public FileRecordResponse findById(String id) {
 
         FileRecord fileRecord = fileRecordRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.FILE_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.S3_FILE_NOT_FOUND));
         log.info("Finding file record have result: {}", fileRecord.toString());
 
         return fileRecordMapper.toResponse(fileRecord);
