@@ -36,29 +36,29 @@ services:
     volumes:
       - vault-data:/vault/file # Persist Vault data
 
-  mysqlcontainer:
-    image: mysql:latest
-    restart: always
-    container_name: mysqlcontainer
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: root
-      MYSQL_PASSWORD: root
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - yas-network
-  phpmyadmin:
-      image: phpmyadmin
-      restart: always
-      ports:
-        - "8888:80"
-      environment:
-        - PMA_ARBITRARY=1
-      networks:
-        - yas-network
+#  mysqlcontainer:
+#    image: mysql:latest
+#    restart: always
+#    container_name: mysqlcontainer
+#    ports:
+#      - "3306:3306"
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root
+#      MYSQL_DATABASE: root
+#      MYSQL_PASSWORD: root
+#    volumes:
+#      - mysql_data:/var/lib/mysql
+#    networks:
+#      - yas-network
+#  phpmyadmin:
+#      image: phpmyadmin
+#      restart: always
+#      ports:
+#        - "8888:80"
+#      environment:
+#        - PMA_ARBITRARY=1
+#      networks:
+#        - yas-network
 
 volumes:
   vault-data:

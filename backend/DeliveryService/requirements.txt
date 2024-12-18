@@ -1,0 +1,9 @@
+fastapi[all]
+scikit-learn
+uvicorn
+pandas
+numpy
+joblib
+feature-engine
+category_encoders
+catboost

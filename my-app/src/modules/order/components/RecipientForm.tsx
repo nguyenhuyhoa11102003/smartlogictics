@@ -11,13 +11,13 @@ interface RecipientFormProps {
 }
 export default function RecipientForm({ onRecipientDataChange }: RecipientFormProps) {
     const [recipientData, setRecipientData] = useState<Address>({
+        id: "349c305f-ac91-4243-806b-d719e31915c4", 
         contactName: "", // Default empty value for required fields
         phone: "",
-        addressLine1: "",
+        addressDetail: "",
         districtId: 0, // Default 0 for numeric fields
         stateOrProvinceId: 0,
         countryId: 0,
-        addressLine2: "",
         city: "",
         zipCode: "",
         districtName: "",
@@ -61,8 +61,8 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
             newErrors.phone = 'Số điện thoại không hợp lệ';
         }
 
-        if (!recipientData.addressLine1) {
-            newErrors.addressLine1 = 'Địa chỉ dòng 1 là bắt buộc';
+        if (!recipientData.addressDetail) {
+            newErrors.addressDetail = 'Địa chỉ dòng 1 là bắt buộc';
         }
 
         if (!recipientData.zipCode) {
@@ -73,12 +73,13 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
     };
 
     useEffect(() => {
-        if (validate()) {
-            onRecipientDataChange(recipientData);
-        }
-        else {
-            console.log('error validate recipient form')
-        }
+        // if (validate()) {
+        //     onRecipientDataChange(recipientData);
+        // }
+        // else {
+        //     console.log('error validate recipient form')
+        // }
+        onRecipientDataChange(recipientData);
     }, [recipientData]);
 
     return (

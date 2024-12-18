@@ -6,6 +6,7 @@ import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import com.tdtu.common.user_service.dto.ReceiverInfResponse;
 import com.tdtu.logistics_orders_service.dto.request.CreateOrderRequest;
 import com.tdtu.logistics_orders_service.dto.response.OrderInfResponse;
+import com.tdtu.logistics_orders_service.dto.response.PaginatedResponse;
 import com.tdtu.logistics_orders_service.entity.Orders;
 import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
 import com.tdtu.logistics_orders_service.exception.AppException;
@@ -20,6 +21,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -31,120 +35,141 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrdersServiceImpl implements OrdersService {
 
-    final OrdersRepository ordersRepository;
+	final OrdersRepository ordersRepository;
 
-    final OrderMapper orderMapper;
+	final OrderMapper orderMapper;
 
-    final UserServiceClient userServiceClient;
+	final UserServiceClient userServiceClient;
 
-    final KafkaTemplate<String, Object> kafkaTemplate;
+	final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Transactional
-    @Override
-    public OrderInfResponse createOrder(CreateOrderRequest requestDTO) {
-        log.info("Logistic-Order-Service: Order-Service: Method-Create-order: {}", requestDTO);
+	@Transactional
+	@Override
+	public OrderInfResponse createOrder(CreateOrderRequest requestDTO) {
+		log.info("Logistic-Order-Service: Order-Service: Method-Create-order: {}", requestDTO);
 
-        Orders orders = orderMapper.toEntity(requestDTO.getInformationOrder());
-        orders.setStatus(requestDTO.getOrderCreationStatus());
+		Orders orders = orderMapper.toEntity(requestDTO.getInformationOrder());
+		orders.setStatus(requestDTO.getOrderCreationStatus());
 
-        CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
-        MailUpdateOrderStatus mailUpdateOrderStatus = MailUpdateOrderStatus.builder()
-                .to(customerInfResponse.getEmail())
-                .subject("Dear"+ customerInfResponse.getFullName() +"Your order have bean status update: "+orders.getOrderCode())
-                .build();
+		CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
+		MailUpdateOrderStatus mailUpdateOrderStatus = MailUpdateOrderStatus.builder()
+				.to(customerInfResponse.getEmail())
+				.subject("Dear" + customerInfResponse.getFullName() + "Your order have bean status update: " + orders.getOrderCode())
+				.build();
 
-        kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
+		kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
 
-        return orderMapper.toOrderInfResponse(ordersRepository.save(orders));
-    }
+		return orderMapper.toOrderInfResponse(ordersRepository.save(orders));
+	}
 
-    @Transactional
-    @Override
-    public boolean updateOrderStatus(String branchCode, String orderId, OrderStatus orderStatus) {
-        log.info("Logistic-Order-Service: Order-Service: Method-Update-order-status: {}", orderId);
-        Orders orders = ordersRepository.findByOrderIdAndBranchCode(orderId, branchCode).orElseThrow(
-                () -> {
-                    log.error("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order not found");
-                    return new AppException(ErrorCode.ORDER_NOT_FOUND);
-                }
-        );
+	@Transactional
+	@Override
+	public boolean updateOrderStatus(String branchCode, String orderId, OrderStatus orderStatus) {
+		log.info("Logistic-Order-Service: Order-Service: Method-Update-order-status: {}", orderId);
+		Orders orders = ordersRepository.findByOrderIdAndBranchCode(orderId, branchCode).orElseThrow(
+				() -> {
+					log.error("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order not found");
+					return new AppException(ErrorCode.ORDER_NOT_FOUND);
+				}
+		);
 
-        log.error("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order status: {}", orders.getStatus());
+		log.error("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order status: {}", orders.getStatus());
 
-        if (!OrderStatusValidator.inValid(orders.getStatus())) {
+		if (!OrderStatusValidator.inValid(orders.getStatus())) {
 
-            ordersRepository.updateOrderStatusById(branchCode, orderId, orderStatus);
+			ordersRepository.updateOrderStatusById(branchCode, orderId, orderStatus);
 
-            // Send message to notification service
-            CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
-            MailUpdateOrderStatus mailUpdateOrderStatus = MailUpdateOrderStatus.builder()
-                    .to(customerInfResponse.getEmail())
-                    .subject("Dear "+ customerInfResponse.getFullName() +" Your order id:" + orders.getId() + " have bean status update: "+orderStatus)
-                    .build();
+			// Send message to notification service
+			CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
+			MailUpdateOrderStatus mailUpdateOrderStatus = MailUpdateOrderStatus.builder()
+					.to(customerInfResponse.getEmail())
+					.subject("Dear " + customerInfResponse.getFullName() + " Your order id:" + orders.getId() + " have bean status update: " + orderStatus)
+					.build();
 
-            kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
+			kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
 
-            ReceiverInfResponse receiverInfResponse = userServiceClient.getReceiverById(orders.getRecipientId()).getResult();
-            MailUpdateOrderStatus mailUpdateOrderStatusReceiver = MailUpdateOrderStatus.builder()
-                    .to(receiverInfResponse.getEmail())
-                    .subject("Dear"+ receiverInfResponse.getFullName() +"Your order have bean status update: "+orders.getOrderCode())
-                    .build();
-            kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatusReceiver);
+			ReceiverInfResponse receiverInfResponse = userServiceClient.getReceiverById(orders.getRecipientId()).getResult();
+			MailUpdateOrderStatus mailUpdateOrderStatusReceiver = MailUpdateOrderStatus.builder()
+					.to(receiverInfResponse.getEmail())
+					.subject("Dear" + receiverInfResponse.getFullName() + "Your order have bean status update: " + orders.getOrderCode())
+					.build();
+			kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatusReceiver);
 
-            log.info("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order status updated have been sent to notification service");
+			log.info("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order status updated have been sent to notification service");
 
-            return true;
-        } else {
-            throw new AppException(ErrorCode.ORDER_STATUS_NOT_VALID);
-        }
-    }
+			return true;
+		} else {
+			throw new AppException(ErrorCode.ORDER_STATUS_NOT_VALID);
+		}
+	}
 
-    @Override
-    public OrderInfResponse getOrderById(String orderId) {
-        log.info("Logistic-Order-Service: Order-Service: Method-Get-order-by-id: {}", orderId);
 
-        Orders orders = ordersRepository.findById(orderId).orElseThrow(() -> {
-            log.error("Logistic-Order-Service: Order-Service: Method-Get-order-by-id: Order not");
+	@Override
+	public OrderInfResponse getOrderById(String orderId) {
+		log.info("Logistic-Order-Service: Order-Service: Method-Get-order-by-id: {}", orderId);
 
-            return new AppException(ErrorCode.ORDER_NOT_FOUND);
-        });
+		Orders orders = ordersRepository.findById(orderId).orElseThrow(() -> {
+			log.error("Logistic-Order-Service: Order-Service: Method-Get-order-by-id: Order not");
 
-        return setSenderField(orders, orderMapper.toOrderInfResponse(orders));
-    }
+			return new AppException(ErrorCode.ORDER_NOT_FOUND);
+		});
 
-    @Override
-    public List<OrderInfResponse> getOrderBySenderIdAndStatus(String senderId, OrderStatus status) {
-        log.info("Logistic-Order-Service: Order-Service: Method-Get-order-by-sender-id-and-status: {}", senderId);
+		return setSenderField(orders, orderMapper.toOrderInfResponse(orders));
+	}
 
-        List<Orders> orders = ordersRepository.findBySenderIdAndStatus(senderId, status);
+	@Override
+	public List<OrderInfResponse> getOrderBySenderIdAndStatus(String senderId, OrderStatus status) {
+		log.info("Logistic-Order-Service: Order-Service: Method-Get-order-by-sender-id-and-status: {}", senderId);
 
-        return orders.stream().map(order -> {
-            OrderInfResponse orderInfResponse = orderMapper.toOrderInfResponse(order);
-            return setSenderField(order, orderInfResponse);
-        }).toList();
-    }
+		List<Orders> orders = ordersRepository.findBySenderIdAndStatus(senderId, status);
 
-    private OrderInfResponse setSenderField(Orders orders, OrderInfResponse orderInfResponse) {
-        log.info("Logistic-Order-Service: Order-Service: Method-Set-sender-field: {}", orderInfResponse);
+		return orders.stream().map(order -> {
+			OrderInfResponse orderInfResponse = orderMapper.toOrderInfResponse(order);
+			return setSenderField(order, orderInfResponse);
+		}).toList();
+	}
 
-        CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
-        ReceiverInfResponse receiverInfResponse = userServiceClient.getReceiverById(orders.getRecipientId()).getResult();
+	@Override
+	public PaginatedResponse<OrderInfResponse> getOrderBySenderId(String senderId, int page, int size) {
+		log.info("Logistic-Order-Service: Order-Service: Method-Get-order-by-sender-id: {}", senderId);
 
-        //AddressInfResponse addressInfResponse = userServiceClient.getAddressByUserId(orders.getSenderId()).getResult();
+		Pageable pageable = PageRequest.of(page, size);
+		Page<Orders> ordersPage = ordersRepository.findBySenderId(senderId, pageable);
+		List<OrderInfResponse> orderInfResponses = ordersPage.getContent().stream().map(order -> {
+			OrderInfResponse orderInfResponse = orderMapper.toOrderInfResponse(order);
+			return setSenderField(order, orderInfResponse);
+		}).toList();
+		PaginatedResponse<OrderInfResponse> paginatedResponse = new PaginatedResponse<>();
+		paginatedResponse.setContent(orderInfResponses);
+		paginatedResponse.setPage(page);
+		paginatedResponse.setSize(size);
+		paginatedResponse.setTotalElements(ordersPage.getTotalElements());
+		paginatedResponse.setTotalPages(ordersPage.getTotalPages());
+		paginatedResponse.setLastPage(ordersPage.isLast());
+		return paginatedResponse;
+	}
 
-        //Fix shipmentCode = ShipperId::
-        //ShipperInfResponse shipperInfResponse = userServiceClient.getShipperById(orders.getShipmentCode()).getResult();
+	private OrderInfResponse setSenderField(Orders orders, OrderInfResponse orderInfResponse) {
+		log.info("Logistic-Order-Service: Order-Service: Method-Set-sender-field: {}", orderInfResponse);
 
-        orderInfResponse.setSenderName(customerInfResponse.getFullName());
-        orderInfResponse.setSenderPhone(customerInfResponse.getPhoneNumber());
-        orderInfResponse.setSenderEmail(customerInfResponse.getEmail());
+		CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
+		ReceiverInfResponse receiverInfResponse = userServiceClient.getReceiverById(orders.getRecipientId()).getResult();
 
-        orderInfResponse.setReceiverName(receiverInfResponse.getFullName());
-        orderInfResponse.setReceiverPhone(receiverInfResponse.getPhoneNumber());
-        orderInfResponse.setReceiverEmail(receiverInfResponse.getEmail());
+		//AddressInfResponse addressInfResponse = userServiceClient.getAddressByUserId(orders.getSenderId()).getResult();
 
-        orderInfResponse.setSenderCode(customerInfResponse.getCustomerCode());
+		//Fix shipmentCode = ShipperId::
+		//ShipperInfResponse shipperInfResponse = userServiceClient.getShipperById(orders.getShipmentCode()).getResult();
 
-        return orderInfResponse;
-    }
+		orderInfResponse.setSenderName(customerInfResponse.getFullName());
+		orderInfResponse.setSenderPhone(customerInfResponse.getPhoneNumber());
+		orderInfResponse.setSenderEmail(customerInfResponse.getEmail());
+
+		orderInfResponse.setReceiverName(receiverInfResponse.getFullName());
+		orderInfResponse.setReceiverPhone(receiverInfResponse.getPhoneNumber());
+		orderInfResponse.setReceiverEmail(receiverInfResponse.getEmail());
+
+		orderInfResponse.setSenderCode(customerInfResponse.getCustomerCode());
+
+		return orderInfResponse;
+	}
 }

@@ -16,9 +16,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 public class OrderInfResponse {
+	private String id; // ID
 	private String orderHdrID; // ID tiêu đề đơn hàng
 	private String originalID; // ID gốc của đơn hàng
 	private String itemCode; // Mã vận đơn
+	private String shipmentId; // Mã vận đơn
 	private String originalItemCode; // Mã vận đơn gốc
 	private OrderStatus status; // Trạng thái đơn hàng
 	private String saleOrderCode; // Mã đơn bán hàng
@@ -90,4 +92,5 @@ public class OrderInfResponse {
 	private String inputMethod; // Phương thức đầu vào
 	private List<Object> documents; // Tài liệu
 	private List<Object> packageInfo; // Thông tin gói hàng
+
 }

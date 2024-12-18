@@ -29,14 +29,14 @@ public class Orders extends BaseEntity {
     @Column(name = "shipment_code", unique = true, length = 13)
     String shipmentCode; // Mã vận đơn
 
+    @Column(name = "order_code")
+    String orderCode; // Mã đơn hàng bán
+
     @Column(name = "note")
     String note; // Ghi chú
 
     @Column(name = "more_require")
     String moreRequire; // Yêu cầu bổ sung
-
-    @Column(name = "order_code")
-    String orderCode; // Mã đơn hàng bán
 
     @Column(name = "recipient_id")
     String recipientId; // Liên kết đến người nhận

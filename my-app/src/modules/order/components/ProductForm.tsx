@@ -71,7 +71,7 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
         }));
     };
 
-    const handleDimensionChange = (field: string, value: number) => {
+    const handleDimensionChange = (field: keyof Product['dimensions'], value: number) => {
         setProduct((prev) => ({
             ...prev,
             dimensions: {
@@ -128,10 +128,10 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
     };
 
     useEffect(() => {
-        if (product.productName && product.weight > 0 && product.quantity > 0) {
-            console.log(product)
-            // onSubmit(product);
-        }
+        // if (product.productName && product.weight > 0 && product.quantity > 0) {
+            onSubmit(product);
+            // console.log(product)
+        // }
     }, [product, onSubmit]);
 
     return (

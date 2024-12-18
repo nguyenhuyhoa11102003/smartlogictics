@@ -12,6 +12,7 @@ import { isAxiosError, isAxiosUnprocessableEntityError } from '@/utils/utils'; /
 import authApi from '@/modules/login/services/AuthService';
 import { LoginRequest } from '@/modules/login/dto/LoginRequest';
 import { toast } from 'react-toastify';
+import { useAuth } from '@/context/app.context';
 
 
 const loginSchema = yup.object().shape({
@@ -23,8 +24,9 @@ const loginSchema = yup.object().shape({
 
 export default function Login() {
     //   const { setIsAuthenticated, setProfile } = useContext(AppContext);
-    const router = useRouter();
+    const { accessToken, setAccessToken, clearAccessToken } = useAuth();
 
+    const router = useRouter();
     const {
         handleSubmit,
         register,

@@ -72,5 +72,6 @@ public class InformationOrderDTO {
     private String width; // Chiều rộng của hàng hóa (có thể null)
     private String length; // Chiều dài của hàng hóa (có thể null)
     private String height; // Chiều cao của hàng hóa (có thể null)
+    private String shipmentId;  // mã vận đơn
 
 }

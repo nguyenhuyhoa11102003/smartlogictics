@@ -19,80 +19,41 @@ import {
     SidebarRail,
 } from "@/components/ui/sidebar"
 
+
+const URL_ADMIN = "/admin"
+
 const data = {
     navMain: [
         {
             title: "Trang chủ",
-            url: "#",
-            items: [
-
-            ],
+            url: `${URL_ADMIN}/`,
+            items: [],
+            content: "Trang chủ content"
         },
         {
             title: "Tạo đơn",
-            url: "#",
+            url: `${URL_ADMIN}/create-order`,
             items: [
-                {
-                    title: "Tạo đơn lẻ",
-                    url: "#",
-                },
-                {
-                    title: "Nhập Excel",
-                    url: "#",
-                    isActive: true,
-                },
-            ],
+                { title: "Tạo đơn lẻ", url: `${URL_ADMIN}/create-order/one`, content: "Tạo đơn content" },
+                { title: "Nhập Excel", url: `${URL_ADMIN}/create-order/multi`, content: "Nhập Excel content", isActive: true },
+            ]
         },
         {
             title: "Quản lý",
-            url: "#",
+            url: `${URL_ADMIN}/quan-ly-van-don`,
             items: [
-                {
-                    title: "Quản lý vận đơn",
-                    url: "#",
-                },
-                {
-                    title: "Thống kê tiền hàng ",
-                    url: "#",
-                },
-                {
-                    title: "Thống kê doanh thu",
-                    url: "#",
-                },
-                {
-                    title: "Đơn hàng cần xử lý",
-                    url: "#",
-                },
-                {
-                    title: "Danh sách người nhận",
-                    url: "#",
-                },
-            ],
+                { title: "Quản lý vận đơn", url: `${URL_ADMIN}/quan-ly-van-don`, content: "Quản lý vận đơn content" },
+                { title: "Thống kê tiền hàng", url: "/statistics", content: "Thống kê tiền hàng content" },
+            ]
         },
-        {
-            title: "Tra cứu",
-            url: "#",
-            items: [
-                {
-                    title: "Tra cứu bưu cục",
-                    url: "#",
-                },
-                {
-                    title: "ƯỚC PHÍ",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Cài đặt tài khoản",
-            url: "#",
-            items: [],
-        },
-    ],
+    ]
 }
 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const handleClicked = () => {
+
+    }
     return (
         <Sidebar {...props}>
             <SidebarHeader>
@@ -120,10 +81,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <CollapsibleContent>
                                 <SidebarGroupContent>
                                     <SidebarMenu>
-                                        {item.items.map((item) => (
+                                        {item.items.map((subItem) => (
                                             <SidebarMenuItem key={item.title}>
-                                                <SidebarMenuButton asChild isActive={item.isActive}>
-                                                    <a href={item.url}>{item.title}</a>
+                                                <SidebarMenuButton
+                                                    asChild
+                                                    isActive={subItem.isActive}
+                                                    onClick={handleClicked}
+                                                >
+                                                    <a href={subItem.url}>{subItem.title}</a>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
                                         ))}

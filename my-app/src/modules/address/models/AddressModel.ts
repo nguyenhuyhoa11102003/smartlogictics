@@ -1,13 +1,14 @@
 export type Address = {
-  id?: number;
+  id?: string;
   contactName: string;
   phone: string;
-  addressLine1: string;
-  addressLine2?: string;
+  addressDetail: string;
   city?: string;
   zipCode?: string;
   districtId: number;
   districtName?: string;
+  wardId: number;
+  wardName?: string;
   stateOrProvinceId: number;
   stateOrProvinceName?: string;
   countryId: number;

@@ -3,6 +3,7 @@ package com.tdtu.logistics_orders_service.controller;
 import com.tdtu.logistics_orders_service.dto.request.CreateOrderRequest;
 import com.tdtu.logistics_orders_service.dto.response.ApiResponse;
 import com.tdtu.logistics_orders_service.dto.response.OrderInfResponse;
+import com.tdtu.logistics_orders_service.dto.response.PaginatedResponse;
 import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
 import com.tdtu.logistics_orders_service.service.OrdersService;
 import jakarta.validation.Valid;
@@ -67,13 +68,28 @@ public class OrdersController {
 	@GetMapping(value = "/get-by-sender-id-and-status/{senderId}/{status}",
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ApiResponse<List<OrderInfResponse>> getOrderBySenderIdAndStatus(@PathVariable String senderId,
-																		   @PathVariable OrderStatus status) {
+	                                                                       @PathVariable OrderStatus status) {
 
 		return ApiResponse.<List<OrderInfResponse>>builder()
 				.code(HttpStatus.OK.value())
 				.message("Get order by sender id and status successfully")
 				.result(ordersService.getOrderBySenderIdAndStatus(senderId, status))
 				.build();
+	}
+
+
+	@GetMapping(value = "/get-by-sender-id-and-status/{senderId}",
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ApiResponse<PaginatedResponse<OrderInfResponse>> getOrderBySenderId(
+			@PathVariable("senderId") String senderId,
+			@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "10") int size) {
+
+		return (ApiResponse.<PaginatedResponse<OrderInfResponse>>builder()
+				.code(HttpStatus.OK.value())
+				.message("Get order by sender id successfully")
+				.result(ordersService.getOrderBySenderId(senderId, page, size))
+				.build());
 	}
 
 }

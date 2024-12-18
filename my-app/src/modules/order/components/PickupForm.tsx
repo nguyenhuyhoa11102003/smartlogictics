@@ -26,7 +26,7 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
     const [currentDate, setCurrentDate] = useState<string>('');
     const [showPostOffices, setShowPostOffices] = useState<boolean>(false);
     const [selectedPostOffice, setSelectedPostOffice] = useState<string>("");
-    const [selectedSender, setSelectedSender] = useState<string>('');
+    const [selectedSender, setSelectedSender] = useState<string>('3d04b569-2c6a-41f8-afc5-d443e94ba647');
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
 
 
@@ -48,12 +48,19 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
 
     useEffect(() => {
         const fetchWarehouses = async () => {
-            getAllWarehouses()
-                .then((data) => setWarehouses(data))
-                .catch((error) => {
-                    setWarehouses([])
-                    console.error('Error fetching warehouses:', error);
-                })
+            try {
+                const response = await getAllWarehouses();
+                setWarehouses(response)
+            }
+            catch (e) {
+                alert('error')
+            }
+            // getAllWarehouses()
+            //     .then((data) => setWarehouses(data))
+            //     .catch((error) => {
+            //         // setWarehouses([])
+            //         // console.error('Error fetching warehouses:', error);
+            //     })
         };
         fetchWarehouses();
     }, []);
@@ -108,7 +115,7 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
             timePeriod: timePeriod,
             isPostOfficePickup: showPostOffices,
         };
-
+        // console.log(updatedData)
         setPickupData(updatedData);
         onPickupDataChange(updatedData);
     }, [showPostOffices, selectedSender, pickupDay, timePeriod, selectedPostOffice]);
@@ -139,7 +146,9 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
                         id="senderName"
                         className="w-full border rounded p-2"
                         value={selectedSender}
-                        onChange={(e) => setSelectedSender(e.target.value)}
+                        onChange={
+                            (e) => setSelectedSender(e.target.value)
+                        }
                     >
                         <option value="">Chọn người gửi...</option>
                         {accounts.map((acount) => (

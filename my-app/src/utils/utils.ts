@@ -59,3 +59,19 @@ export const getIdFromNameId = (nameId: string) => {
 //   }
 //   return userImage
 // }
+
+
+
+export const formatToVietnamTime = (isoString: string) => {
+  const date = new Date(isoString);
+  return new Intl.DateTimeFormat('vi-VN', {
+    timeZone: 'Asia/Ho_Chi_Minh', // Múi giờ, ví dụ: 'Asia/Ho_Chi_Minh' cho Việt Nam.
+    year: 'numeric', // Định dạng năm: 'numeric' (2024) hoặc '2-digit' (24).
+    month: '2-digit', // Định dạng tháng: 'numeric' (12), '2-digit' (12), 'long' (December), 'short' (Dec), 'narrow' (D).
+    day: '2-digit', // Định dạng ngày: 'numeric' (10), '2-digit' (10).
+    hour: '2-digit', // Định dạng giờ: 'numeric' (22), '2-digit' (22).
+    minute: '2-digit', // Định dạng phút: 'numeric' (37), '2-digit' (37).
+    second: '2-digit', // Định dạng giây: 'numeric' (36), '2-digit' (36).
+    hour12: false // `true` cho AM/PM, `false` cho định dạng 24 giờ.
+  }).format(date);
+}

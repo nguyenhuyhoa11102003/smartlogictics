@@ -2,11 +2,11 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 
-type Props = {
-  children: React.ReactNode;
-};
+// type Props = {
+//   children: React.ReactNode;
+// };
 
-export default function LayoutDashboard({ children }: Props) {
+export default function LayoutDashboard({ children }: {  children: React.ReactNode;}) {
   return (
     <SidebarProvider>
       <AppSidebar />

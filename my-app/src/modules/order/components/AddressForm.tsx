@@ -85,13 +85,14 @@ export default function AddressForm({ onAddressChange }: AddressFormProps) {
                 (selectedProvince ? selectedProvince?.name : " "))
             // send callback            
             onAddressChange({
-                addressLine1: street,
-                addressLine2: "", // Can add logic for a second address line if needed
+                addressDetail: addressDetail,
                 city: selectedProvince.name,
                 districtId: parseInt(selectedDistrict.idDistrict),
                 districtName: selectedDistrict.name,
                 stateOrProvinceId: parseInt(selectedProvince.idProvince),
                 stateOrProvinceName: selectedProvince.name,
+                wardId: parseInt(selectedWard.idCommune),
+                wardName: selectedWard.name,
                 countryId: 1, // Adjust country ID if needed
                 countryName: "Vietnam", // Update if needed
             } as Address);

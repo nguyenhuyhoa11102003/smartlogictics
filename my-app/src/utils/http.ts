@@ -8,16 +8,18 @@ import {
   getAccessTokenFromLS,
   getRefreshTokenFromLS,
   setAccessTokenToLS,
-  setProfileToLS,
+  // setProfileToLS,
   setRefreshTokenToLS
 } from './auth'
 import { isAxiosExpiredTokenError, isAxiosUnauthorizedError } from './utils'
 export class Http {
   instance: AxiosInstance
+
   private accessToken: string
   private refreshToken: string
   private refreshTokenRequest: Promise<unknown> | null = null
-  constructor(baseUrl: string = 'http://localhost:8080/') {
+
+  constructor(baseUrl: string = "http://localhost:8080/") {
     // why do we need to use this.accessToken = getAccessTokenFromLS() here?
     // because when getdata from localstorage(hard drive) ALWAYS SLOWER than get accessToken from (Ram)
     this.accessToken = getAccessTokenFromLS()
@@ -30,11 +32,12 @@ export class Http {
         // 'expire-refresh-token': 25
       }
     })
+
     // Add a request interceptor
     this.instance.interceptors.request.use(
       (config) => {
         if (this.accessToken && config.headers) {
-          config.headers.authorization = this.accessToken
+          config.headers.authorization = `Bearer ${this.accessToken}`;
           return config
         }
         return config
@@ -43,6 +46,7 @@ export class Http {
         return Promise.reject(error)
       }
     )
+
     // Add a response interceptor
     this.instance.interceptors.response.use(
       (response) => {
@@ -117,16 +121,17 @@ export class Http {
       }
     )
   }
+
   private handleRefreshToken = async () => {
     return this.instance
       .post<RefreshTokenRespone>(URL_REFRESH_TOKEN, {
         refresh_token: this.refreshToken
       })
       .then((response) => {
-        const access_token = response.data.data.access_token
-        setAccessTokenToLS(access_token)
-        this.accessToken = access_token
-        return access_token
+        // const access_token = response.data.data.access_token
+        // setAccessTokenToLS(access_token)
+        // this.accessToken = access_token
+        // return access_token
       })
       .catch((error) => {
         clearLS()
