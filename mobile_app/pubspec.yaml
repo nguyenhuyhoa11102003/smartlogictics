@@ -37,6 +37,7 @@ dependencies:
   toast: ^0.3.0
   animated_background: ^2.0.0
   curved_navigation_bar: ^1.0.3
+  mobile_scanner: ^6.0.2
 
 dev_dependencies:
   flutter_test:

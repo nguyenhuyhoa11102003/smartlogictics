@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_app/views/fragments/homes/detail_scan_qr.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -119,16 +120,13 @@ class _HomeViewState extends State<HomeView> {
                       children: [
                         // Icon tìm kiếm
                         IconButton(
-                          onPressed: () {
-                            // Xử lý tìm kiếm
-                          },
+                          onPressed: () => Navigator.pushNamed(context, '/detailsScanOrder'),
+
                           icon: const Icon(Icons.search, color: Colors.white),
                         ),
                         // Icon quét QR
                         IconButton(
-                          onPressed: () {
-                            // Xử lý quét QR
-                          },
+                          onPressed: () => Navigator.pushNamed(context, '/detailsScanOrder'),
                           icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
                         ),
                       ],
