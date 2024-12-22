@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mobile_app/views/fragments/homes/detail_scan_qr.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -155,9 +154,9 @@ class _HomeViewState extends State<HomeView> {
                     color: Colors.red, // Màu đỏ nổi bật
                     size: 28, // Kích thước icon
                   ),
-                  title: Text(
+                  title: const Text(
                     "1168/9 Đường Lê Văn Lương, X.Phước Kiển, H.Nhà Bè, TP.HCM",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),

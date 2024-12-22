@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -36,6 +37,7 @@ public class SecurityConfig extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     private static final String[] AUTH_WHITELIST = {
+            "/**",
             "/api/v1/account/create",
             "/api/v1/auth/login",
             "/api/v1/auth/logout",
@@ -45,7 +47,8 @@ public class SecurityConfig extends OncePerRequestFilter {
             "/swagger-ui-custom.html",
     };
 
-    private final JwtDecoderConfig jwtDecoderConfig;
+    @Autowired
+    JwtDecoderConfig jwtDecoderConfig;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {

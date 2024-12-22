@@ -9,16 +9,20 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateAddressRequest {
-    private String userId;
 
     private String province; // Tỉnh.
 
+    private String ProvinceCode;
+
     private String district; // Huyện.
 
-    private String ward; // Xã/Phường.
+    private String districtCode;
+
+    private String ward;     // Xã/Phường.
+
+    private String wardCode;
 
     private String street;   // Đường.
 
     private String postalCode;
-
 }

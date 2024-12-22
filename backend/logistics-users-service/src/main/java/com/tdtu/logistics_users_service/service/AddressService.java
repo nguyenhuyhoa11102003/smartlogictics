@@ -8,8 +8,8 @@ public interface AddressService {
 
     AddressInfResponse createAddress(CreateAddressRequest createAddressRequest);
 
-    AddressInfResponse updateAddress(String userId, UpdateAddressRequest updateAddressRequest);
+    AddressInfResponse updateAddress(Long id, UpdateAddressRequest updateAddressRequest);
 
-    AddressInfResponse getAddressByUserId(String userId);
+    AddressInfResponse getAddressById(Long addressId);
 
 }

@@ -11,12 +11,12 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 @RequiredArgsConstructor
@@ -38,18 +38,27 @@ public class ApplicationInitConfig {
 
         return args -> {
             if (userAccountRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
-                roleRepository.save(Role.builder()
-                        .name(PredefinedRole.USER_ROLE)
-                        .description("User role")
-                        .build());
+
+                Role customerRole = Role.builder()
+                        .name(PredefinedRole.CUSTOMER_ROLE)
+                        .description("Customer role")
+                        .build();
 
                 Role adminRole = roleRepository.save(Role.builder()
                         .name(PredefinedRole.ADMIN_ROLE)
                         .description("Admin role")
                         .build());
 
+                Role shipperRole = roleRepository.save(Role.builder()
+                        .name(PredefinedRole.SHIPPER_ROLE)
+                        .description("Shipper role")
+                        .build());
+
+                roleRepository.saveAll(Set.of(customerRole, adminRole, shipperRole));
+
                 var roles = new HashSet<Role>();
                 roles.add(adminRole);
+                roles.add(shipperRole);
 
                 Account account = Account.builder()
                         .username(ADMIN_USER_NAME)
