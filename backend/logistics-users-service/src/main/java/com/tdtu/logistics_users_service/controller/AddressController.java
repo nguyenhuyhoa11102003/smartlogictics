@@ -18,31 +18,30 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class AddressController {
 
-    AddressService addressService;
+	AddressService addressService;
 
-    @PutMapping(value = "/{userId}/update", consumes = "application/json", produces = "application/json")
-    public ApiResponse<AddressInfResponse> updateAddress(
-            @PathVariable String userId,
-            @RequestBody @Valid UpdateAddressRequest updateAddressRequest)
-    {
-        AddressInfResponse result = addressService.updateAddress(userId, updateAddressRequest);
+	@PutMapping(value = "/{userId}/update", consumes = "application/json", produces = "application/json")
+	public ApiResponse<AddressInfResponse> updateAddress(
+			@PathVariable String userId,
+			@RequestBody @Valid UpdateAddressRequest updateAddressRequest) {
+		AddressInfResponse result = addressService.updateAddress(userId, updateAddressRequest);
 
-        return ApiResponse.<AddressInfResponse>builder()
-                .code(200)
-                .result(result)
-                .message("Update address successfully")
-                .build();
-    }
+		return ApiResponse.<AddressInfResponse>builder()
+				.code(200)
+				.result(result)
+				.message("Update address successfully")
+				.build();
+	}
 
-    @GetMapping(value = "/{userId}", produces = "application/json")
-    public ApiResponse<AddressInfResponse> getAddressByUserId(@PathVariable String userId) {
-        AddressInfResponse result = addressService.getAddressByUserId(userId);
+	@GetMapping(value = "/{userId}", produces = "application/json")
+	public ApiResponse<AddressInfResponse> getAddressByUserId(@PathVariable String userId) {
+		AddressInfResponse result = addressService.getAddressByUserId(userId);
 
-        return ApiResponse.<AddressInfResponse>builder()
-                .code(200)
-                .result(result)
-                .message("Get address by user id successfully")
-                .build();
-    }
+		return ApiResponse.<AddressInfResponse>builder()
+				.code(200)
+				.result(result)
+				.message("Get address by user id successfully")
+				.build();
+	}
 
 }

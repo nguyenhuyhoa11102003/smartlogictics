@@ -1,16 +1,22 @@
 package com.tdtu.logistics_users_service.enumrators;
 
 public enum VehicleType {
-    MOTORBIKE("Xe máy"),
-    TRUCK("Xe tải");
 
-    private final String name;
+	// giao hanh nhanh
+	MOTORBIKE("Xe máy"),
 
-    VehicleType(String value) {
-        this.name = value;
-    }
+	// giao hang trong noi thanh
+	VAN("Xe tải 1 tấn"),
+	// giao hàng liên tỉnh
+	TRUCK("Xe tải 15 tấn");
 
-    public String getValue() {
-        return name;
-    }
+	private final String name;
+
+	VehicleType(String value) {
+		this.name = value;
+	}
+
+	public String getValue() {
+		return name;
+	}
 }

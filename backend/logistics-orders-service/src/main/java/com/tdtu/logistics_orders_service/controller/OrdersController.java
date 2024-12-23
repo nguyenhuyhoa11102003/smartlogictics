@@ -1,6 +1,9 @@
 package com.tdtu.logistics_orders_service.controller;
 
+import com.tdtu.common.user_service.dto.ShipperInfResponse;
 import com.tdtu.logistics_orders_service.dto.request.CreateOrderRequest;
+import com.tdtu.logistics_orders_service.dto.request.PickupRequest;
+import com.tdtu.logistics_orders_service.dto.request.DeliveryRequest;
 import com.tdtu.logistics_orders_service.dto.response.ApiResponse;
 import com.tdtu.logistics_orders_service.dto.response.OrderInfResponse;
 import com.tdtu.logistics_orders_service.dto.response.PaginatedResponse;
@@ -92,4 +95,35 @@ public class OrdersController {
 				.build());
 	}
 
+	// Post: phân công nhận đơn hàng cho shipper
+	@PostMapping(value = "/assign/pick-up/{orderId}/{shipperId}",
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ApiResponse<OrderInfResponse> assignShipperToOrder(
+			@PathVariable("orderId") String orderId,
+			@PathVariable("shipperId") String shipperId,
+			@RequestBody PickupRequest pickupRequest
+	) {
+		OrderInfResponse orderInfResponse = ordersService.assignShipperPickUp(orderId, shipperId, pickupRequest);
+		return ApiResponse.<OrderInfResponse>builder()
+				.code(HttpStatus.OK.value())
+				.message("Assign shipper to order successfully")
+				.result(orderInfResponse)
+				.build();
+	}
+
+
+	// POST xử lý giao hàng
+	@PostMapping(value = "/assign/deliver/{orderId}/{shipperId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ApiResponse<OrderInfResponse> deliverOrder(
+			@PathVariable("orderId") String orderId,
+			@PathVariable("shipperId") String shipperId,
+			@RequestBody DeliveryRequest deliveryRequest) {
+
+		OrderInfResponse orderInfResponse = ordersService.assignShipperDelivery(orderId, shipperId, deliveryRequest);
+		return ApiResponse.<OrderInfResponse>builder()
+				.code(HttpStatus.OK.value())
+				.message("Order delivered successfully")
+				.result(orderInfResponse)
+				.build();
+	}
 }

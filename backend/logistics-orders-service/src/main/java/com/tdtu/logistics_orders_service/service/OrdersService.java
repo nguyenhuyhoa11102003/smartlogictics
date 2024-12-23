@@ -1,6 +1,9 @@
 package com.tdtu.logistics_orders_service.service;
 
+import com.tdtu.common.user_service.dto.ShipperInfResponse;
 import com.tdtu.logistics_orders_service.dto.request.CreateOrderRequest;
+import com.tdtu.logistics_orders_service.dto.request.DeliveryRequest;
+import com.tdtu.logistics_orders_service.dto.request.PickupRequest;
 import com.tdtu.logistics_orders_service.dto.response.OrderInfResponse;
 import com.tdtu.logistics_orders_service.dto.response.PaginatedResponse;
 import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
@@ -8,6 +11,7 @@ import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
 import java.util.List;
 
 public interface OrdersService {
+
 
 	OrderInfResponse createOrder(CreateOrderRequest requestDTO);
 
@@ -17,6 +21,9 @@ public interface OrdersService {
 
 	List<OrderInfResponse> getOrderBySenderIdAndStatus(String senderId, OrderStatus status);
 
-	PaginatedResponse<OrderInfResponse> getOrderBySenderId(String senderId , int page, int size);
+	PaginatedResponse<OrderInfResponse> getOrderBySenderId(String senderId, int page, int size);
 
+	OrderInfResponse assignShipperPickUp(String orderId, String shipperId, PickupRequest pickupRequest);
+
+	OrderInfResponse assignShipperDelivery(String orderId, String shipperId, DeliveryRequest pickupRequest);
 }

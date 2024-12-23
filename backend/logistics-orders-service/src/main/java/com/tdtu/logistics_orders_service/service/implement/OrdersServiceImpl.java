@@ -4,11 +4,15 @@ import com.tdtu.common.constant.KafkaTopic;
 import com.tdtu.common.dto.MailUpdateOrderStatus;
 import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import com.tdtu.common.user_service.dto.ReceiverInfResponse;
+import com.tdtu.common.user_service.dto.ShipperInfResponse;
 import com.tdtu.logistics_orders_service.dto.request.CreateOrderRequest;
+import com.tdtu.logistics_orders_service.dto.request.DeliveryRequest;
+import com.tdtu.logistics_orders_service.dto.request.PickupRequest;
 import com.tdtu.logistics_orders_service.dto.response.OrderInfResponse;
 import com.tdtu.logistics_orders_service.dto.response.PaginatedResponse;
 import com.tdtu.logistics_orders_service.entity.Orders;
 import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
+import com.tdtu.logistics_orders_service.enumrator.ReceivingMethod;
 import com.tdtu.logistics_orders_service.exception.AppException;
 import com.tdtu.logistics_orders_service.exception.ErrorCode;
 import com.tdtu.logistics_orders_service.mapper.OrderMapper;
@@ -42,6 +46,7 @@ public class OrdersServiceImpl implements OrdersService {
 	final UserServiceClient userServiceClient;
 
 	final KafkaTemplate<String, Object> kafkaTemplate;
+
 
 	@Transactional
 	@Override
@@ -149,6 +154,82 @@ public class OrdersServiceImpl implements OrdersService {
 		return paginatedResponse;
 	}
 
+	@Override
+	public OrderInfResponse assignShipperPickUp(String orderId, String shipperId, PickupRequest pickupRequest) {
+
+		Orders orderEntity = ordersRepository.findById(orderId).orElseThrow(() -> {
+			log.error("Logistic-Order-Service: Order-Service: Method-Assign-shipper-to-order: Order not found");
+			return new AppException(ErrorCode.ORDER_NOT_FOUND);
+		});
+
+		orderEntity.setPickupDate(pickupRequest.getPickupDate()); // Ngày pickup
+		orderEntity.setPickupStatus("PENDING");  // Trạng thái pickup
+		orderEntity.setPickupRemarks(pickupRequest.getRemarks());  // Ghi chú pickup
+
+		// Check Receiving Method
+		if (orderEntity.getReceivingMethod().equals(ReceivingMethod.CUSTOMER_ADDRESS)) {
+			String existingShipperId = orderEntity.getPickupShipperId();
+			if (existingShipperId != null && !existingShipperId.isEmpty()) {
+				log.error("Logistic-Order-Service: Order-Service: Method-Assign-shipper-to-order: Shipper already assigned");
+				throw new AppException(ErrorCode.SHIPPER_ALREADY_EXISTS);
+			}
+
+			// Assign Shipper
+			ShipperInfResponse shipperInfResponse = assignShipper(shipperId);
+			if (shipperInfResponse == null) {
+				log.error("Logistic-Order-Service: Order-Service: Method-Assign-shipper-to-order: Shipper not found");
+				throw new AppException(ErrorCode.SHIPPER_NOT_AVAILABLE);
+			}
+			orderEntity.setStatus(OrderStatus.PICKING);
+			orderEntity.setPickupShipperId(shipperId);
+			ordersRepository.save(orderEntity);
+			log.info("Logistic-Order-Service: Order-Service: Method-Assign-shipper-to-order: Shipper assigned successfully");
+
+		} else {
+			log.error("Logistic-Order-Service: Order-Service: Method-Assign-shipper-to-order: Invalid receiving method for this order");
+			throw new AppException(ErrorCode.INVALID_REQUEST);
+		}
+		return orderMapper.toOrderInfResponse(orderEntity);
+	}
+
+	@Override
+	public OrderInfResponse assignShipperDelivery(String orderId, String shipperId, DeliveryRequest deliveryRequest) {
+
+		Orders orderEntity = ordersRepository.findById(orderId).orElseThrow(() -> {
+			log.error("Logistic-Order-Service: Order-Service: Method-Assign-shipper-to-order: Order not found");
+			return new AppException(ErrorCode.ORDER_NOT_FOUND);
+		});
+
+		orderEntity.setDeliveredDate(deliveryRequest.getDeliveredDate()); // Ngày pickup
+		orderEntity.setDeliveryStatus("PENDING");
+		orderEntity.setDeliveryRemarks(deliveryRequest.getRemarks());
+
+		// Check Receiving Method
+		if (orderEntity.getReceivingMethod().equals(ReceivingMethod.CUSTOMER_ADDRESS)) {
+			String existingShipperId = orderEntity.getPickupShipperId();
+			if (existingShipperId != null && !existingShipperId.isEmpty()) {
+				log.error("Logistic-Order-Service: Order-Service: Method-Assign-shipper-to-order: Shipper already assigned");
+				throw new AppException(ErrorCode.SHIPPER_ALREADY_EXISTS);
+			}
+
+			// Assign Shipper
+			ShipperInfResponse shipperInfResponse = assignShipper(shipperId);
+			if (shipperInfResponse == null) {
+				log.error("Logistic-Order-Service: Order-Service: Method-Assign-shipper-to-order: Shipper not found");
+				throw new AppException(ErrorCode.SHIPPER_NOT_AVAILABLE);
+			}
+			orderEntity.setStatus(OrderStatus.DELIVERING);
+			orderEntity.setDeliveryShipperId(shipperId);
+			ordersRepository.save(orderEntity);
+			log.info("Logistic-Order-Service: Order-Service: Method-Assign-shipper-to-order: Shipper assigned successfully");
+
+		} else {
+			log.error("Logistic-Order-Service: Order-Service: Method-Assign-shipper-to-order: Invalid receiving method for this order");
+			throw new AppException(ErrorCode.INVALID_REQUEST);
+		}
+		return orderMapper.toOrderInfResponse(orderEntity);
+	}
+
 	private OrderInfResponse setSenderField(Orders orders, OrderInfResponse orderInfResponse) {
 		log.info("Logistic-Order-Service: Order-Service: Method-Set-sender-field: {}", orderInfResponse);
 
@@ -171,5 +252,13 @@ public class OrdersServiceImpl implements OrdersService {
 		orderInfResponse.setSenderCode(customerInfResponse.getCustomerCode());
 
 		return orderInfResponse;
+	}
+
+
+	private ShipperInfResponse assignShipper(String shipperId) {
+		ShipperInfResponse shipper = userServiceClient
+				.getShipperById(shipperId)
+				.getResult();
+		return shipper;
 	}
 }

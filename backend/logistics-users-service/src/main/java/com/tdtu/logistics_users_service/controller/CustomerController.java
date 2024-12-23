@@ -19,63 +19,63 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class CustomerController {
 
-    CustomerService customerService;
+	CustomerService customerService;
 
-    @PostMapping(value = "/create", consumes = "application/json", produces = "application/json")
-    public ApiResponse<CustomerInfResponse> createCustomer(
-            @RequestBody CreateCustomerRequest createCustomerRequest) {
-        CustomerInfResponse result = customerService.createCustomer(createCustomerRequest);
+	@PostMapping(value = "/create", consumes = "application/json", produces = "application/json")
+	public ApiResponse<CustomerInfResponse> createCustomer(
+			@RequestBody CreateCustomerRequest createCustomerRequest) {
+		CustomerInfResponse result = customerService.createCustomer(createCustomerRequest);
 
-        return ApiResponse.<CustomerInfResponse>builder()
-                .code(HttpStatus.CREATED.value())
-                .result(result)
-                .message("Create customer successfully")
-                .build();
-    }
+		return ApiResponse.<CustomerInfResponse>builder()
+				.code(HttpStatus.CREATED.value())
+				.result(result)
+				.message("Create customer successfully")
+				.build();
+	}
 
-    @PutMapping(value = "/update/{id}", consumes = "application/json", produces = "application/json")
-    public ApiResponse<CustomerInfResponse> updateCustomer(
-            @PathVariable String id,
-            @RequestBody UpdateCustomerRequest updateCustomerRequest) {
-        CustomerInfResponse result = customerService.updateCustomer(id, updateCustomerRequest);
+	@PutMapping(value = "/update/{id}", consumes = "application/json", produces = "application/json")
+	public ApiResponse<CustomerInfResponse> updateCustomer(
+			@PathVariable String id,
+			@RequestBody UpdateCustomerRequest updateCustomerRequest) {
+		CustomerInfResponse result = customerService.updateCustomer(id, updateCustomerRequest);
 
-        return ApiResponse.<CustomerInfResponse>builder()
-                .code(HttpStatus.OK.value())
-                .result(result)
-                .message("Update customer successfully")
-                .build();
-    }
+		return ApiResponse.<CustomerInfResponse>builder()
+				.code(HttpStatus.OK.value())
+				.result(result)
+				.message("Update customer successfully")
+				.build();
+	}
 
-    @GetMapping(value = "/get/{id}", produces = "application/json")
-    public ApiResponse<CustomerInfResponse> getCustomerById(@PathVariable String id) {
-        CustomerInfResponse result = customerService.getCustomerById(id);
+	@GetMapping(value = "/get/{id}", produces = "application/json")
+	public ApiResponse<CustomerInfResponse> getCustomerById(@PathVariable String id) {
+		CustomerInfResponse result = customerService.getCustomerById(id);
 
-        return ApiResponse.<CustomerInfResponse>builder()
-                .code(HttpStatus.OK.value())
-                .result(result)
-                .message("Get customer by id successfully")
-                .build();
-    }
+		return ApiResponse.<CustomerInfResponse>builder()
+				.code(HttpStatus.OK.value())
+				.result(result)
+				.message("Get customer by id successfully")
+				.build();
+	}
 
-    @GetMapping(value = "/getByEmail/{email}", produces = "application/json")
-    public ApiResponse<CustomerInfResponse> getCustomerByEmail(@PathVariable String email) {
-        CustomerInfResponse result = customerService.getCustomerByEmail(email);
+	@GetMapping(value = "/getByEmail/{email}", produces = "application/json")
+	public ApiResponse<CustomerInfResponse> getCustomerByEmail(@PathVariable String email) {
+		CustomerInfResponse result = customerService.getCustomerByEmail(email);
 
-        return ApiResponse.<CustomerInfResponse>builder()
-                .code(HttpStatus.OK.value())
-                .result(result)
-                .message("Get customer by email successfully")
-                .build();
-    }
+		return ApiResponse.<CustomerInfResponse>builder()
+				.code(HttpStatus.OK.value())
+				.result(result)
+				.message("Get customer by email successfully")
+				.build();
+	}
 
-    @GetMapping(value = "/getByPhone/{phoneNumber}", produces = "application/json")
-    public ApiResponse<CustomerInfResponse> getCustomerByPhone(@PathVariable String phoneNumber) {
-        CustomerInfResponse result = customerService.getCustomerByPhoneNumber(phoneNumber);
+	@GetMapping(value = "/getByPhone/{phoneNumber}", produces = "application/json")
+	public ApiResponse<CustomerInfResponse> getCustomerByPhone(@PathVariable String phoneNumber) {
+		CustomerInfResponse result = customerService.getCustomerByPhoneNumber(phoneNumber);
 
-        return ApiResponse.<CustomerInfResponse>builder()
-                .code(HttpStatus.OK.value())
-                .result(result)
-                .message("Get customer by phone successfully")
-                .build();
-    }
+		return ApiResponse.<CustomerInfResponse>builder()
+				.code(HttpStatus.OK.value())
+				.result(result)
+				.message("Get customer by phone successfully")
+				.build();
+	}
 }

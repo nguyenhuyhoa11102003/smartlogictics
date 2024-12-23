@@ -7,6 +7,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 
 @Getter
 @Setter
@@ -19,66 +22,87 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "orders")
 public class Orders extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String id; // UUID của đơn hàng
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	String id; // UUID của đơn hàng
 
-    @Enumerated(EnumType.STRING)
-    OrderStatus status; // Trạng thái đơn hàng
+	@Enumerated(EnumType.STRING)
+	OrderStatus status; // Trạng thái đơn hàng
 
-    @Column(name = "shipment_code", unique = true, length = 13)
-    String shipmentCode; // Mã vận đơn
+	@Column(name = "shipment_code", unique = true, length = 13)
+	String shipmentCode; // Mã vận đơn
 
-    @Column(name = "order_code")
-    String orderCode; // Mã đơn hàng bán
+	@Column(name = "order_code")
+	String orderCode; // Mã đơn hàng bán
 
-    @Column(name = "note")
-    String note; // Ghi chú
+	@Column(name = "note")
+	String note; // Ghi chú
 
-    @Column(name = "more_require")
-    String moreRequire; // Yêu cầu bổ sung
+	@Column(name = "more_require")
+	String moreRequire; // Yêu cầu bổ sung
 
-    @Column(name = "recipient_id")
-    String recipientId; // Liên kết đến người nhận
+	@Column(name = "recipient_id")
+	String recipientId; // Liên kết đến người nhận
 
-    @Column(name = "sender_id")
-    String senderId; // Liên kết đến người gửi
+	@Column(name = "sender_id")
+	String senderId; // Liên kết đến người gửi
 
-    @Column(name = "branch_code")
-    String branchCode; // Mã chi nhánh warehouse
+	@Column(name = "branch_code")
+	String branchCode; // Mã chi nhánh warehouse
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "service_code")
-    DeliveryServiceType serviceCode; // Mã dịch vụ giao hàng
+	@Enumerated(EnumType.STRING)
+	@Column(name = "service_code")
+	DeliveryServiceType serviceCode; // Mã dịch vụ giao hàng
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "receiving_method")
-    ReceivingMethod receivingMethod; // Phương thức nhận hàng
+	@Enumerated(EnumType.STRING)
+	@Column(name = "receiving_method")
+	ReceivingMethod receivingMethod; // Phương thức nhận hàng
 
-    @Column(name = "vehicle")
-    String vehicle; // Loại phương tiện vận chuyển
+	@Column(name = "vehicle")
+	String vehicle; // Loại phương tiện vận chuyển
 
-    @Column(name = "is_broken")
-    boolean isBroken; // Hàng hóa có bị hư hỏng không
+	@Column(name = "is_broken")
+	boolean isBroken; // Hàng hóa có bị hư hỏng không
 
-    @Column(name = "delivery_time")
-    String deliveryTime; // Thời gian giao hàng dự kiến
+	@Column(name = "delivery_time")
+	String deliveryTime; // Thời gian giao hàng dự kiến
 
-    @Column(name = "delivery_require")
-    String deliveryRequire; // Yêu cầu giao hàng
+	@Column(name = "delivery_require")
+	String deliveryRequire; // Yêu cầu giao hàng
 
-    @Column(name = "delivery_instruction")
-    String deliveryInstruction; // Hướng dẫn giao hàng
+	@Column(name = "delivery_instruction")
+	String deliveryInstruction; // Hướng dẫn giao hàng
 
-    @Column(name = "weight")
-    String weight; // Trọng lượng đơn vị hàng (gram)
+	@Column(name = "weight")
+	String weight; // Trọng lượng đơn vị hàng (gram)
 
-    @Column(name = "width")
-    String width; // Chiều rộng của hàng hóa
+	@Column(name = "width")
+	String width; // Chiều rộng của hàng hóa
 
-    @Column(name = "length")
-    String length; // Chiều dài của hàng hóa
+	@Column(name = "length")
+	String length; // Chiều dài của hàng hóa
 
-    @Column(name = "height")
-    String height; // Chiều cao của hàng hóa
+	@Column(name = "height")
+	String height; // Chiều cao của hàng hóa
+
+	@Column(name = "pickup_shipper_id")
+	String pickupShipperId; // Thông tin shipper nhận đơn hàng
+
+	@Column(name = "delivery_shipper_id")
+	String deliveryShipperId; // Shipper giao hàng
+
+	@Column(name = "totalAmount")
+	BigDecimal totalAmount; // Tổng giá trị đơn hàng
+
+
+	private LocalDateTime pickupDate;  // Thời gian pickup
+	private String pickupStatus;  // Trạng thái pickup (PENDING, COMPLETED, FAILED)
+	private String pickupRemarks;  // Ghi chú pick
+
+
+	private LocalDateTime deliveredDate;  // Thời gian giao hàng
+	private String deliveryStatus;  // Trạng thái giao hàng (DELIVERED, FAILED)
+	private String deliveryRemarks;  // Ghi chú giao hàng
+
+
 }
