@@ -1,5 +1,6 @@
 package com.tdtu.logistics_users_service.controller;
 
+import com.tdtu.logistics_users_service.dto.request.CreateAddressRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateAddressRequest;
 import com.tdtu.logistics_users_service.dto.response.AddressInfResponse;
 import com.tdtu.logistics_users_service.dto.response.ApiResponse;
@@ -20,11 +21,23 @@ public class AddressController {
 
 	AddressService addressService;
 
-	@PutMapping(value = "/{userId}/update", consumes = "application/json", produces = "application/json")
+	@PostMapping(value = "/create", consumes = "application/json", produces = "application/json")
+	public ApiResponse<AddressInfResponse> createAddress(
+			@RequestBody @Valid CreateAddressRequest createAddressRequest) {
+		AddressInfResponse result = addressService.createAddress(createAddressRequest);
+
+		return ApiResponse.<AddressInfResponse>builder()
+				.code(200)
+				.result(result)
+				.message("Create address successfully")
+				.build();
+	}
+
+	@PutMapping(value = "/{addressId}/update", consumes = "application/json", produces = "application/json")
 	public ApiResponse<AddressInfResponse> updateAddress(
-			@PathVariable String userId,
+			@PathVariable Long addressId,
 			@RequestBody @Valid UpdateAddressRequest updateAddressRequest) {
-		AddressInfResponse result = addressService.updateAddress(userId, updateAddressRequest);
+		AddressInfResponse result = addressService.updateAddress(addressId, updateAddressRequest);
 
 		return ApiResponse.<AddressInfResponse>builder()
 				.code(200)
@@ -33,9 +46,9 @@ public class AddressController {
 				.build();
 	}
 
-	@GetMapping(value = "/{userId}", produces = "application/json")
-	public ApiResponse<AddressInfResponse> getAddressByUserId(@PathVariable String userId) {
-		AddressInfResponse result = addressService.getAddressByUserId(userId);
+	@GetMapping(value = "/{addressId}", produces = "application/json")
+	public ApiResponse<AddressInfResponse> getAddressById(@PathVariable Long addressId) {
+		AddressInfResponse result = addressService.getAddressById(addressId);
 
 		return ApiResponse.<AddressInfResponse>builder()
 				.code(200)

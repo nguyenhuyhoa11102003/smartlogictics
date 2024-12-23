@@ -47,4 +47,8 @@ public abstract class User {
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
+
+    @OneToOne(cascade = CascadeType.ALL) // Quan hệ One-to-One với Address
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    private Address address; // Thêm liên kết đến Address
 }

@@ -16,8 +16,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -31,20 +29,21 @@ public class AddressServiceImpl implements AddressService {
     @Transactional
     @Override
     public AddressInfResponse createAddress(CreateAddressRequest createAddressRequest) {
-        log.info("Logistics-Users-Service -> Address-Service -> Create-Address: Create address: {}", createAddressRequest.getUserId());
 
         Address address = addressMapper.toAddress(createAddressRequest);
+
+        log.info("Logistics-Users-Service -> Address-Service -> Create-Address: Create address: {}", address);
 
         return addressMapper.toAddressInfResponse(addressRepository.save(address));
     }
 
     @Transactional
     @Override
-    public AddressInfResponse updateAddress(String userId, UpdateAddressRequest updateAddressRequest) {
-        log.info("Logistics-Users-Service -> Address-Service -> Update-Address: Update address: {}", userId);
+    public AddressInfResponse updateAddress(Long id, UpdateAddressRequest updateAddressRequest) {
+        log.info("Logistics-Users-Service -> Address-Service -> Update-Address: Update address: {}", id);
 
-        Address address = addressRepository.findByUserId(userId).orElseThrow(() -> {
-                    log.error("Logistics-Users-Service -> Address-Service -> Update-Address: Address not found with user id: {}", userId);
+        Address address = addressRepository.findById(id).orElseThrow(() -> {
+                    log.error("Logistics-Users-Service -> Address-Service -> Update-Address: Address not found with user id: {}", id);
                     return new AppException(ErrorCode.ADDRESS_NOT_EXISTED);
                 }
         );
@@ -53,11 +52,11 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public AddressInfResponse getAddressByUserId(String userId) {
-        log.info("Logistics-Users-Service -> Address-Service -> Get-Address-By-User-ID: Get address by user id: {}", userId);
+    public AddressInfResponse getAddressById(Long addressId) {
+        log.info("Logistics-Users-Service -> Address-Service -> Get-Address-By-User-ID: Get address by user id: {}", addressId);
 
-        Address address = addressRepository.findByUserId(userId).orElseThrow(() -> {
-                    log.error("Logistics-Users-Service -> Address-Service -> Get-Address: Address not found with user id: {}", userId);
+        Address address = addressRepository.findById(addressId).orElseThrow(() -> {
+                    log.error("Logistics-Users-Service -> Address-Service -> Get-Address: Address not found with user id: {}", addressId);
                     return new AppException(ErrorCode.ADDRESS_NOT_EXISTED);
                 }
         );
