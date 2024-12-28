@@ -19,6 +19,10 @@ public enum ErrorCode {
     PROFILE_NOT_EXISTED(400, "profile_not_existed", HttpStatus.NOT_FOUND),
     EMAIL_INVALID(400, "email_invalid", HttpStatus.BAD_REQUEST),
     INVALID_REQUEST(400, "invalid_request", HttpStatus.BAD_REQUEST),
+
+    FORBIDDEN(403, "forbidden", HttpStatus.FORBIDDEN),
+    NOT_FOUND(404, "not_found", HttpStatus.NOT_FOUND),
+    INTERNAL_SERVER_ERROR(500, "internal_server_error", HttpStatus.INTERNAL_SERVER_ERROR)
     ;
 
     ErrorCode(int statusCode, String message, HttpStatus httpStatus) {

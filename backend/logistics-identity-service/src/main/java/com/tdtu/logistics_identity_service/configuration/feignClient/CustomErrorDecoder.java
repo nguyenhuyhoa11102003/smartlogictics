@@ -1,8 +1,7 @@
 package com.tdtu.logistics_identity_service.configuration.feignClient;
 
-
-import com.tdtu.logistics_orders_service.exception.AppException;
-import com.tdtu.logistics_orders_service.exception.ErrorCode;
+import com.tdtu.logistics_identity_service.exception.AppException;
+import com.tdtu.logistics_identity_service.exception.ErrorCode;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
