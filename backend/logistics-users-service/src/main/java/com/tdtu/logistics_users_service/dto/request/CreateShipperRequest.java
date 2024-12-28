@@ -17,28 +17,28 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class CreateShipperRequest {
 
-    private Department department; // Phòng ban.
+	private Department department; // Phòng ban.
 
-    private StaffPosition position; // Vị trí công việc (VD: Manager, Employee, Shipper).
+	private StaffPosition position; // Vị trí công việc (VD: Manager, Employee, Shipper).
 
-    private LocalDate startDate; // Ngày bắt đầu làm việc.
+	private LocalDate startDate; // Ngày bắt đầu làm việc.
 
-    private VehicleType vehicleType; // Loại phương tiện (VD: Xe máy, Xe tải).
+	private VehicleType vehicleType; // Loại phương tiện (VD: Xe máy, Xe tải).
 
-    private String licensePlate; // Biển số xe.
+	private String licensePlate; // Biển số xe.
 
-    private String deliveryArea; // Khu vực giao hàng.
+	private String deliveryArea; // Khu vực giao hàng.
 
-    private String email;
+	private String email; // Email.
 
-    private String phoneNumber;
+	private String phoneNumber; // Số điện thoại.
 
-    private String fullName;
+	private String fullName; //  Họ và tên.
 
-    private LocalDate dateOfBirth;
+	private LocalDate dateOfBirth; // Ngày sinh.
 
-    private Gender gender;
+	private Gender gender; // Giới tính.
 
-    @Enumerated(EnumType.STRING)
-    private UserStatus status;
+	@Enumerated(EnumType.STRING) //     Trạng thái tài khoản
+	private UserStatus status;
 }

@@ -1,50 +1,107 @@
-package com.tdtu.logistics_warehouse_service.config;//package com.tdtu.logistics_goods_service.config;
-//
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.core.convert.converter.Converter;
-//import org.springframework.security.config.Customizer;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.core.GrantedAuthority;
-//import org.springframework.security.core.authority.SimpleGrantedAuthority;
-//import org.springframework.security.oauth2.jwt.Jwt;
-//import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-//import org.springframework.security.web.SecurityFilterChain;
-//
-//import java.util.Collection;
-//import java.util.Map;
-//import java.util.stream.Collectors;
-//
-//
-//@Configuration
-//public class SecurityConfig {
-//	@Bean
-//	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//		return http
-//				.authorizeHttpRequests(auth -> auth
-//						.requestMatchers("/actuator/prometheus", "/actuator/health/**",
-//								"/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**").permitAll()
-//						//						.requestMatchers("/backoffice/**").hasRole("ADMIN")
-//						.requestMatchers("/backoffice/**").permitAll()
-//						.requestMatchers("/storefront/**").permitAll()
-//						.anyRequest().authenticated()
-//				)
-//				.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-//				.build();
-//	}
-//
-//	@Bean
-//	public JwtAuthenticationConverter jwtAuthenticationConverterForKeycloak() {
-//		Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter = jwt -> {
-//			Map<String, Collection<String>> realmAccess = jwt.getClaim("realm_access");
-//			Collection<String> roles = realmAccess.get("roles");
-//			return roles.stream()
-//					.map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-//					.collect(Collectors.toList());
-//		};
-//		var jwtAuthenticationConverter = new JwtAuthenticationConverter();
-//		jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
-//		return jwtAuthenticationConverter;
-//	}
-//
-//}
+package com.tdtu.logistics_shipments_service.config;
+
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
+@Configuration
+@EnableMethodSecurity
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig extends OncePerRequestFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+
+    private static final String[] AUTH_WHITELIST = {
+            "/swagger-ui/**",
+            "/swagger-ui-custom.html",
+    };
+
+    private final JwtDecoderConfig jwtDecoderConfig;
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(AUTH_WHITELIST)
+                .permitAll()
+                .anyRequest()
+                .authenticated());
+
+        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(jwtDecoderConfig)
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+
+        return httpSecurity.build();
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String requestUri = request.getRequestURI();
+        String method = request.getMethod();
+        String clientIp = request.getRemoteAddr();
+
+        filterChain.doFilter(request, response);
+
+        int status = response.getStatus();
+        logger.info("Access Identity Service - IP: {}, Method: {}, URI: {}, Status: {}", clientIp, method, requestUri, status);
+    }
+
+
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+
+        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedHeader("*");
+
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+
+        return new CorsFilter(urlBasedCorsConfigurationSource);
+    }
+
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+
+        return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(10);
+    }
+
+
+}
