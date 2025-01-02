@@ -1,6 +1,5 @@
 package com.tdtu.logistics_identity_service.configuration.feignClient;
 
-
 import com.tdtu.logistics_identity_service.exception.AppException;
 import com.tdtu.logistics_identity_service.exception.ErrorCode;
 import feign.Response;
