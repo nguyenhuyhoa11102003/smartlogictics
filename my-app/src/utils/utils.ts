@@ -3,6 +3,7 @@ import config from '@/constants/config'
 
 // import userImage from 'src/assets/images/user.svg'
 import { ErrorResponse } from '@/types/utils.type'
+import { Warehouse } from '@/modules/warehouse/models/Warehouse'
 
 export function isAxiosError<T>(error: unknown): error is AxiosError<T> {
   // eslint-disable-next-line import/no-named-as-default-member
@@ -74,4 +75,104 @@ export const formatToVietnamTime = (isoString: string) => {
     second: '2-digit', // Định dạng giây: 'numeric' (36), '2-digit' (36).
     hour12: false // `true` cho AM/PM, `false` cho định dạng 24 giờ.
   }).format(date);
+}
+
+
+export const warehouses: Warehouse[] = [
+  {
+    id: 1,
+    name: "Kho A",
+    warehouseType: "Kho gom hàng và trung chuyển",
+    address: "123 Đường ABC, Phường 1, Quận Hoàn Kiếm, Hà Nội",
+    region: "Bắc",
+    phoneNumber: "+84 24 1234 5678",
+    capacity: 5000, // Diện tích kho (m2)
+    storageConditions: "Kho có hệ thống khu vực gom hàng, khu vực phân loại và trung chuyển hàng hóa",
+    managerName: "Nguyễn Văn A",
+    managerContact: "+84 912 345 678",
+    operatingHours: "08:00 - 17:00, Thứ 2 - Thứ 6",
+    availableSpace: 3000,
+    status: '',
+    updatedAt: ''
+  },
+  {
+    id: 2,
+    name: "Kho B",
+    warehouseType: "Kho gom hàng và trung chuyển",
+    address: "456 Đường DEF, Phường Tân Bình, Quận TP.HCM",
+    region: "Nam",
+    phoneNumber: "+84 28 8765 4321",
+    capacity: 8000, // Diện tích kho (m2)
+    storageConditions: "Kho có khu vực gom hàng từ nhiều nguồn và khu vực trung chuyển để chuyển tiếp hàng",
+    managerName: "Trần Thị B",
+    managerContact: "+84 913 456 789",
+    operatingHours: "08:30 - 18:00, Thứ 2 - Thứ 7",
+    availableSpace: 5000,
+    status: '',
+    updatedAt: ''
+  },
+  {
+    id: 3,
+    name: "Kho C",
+    warehouseType: "Kho gom hàng và trung chuyển",
+    address: "789 Đường XYZ, Phường Hòa Cường, Quận Đà Nẵng",
+    region: "Trung",
+    phoneNumber: "+84 236 123 4567",
+    capacity: 6000, // Diện tích kho (m2)
+    storageConditions: "Kho chuyên gom hàng và trung chuyển qua các tuyến Đà Nẵng, Hà Nội, TP.HCM",
+    managerName: "Lê Thị C",
+    managerContact: "+84 913 678 901",
+    operatingHours: "09:00 - 17:00, Thứ 2 - Chủ Nhật",
+    availableSpace: 4000,
+    status: '',
+    updatedAt: ''
+  },
+  {
+    id: 4,
+    name: "Kho D",
+    warehouseType: "Kho gom hàng và trung chuyển",
+    address: "101 Đường GHI, Phường 3, Quận Cầu Giấy, Hà Nội",
+    region: "Bắc",
+    phoneNumber: "+84 24 9876 5432",
+    capacity: 7000, // Diện tích kho (m2)
+    storageConditions: "Kho có khu vực gom hàng từ các nguồn khác nhau, bao gồm nguyên liệu và thành phẩm",
+    managerName: "Phạm Văn D",
+    managerContact: "+84 912 789 123",
+    operatingHours: "07:00 - 16:00, Thứ 2 - Thứ 6",
+    availableSpace: 3500,
+    status: '',
+    updatedAt: ''
+  },
+];
+
+
+import { v4 as uuidv4 } from 'uuid';
+
+export const generateTrackingNumber = () => {
+  const uuidPart = uuidv4().replace(/-/g, '').slice(0, 8); // 8 ký tự từ UUID
+  return `VN-${uuidPart}`; // Định dạng tùy chỉnh
+}
+
+
+export const generateShipment = () => {
+  const uuidPart = uuidv4().replace(/-/g, '').slice(0, 8); // 8 ký tự từ UUID
+  return `SHIP-${uuidPart}`; // Định dạng tùy chỉnh
+}
+
+
+export const vietnamDateTime = () => {
+    // Get current date and time in UTC
+    const vietnamTime = new Date();
+  
+    // Adjust to Vietnam time (UTC+7)
+    const vietnamOffset = 7 * 60; // Vietnam is UTC+7, so offset is +420 minutes
+    
+    // Adjust the current UTC time to Vietnam time by adding the offset
+    vietnamTime.setMinutes(vietnamTime.getMinutes() + vietnamTime.getTimezoneOffset() + vietnamOffset);
+  
+    // Get the ISO string and format it to match datetime-local format (YYYY-MM-DDTHH:mm)
+    const vietnamDateTime = vietnamTime.toISOString().slice(0, 16);
+  
+    console.log(vietnamDateTime); // This should print the correct Vietnam local time
+    return vietnamDateTime;
 }

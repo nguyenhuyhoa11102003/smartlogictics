@@ -33,75 +33,75 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class SecurityConfig extends OncePerRequestFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+	private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
-    private static final String[] AUTH_WHITELIST = {
-            "/swagger-ui/**",
-            "/swagger-ui-custom.html",
-    };
+	private static final String[] AUTH_WHITELIST = {
+			"/swagger-ui/**",
+			"/swagger-ui-custom.html",
+	};
 
-    private final JwtDecoderConfig jwtDecoderConfig;
+	private final JwtDecoderConfig jwtDecoderConfig;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(AUTH_WHITELIST)
-                .permitAll()
-                .anyRequest()
-                .authenticated());
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+		httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(AUTH_WHITELIST)
+				.permitAll()
+				.anyRequest()
+				.authenticated());
 
-        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-                        .decoder(jwtDecoderConfig)
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+		httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+						.decoder(jwtDecoderConfig)
+						.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+				.authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
 
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+		httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
-        return httpSecurity.build();
-    }
+		return httpSecurity.build();
+	}
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        String requestUri = request.getRequestURI();
-        String method = request.getMethod();
-        String clientIp = request.getRemoteAddr();
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
+		String requestUri = request.getRequestURI();
+		String method = request.getMethod();
+		String clientIp = request.getRemoteAddr();
 
-        filterChain.doFilter(request, response);
+		filterChain.doFilter(request, response);
 
-        int status = response.getStatus();
-        logger.info("Access Identity Service - IP: {}, Method: {}, URI: {}, Status: {}", clientIp, method, requestUri, status);
-    }
+		int status = response.getStatus();
+		logger.info("Access Identity Service - IP: {}, Method: {}, URI: {}, Status: {}", clientIp, method, requestUri, status);
+	}
 
 
-    @Bean
-    public CorsFilter corsFilter() {
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
+	@Bean
+	public CorsFilter corsFilter() {
+		CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-        corsConfiguration.addAllowedOrigin("*");
-        corsConfiguration.addAllowedMethod("*");
-        corsConfiguration.addAllowedHeader("*");
+		corsConfiguration.addAllowedOrigin("*");
+		corsConfiguration.addAllowedMethod("*");
+		corsConfiguration.addAllowedHeader("*");
 
-        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
-        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+		UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+		urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
 
-        return new CorsFilter(urlBasedCorsConfigurationSource);
-    }
+		return new CorsFilter(urlBasedCorsConfigurationSource);
+	}
 
-    @Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+	@Bean
+	JwtAuthenticationConverter jwtAuthenticationConverter() {
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
 
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+		JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+		jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
-        return jwtAuthenticationConverter;
-    }
+		return jwtAuthenticationConverter;
+	}
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
-    }
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder(10);
+	}
 
 
 }

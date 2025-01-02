@@ -2,6 +2,7 @@ package com.tdtu.logistics_warehouse_service.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @NoArgsConstructor
@@ -12,26 +13,34 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Table(name = "addresses")
 @EntityListeners(AuditingEntityListener.class)
+@FieldDefaults(level = AccessLevel.PRIVATE)
+
 public class Address {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id; // ID.
+	Long id;
 
 	@Column(nullable = false)
-	private String province; // Tỉnh.
+	String province; // Tỉnh/Thành phố.
 
 	@Column(nullable = false)
-	private String ward; // Huyện.
+	String ward; // Quận/Huyện.
 
 	@Column(nullable = false)
-	private String commune; // Xã/Phường.
+	String commune; // Phường/Xã.
 
 	@Column(nullable = false)
-	private String street; // Đường.
+	String street; // Đường.
 
 	@Column(nullable = false)
-	private String postalCode; // Mã bưu chính.
+	String addressDetail; // Địa chỉ đầy đủ.
 
 	@Column(nullable = false)
-	private String addressDetail; // Địa chỉ đầy đủ.
+	String postalCode;
+	@Column(nullable = false)
+	String latitude;
+
+	@Column(nullable = false)
+	String longitude;
+
 }

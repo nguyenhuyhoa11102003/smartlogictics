@@ -55,12 +55,12 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
             catch (e) {
                 alert('error')
             }
-            // getAllWarehouses()
-            //     .then((data) => setWarehouses(data))
-            //     .catch((error) => {
-            //         // setWarehouses([])
-            //         // console.error('Error fetching warehouses:', error);
-            //     })
+            getAllWarehouses()
+                .then((data) => setWarehouses(data))
+                .catch((error) => {
+                    setWarehouses([])
+                    // console.error('Error fetching warehouses:', error);
+                })
         };
         fetchWarehouses();
     }, []);

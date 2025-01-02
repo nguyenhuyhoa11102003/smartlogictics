@@ -25,12 +25,6 @@ const URL_ADMIN = "/admin"
 const data = {
     navMain: [
         {
-            title: "Trang chủ",
-            url: `${URL_ADMIN}/`,
-            items: [],
-            content: "Trang chủ content"
-        },
-        {
             title: "Tạo đơn",
             url: `${URL_ADMIN}/create-order`,
             items: [
@@ -44,6 +38,13 @@ const data = {
             items: [
                 { title: "Quản lý vận đơn", url: `${URL_ADMIN}/quan-ly-van-don`, content: "Quản lý vận đơn content" },
                 { title: "Thống kê tiền hàng", url: "/statistics", content: "Thống kê tiền hàng content" },
+            ]
+        },
+        {
+            title: "Quản lý lô hàng",
+            url: `${URL_ADMIN}/quan-ly-van-don`,
+            items: [
+                { title: "Danh sách lô hàng", url: `${URL_ADMIN}/shipments`, content: "Quản lý vận đơn content" },
             ]
         },
     ]

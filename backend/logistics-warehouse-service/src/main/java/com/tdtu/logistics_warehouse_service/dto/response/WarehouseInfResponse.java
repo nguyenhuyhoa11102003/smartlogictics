@@ -18,7 +18,6 @@ public class WarehouseInfResponse {
 
 	private String name;  // Tên kho
 
-	private String addressDetail;  // Địa chỉ kho (nếu không trả về đối tượng Address)
 
 	private String phoneNumber;  // Số điện thoại kho
 
@@ -32,12 +31,10 @@ public class WarehouseInfResponse {
 
 	private LocalDateTime updatedAt;  // Thời gian cập nhật kho
 
-
 	public static WarehouseInfResponse toWarehouseInfResponse(Warehouse warehouse) {
 		return WarehouseInfResponse.builder()
 				.id(warehouse.getId())
 				.name(warehouse.getName())
-				.addressDetail(warehouse.getAddressDetail())
 				.phoneNumber(warehouse.getPhoneNumber())
 				.capacity(warehouse.getCapacity())
 				.status(warehouse.getStatus())

@@ -2,6 +2,8 @@ package com.tdtu.logistics_warehouse_service.service.implement;
 
 import com.tdtu.logistics_warehouse_service.dto.request.CreateWarehouseRequest;
 import com.tdtu.logistics_warehouse_service.dto.request.UpdateWarehouseRequest;
+import com.tdtu.logistics_warehouse_service.dto.response.ApiResponse;
+import com.tdtu.logistics_warehouse_service.dto.response.CoordinatesResponse;
 import com.tdtu.logistics_warehouse_service.dto.response.WarehouseInfResponse;
 import com.tdtu.logistics_warehouse_service.exception.wrapper.NotFoundException;
 import com.tdtu.logistics_warehouse_service.model.Address;
@@ -9,11 +11,16 @@ import com.tdtu.logistics_warehouse_service.model.Warehouse;
 import com.tdtu.logistics_warehouse_service.repository.WarehouseRepository;
 import com.tdtu.logistics_warehouse_service.service.WarehouseService;
 import com.tdtu.logistics_warehouse_service.enumarators.WarehouseStatus;
+import com.tdtu.logistics_warehouse_service.service.client.DeliveryServiceFeignClient;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,8 +30,11 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class WarehouseServiceImpl implements WarehouseService {
-	private final WarehouseRepository warehouseRepository;
+	WarehouseRepository warehouseRepository;
+	DeliveryServiceFeignClient deliveryServiceFeignClient;
 
 	@Transactional
 	@Override
@@ -42,22 +52,48 @@ public class WarehouseServiceImpl implements WarehouseService {
 						createWarehouseRequest.getAddress().getStreet(),
 						createWarehouseRequest.getAddress().getPostalCode()))
 				.build();
+
+		CoordinatesResponse coordinatesResponse = deliveryServiceFeignClient
+				.get_coordinates(address.getAddressDetail()).getResult();
+
+		address.setLongitude(coordinatesResponse.getLongitude());
+		address.setLatitude(coordinatesResponse.getLatitude());
+
 		Warehouse warehouse = Warehouse.builder()
 				.name(createWarehouseRequest.getName())
-				.addressDetail(address.getAddressDetail())
 				.phoneNumber(createWarehouseRequest.getPhoneNumber())
 				.capacity(createWarehouseRequest.getCapacity())
 				.status(createWarehouseRequest.getStatus())
 				.address(address)
 				.build();
-		warehouse.setAddress(address);
-		return WarehouseInfResponse.toWarehouseInfResponse(warehouseRepository.save(warehouse));
+
+		Warehouse createdWarehouse = warehouseRepository.saveAndFlush(warehouse);
+		return getWareHouseById(createdWarehouse.getId())
+				.orElseThrow(() -> new NotFoundException("Warehouse not found"));
 	}
 
 	@Override
 	public Optional<WarehouseInfResponse> getWareHouseById(Long id) {
-		Optional<Warehouse> warehouse = warehouseRepository.findById(id);
+		Optional<Warehouse> warehouse = Optional.ofNullable(
+				warehouseRepository.findById(id).orElseThrow(
+						() -> new NotFoundException("Warehouse not found")
+				));
 		return warehouse.map(WarehouseInfResponse::toWarehouseInfResponse);
+	}
+
+	@Override
+	public List<WarehouseInfResponse> getWareHouseByIds(List<Long> ids) {
+		List<WarehouseInfResponse> warehouseInfResponses = new ArrayList<>();
+
+		ids.forEach(id -> {
+			Optional<Warehouse> warehouse = Optional.ofNullable(
+					warehouseRepository.findById(id).orElseThrow(
+							() -> new NotFoundException("Warehouse not found")
+					));
+			warehouse.ifPresent(value -> warehouseInfResponses.add(WarehouseInfResponse.toWarehouseInfResponse(value)));
+		});
+
+		return warehouseInfResponses;
 	}
 
 	@Transactional
@@ -79,7 +115,6 @@ public class WarehouseServiceImpl implements WarehouseService {
 				.build();
 
 		warehouseUpdate.setName(createWarehouseRequest.getName());
-		warehouseUpdate.setAddressDetail(address.getAddressDetail());
 		warehouseUpdate.setPhoneNumber(createWarehouseRequest.getPhoneNumber());
 		warehouseUpdate.setCapacity(createWarehouseRequest.getCapacity());
 		warehouseUpdate.setStatus(createWarehouseRequest.getStatus());
@@ -108,6 +143,6 @@ public class WarehouseServiceImpl implements WarehouseService {
 	}
 
 	private String handleAddressDetail(String province, String ward, String commune, String street, String postalCode) {
-		return province + ", " + ward + ", " + commune + ", " + street + ", " + postalCode;
+		return street + ", " + commune + ", " + ward + ", " + province + ", " + postalCode;
 	}
 }

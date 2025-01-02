@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
-@EnableFeignClients(basePackages = "com.tdtu.logistics_orders_service.service.client")
+@EnableFeignClients(basePackages = "com.tdtu.logistics_identity_service.service.client")
 public class ClientConfig {
 
     @Value("${jwt.token.dev}")

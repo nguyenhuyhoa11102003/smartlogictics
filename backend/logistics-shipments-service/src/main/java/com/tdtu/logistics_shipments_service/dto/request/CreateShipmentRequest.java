@@ -1,18 +1,30 @@
 package com.tdtu.logistics_shipments_service.dto.request;
 
+import com.tdtu.logistics_shipments_service.enumrator.ShipmentStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateShipmentRequest {
-	private Long shipperId; // Staff Shipper
-	private String shipmentMethod; // Method of shipment (e.g., "road", "air", "sea")
-	private Long fromWarehouseId; // ID of the source warehouse
-	private Long toWarehouseId; // ID of the destination warehouse
-	private List<Long> intermediateWarehouseIds; // List of intermediate warehouse IDs
-	private LocalDateTime estimatedDeliveryDate; // Estimated delivery date
+	String trackingNumber;
+	Long shipper;
+	String shipmentMethod;
+	Long fromWarehouseId;
+	List<Long> intermediateWarehouseIds;
+	Long toWarehouseId;
+	ShipmentStatus shipmentStatus;
+	String shipmentStartDate;
+	String estimatedDeliveryDate;
+	String actualDeliveryDate;
+	List<String> orders;
+	List<CreateShipmentSegmentRequest> shipmentSegmentRequests;
 }

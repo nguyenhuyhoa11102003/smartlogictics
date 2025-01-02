@@ -6,6 +6,7 @@ import com.tdtu.logistics_warehouse_service.model.Warehouse;
 import jakarta.persistence.Column;
 import lombok.*;
 import com.tdtu.logistics_warehouse_service.enumarators.WarehouseStatus;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
@@ -15,26 +16,29 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AddressInfResponse {
-	private Long id;  // ID kho
+	Long id;
 
-	private String province; // Tỉnh.
-
-	@Column(nullable = false)
-	private String ward; // Huyện.
+	String province;
 
 	@Column(nullable = false)
-	private String commune; // Xã/Phường.
+	String ward;
 
 	@Column(nullable = false)
-	private String street; // Đường.
+	String commune;
 
 	@Column(nullable = false)
-	private String postalCode; // Mã bưu chính.
+	String street;
 
 	@Column(nullable = false)
-	private String addressDetail; // Địa chỉ đầy đủ.
+	String postalCode;
 
+	@Column(nullable = false)
+	String addressDetail;
+
+	String latitude;
+	String longitude;
 
 	public static AddressInfResponse toAddressInfResponse(Address address) {
 		return AddressInfResponse.builder()
@@ -46,6 +50,8 @@ public class AddressInfResponse {
 				.street(address.getStreet())
 				.postalCode(address.getPostalCode())
 				.addressDetail(address.getAddressDetail())
+				.latitude(address.getLatitude())
+				.longitude(address.getLongitude())
 				.build();
 
 	}

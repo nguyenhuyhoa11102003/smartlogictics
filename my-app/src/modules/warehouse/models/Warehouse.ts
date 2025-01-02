@@ -1,11 +1,18 @@
 export interface Warehouse {
-    id: number; // Unique identifier of the warehouse
-    name: string; // Name of the warehouse or company
-    addressDetail: string; // Full address detail
-    phoneNumber: string; // Contact number
-    capacity: number; // Capacity of the warehouse
+    id: number; // Mã kho
+    name: string; // Tên kho
+    warehouseType: string; // Loại kho
+    address: string; // Địa chỉ kho
+    region: string; // Khu vực kho
+    phoneNumber: string; // Số điện thoại liên hệ
+    capacity?: number; // Diện tích kho (m2)
+    storageConditions?: string; // Điều kiện lưu trữ trong kho
+    managerName?: string; // Tên người quản lý kho
+    managerContact?: string; // Liên hệ người quản lý kho
+    operatingHours?: string; // Giờ hoạt động của kho
+    availableSpace?: number; // Diện tích còn trống (m2)
     status: string; // Status of the warehouse (e.g., ACTIVE, INACTIVE)
-    address: {
+    addressDetail?: {
         id: number; // Unique identifier of the address
         province: string; // Province or city
         ward: string; // District or ward
@@ -15,5 +22,5 @@ export interface Warehouse {
         addressDetail: string; // Full address detail
     };
     createdAt?: string | null; // Timestamp when the warehouse was created
-    updatedAt: string; // Timestamp when the warehouse was last updated
+    updatedAt?: string; // Timestamp when the warehouse was last updated
 }

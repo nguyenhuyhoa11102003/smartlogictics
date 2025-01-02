@@ -13,28 +13,28 @@ import java.util.List;
 @Slf4j
 public class UserServiceFallback implements UserServiceClient {
 
-    @Override
-    public ApiResponse<ReceiverInfResponse> getReceiverById(String id) {
-        return null;
-    }
+	@Override
+	public ApiResponse<ReceiverInfResponse> getReceiverById(String id) {
+		return null;
+	}
 
-    @Override
-    public ApiResponse<List<ReceiverInfResponse>> getAllReceiverByCustomerId(String customerId) {
-        return null;
-    }
+	@Override
+	public ApiResponse<List<ReceiverInfResponse>> getAllReceiverByCustomerId(String customerId) {
+		return null;
+	}
 
-    @Override
-    public ApiResponse<CustomerInfResponse> getCustomerById(String id) {
-        return null;
-    }
+	@Override
+	public ApiResponse<CustomerInfResponse> getCustomerById(String id) {
+		return null;
+	}
 
-    @Override
-    public ApiResponse<AddressInfResponse> getAddressByUserId(String userId) {
-        return null;
-    }
+	@Override
+	public ApiResponse<AddressInfResponse> getAddressByUserId(String userId) {
+		return null;
+	}
 
-    @Override
-    public ApiResponse<ShipperInfResponse> getShipperById(String id) {
-        return null;
-    }
+	@Override
+	public ApiResponse<ShipperInfResponse> getShipperById(String id) {
+		return null;
+	}
 }

@@ -137,6 +137,65 @@ export const userSchema = yup.object({
   new_password: AuthSchema.fields['password'] as yup.StringSchema<string | undefined, yup.AnyObject, undefined, ''>,
   confirm_password: handleConfirmPasswordYup('new_password')
 })
+export const shipmentSchema = yup.object().shape({
+  id: yup.number().optional(),
+  trackingNumber: yup.string().required("Tracking number is required."),
+  shipper: yup.number().required("Shipper ID is required."),
+  shipmentMethod: yup.string().required("Shipment method is required."),
+  fromWarehouse: yup.object().shape({
+    id: yup.number().required("Warehouse ID is required."),
+    name: yup.string().required("Warehouse name is required."),
+    location: yup.string().required("Warehouse location is required."),
+  }),
+  intermediateWarehouses: yup
+    .array(
+      yup.object().shape({
+        id: yup.number().required("Intermediate warehouse ID is required."),
+        name: yup.string().required("Intermediate warehouse name is required."),
+        location: yup
+          .string()
+          .required("Intermediate warehouse location is required."),
+      })
+    )
+    .required("Intermediate warehouses are required."),
+  toWarehouse: yup.object().shape({
+    id: yup.number().required("Destination warehouse ID is required."),
+    name: yup.string().required("Destination warehouse name is required."),
+    location: yup
+      .string()
+      .required("Destination warehouse location is required."),
+  }),
+  shipmentStatus: yup.object().shape({
+    id: yup.number().required("Shipment status ID is required."),
+    status: yup.string().required("Shipment status is required."),
+  }),
+  shipmentStartDate: yup
+    .string()
+    .required("Shipment start date is required."),
+  estimatedDeliveryDate: yup
+    .string()
+    .required("Estimated delivery date is required."),
+  actualDeliveryDate: yup.string().optional(),
+  originName: yup.string().required("Origin name is required."),
+  destination: yup.string().required("Destination is required."),
+  orders: yup
+    .array(yup.string().required("Order ID is required."))
+    .required("Orders are required."),
+  shipmentWeight: yup.number().required("Shipment weight is required."),
+  shipmentVolume: yup.number().required("Shipment volume is required."),
+  vehicle: yup.object().shape({
+    id: yup.number().required("Vehicle ID is required."),
+    name: yup.string().required("Vehicle name is required."),
+    employee: yup.object().shape({
+      id: yup.number().required("Employee ID is required."),
+      name: yup.string().required("Employee name is required."),
+      role: yup.string().required("Employee role is required."),
+    }),
+  }),
+});
+
 
 export type UserSchema = yup.InferType<typeof userSchema>
+export type ShipmentSchema = yup.InferType<typeof shipmentSchema>
+
 export type TSchemaSearch = yup.InferType<typeof schemaSearch>

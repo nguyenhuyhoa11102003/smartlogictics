@@ -15,6 +15,8 @@ public interface WarehouseService {
 
 	Optional<WarehouseInfResponse> getWareHouseById(Long id);
 
+	List<WarehouseInfResponse> getWareHouseByIds(List<Long> ids);
+
 	WarehouseInfResponse updateWarehouse(UpdateWarehouseRequest createWarehouseRequest, Long id);
 
 	WarehouseInfResponse deleteWarehouse(Long id);

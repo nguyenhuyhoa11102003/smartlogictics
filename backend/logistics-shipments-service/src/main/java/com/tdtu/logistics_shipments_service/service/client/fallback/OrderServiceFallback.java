@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OrderServiceFallback implements OrderServiceFeignClient {
 	@Override
-	public ApiResponse<OrderInfResponse> getOrderById(Long orderId) {
+	public ApiResponse<OrderInfResponse> getOrderById(String orderId) {
 		return null;
 	}
 }

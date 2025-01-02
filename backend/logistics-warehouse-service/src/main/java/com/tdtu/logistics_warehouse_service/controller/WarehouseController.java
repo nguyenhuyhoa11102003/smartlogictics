@@ -32,11 +32,11 @@ public class WarehouseController {
 			produces = "application/json")
 	public ApiResponse<WarehouseInfResponse> createWarehouse(
 			@Valid @RequestBody CreateWarehouseRequest createWarehouseRequest) {
-		WarehouseInfResponse result = warehouseService.createWarehouse(createWarehouseRequest);
+		WarehouseInfResponse response = warehouseService.createWarehouse(createWarehouseRequest);
 
 		return ApiResponse.<WarehouseInfResponse>builder()
 				.code(HttpStatus.CREATED.value())
-				.result(result)
+				.result(response)
 				.message("Create warehouse successfully")
 				.build();
 	}
@@ -56,6 +56,20 @@ public class WarehouseController {
 				.message("Get all warehouse successfully")
 				.build();
 	}
+
+	@GetMapping(
+			value = "/get-ids",
+			produces = "application/json")
+	public ApiResponse<?> getWareHouseByIds(@RequestParam List<Long> ids) {
+		List<WarehouseInfResponse> result = warehouseService.getWareHouseByIds(ids);
+		log.info(result.size() + "");
+		return ApiResponse.<List<WarehouseInfResponse>>builder()
+				.code(HttpStatus.OK.value())
+				.result(result)
+				.message("Warehouses fetched successfully")
+				.build();
+	}
+
 
 	@PutMapping(
 			value = "/update/{id}",
