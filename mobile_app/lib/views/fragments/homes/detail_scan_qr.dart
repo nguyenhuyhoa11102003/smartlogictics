@@ -19,7 +19,7 @@ class _DetailsScanQRViewState extends State<DetailsScanQRView> {
     scannerController.dispose();
     super.dispose();
   }
-
+  
   void _onBarcodeDetected(BarcodeCapture capture) {
     if (!isScanning) return;
 
