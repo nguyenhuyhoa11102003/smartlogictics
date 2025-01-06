@@ -7,7 +7,7 @@ import com.tdtu.logistics_identity_service.dto.response.AccountInfResponseDTO;
 import com.tdtu.logistics_identity_service.dto.response.ApiResponse;
 import com.tdtu.logistics_identity_service.dto.response.CreateAccountResponseDTO;
 import com.tdtu.logistics_identity_service.dto.response.UserInfResponseDTO;
-import com.tdtu.logistics_identity_service.service.UserAccountService;
+import com.tdtu.logistics_identity_service.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class AccountController {
-    UserAccountService userAccountService;
+    AccountService userAccountService;
 
     //Create Account
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

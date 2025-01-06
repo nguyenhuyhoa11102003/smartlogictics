@@ -30,5 +30,6 @@ public class Account extends BaseEntity{
     String password;
 
     @ManyToMany
+    @ToString.Exclude
     Set<Role> roles;
 }

@@ -13,7 +13,7 @@ import java.util.List;
 public class InformationOrderDTO {
 
     // Thông tin người gửi
-    private String senderId; // Tên người gửi
+    private String senderName; // Tên người gửi
 
 //    private String senderPhone; // Số điện thoại người gửi
 //    private String senderMail; // Email của người gửi
@@ -26,7 +26,7 @@ public class InformationOrderDTO {
 //    private String senderCommuneName; // Tên xã/phường của người gửi
 
     // Thông tin người nhận
-    private String recipientId; // Tên người nhận
+    private String recipientName; // Tên người nhận
 
 //    private String receiverAddress; // Địa chỉ người nhận
 //    private String receiverProvinceCode; // Mã tỉnh/thành phố của người nhận
@@ -68,10 +68,15 @@ public class InformationOrderDTO {
     private String saleOrderCode; // Mã đơn hàng bán goodId
 
     private String contentNote; // Ghi chú về nội dung hàng hóa
+
     private String weight; // Trọng lượng đơn vị hàng (gram)
+
     private String width; // Chiều rộng của hàng hóa (có thể null)
+
     private String length; // Chiều dài của hàng hóa (có thể null)
+
     private String height; // Chiều cao của hàng hóa (có thể null)
+
     private String shipmentId;  // mã vận đơn
 
 }

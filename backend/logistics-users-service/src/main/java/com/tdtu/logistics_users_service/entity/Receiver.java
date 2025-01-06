@@ -1,10 +1,14 @@
 package com.tdtu.logistics_users_service.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
-
-@Data
+@Getter
+@Setter
+@Builder
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "receivers")
 public class Receiver {

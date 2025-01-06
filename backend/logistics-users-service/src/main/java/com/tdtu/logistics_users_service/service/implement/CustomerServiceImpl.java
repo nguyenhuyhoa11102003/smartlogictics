@@ -3,6 +3,7 @@ package com.tdtu.logistics_users_service.service.implement;
 import com.tdtu.logistics_users_service.dto.request.CreateCustomerRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateCustomerRequest;
 import com.tdtu.logistics_users_service.dto.response.CustomerInfResponse;
+import com.tdtu.logistics_users_service.entity.Address;
 import com.tdtu.logistics_users_service.entity.Customer;
 import com.tdtu.logistics_users_service.exception.AppException;
 import com.tdtu.logistics_users_service.exception.ErrorCode;
@@ -31,6 +32,9 @@ public class CustomerServiceImpl implements CustomerService {
         log.info("Logistics-Users-Service -> Customer-Service -> Create-Customer: Create customer: {}", createCustomerRequest.getEmail());
 
         Customer customer = customerMapper.toCustomer(createCustomerRequest);
+
+        Address address = Address.builder().build();
+        customer.setAddress(address);
 
         return customerMapper.toCustomerInfResponse(customerRepository.save(customer));
     }
