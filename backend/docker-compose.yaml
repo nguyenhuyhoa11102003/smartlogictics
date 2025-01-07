@@ -1,5 +1,6 @@
-services:
+version: "3.8"
 
+services:
   kafka:
     image: 'bitnami/kafka:3.7.0'
     container_name: kafka-logistics
@@ -14,63 +15,124 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    networks:
+      - yas-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   redis-cache:
     image: redis:7.0-alpine
     container_name: redis-cache-logistics
     ports:
-      - "6379:6379"           # Expose Redis on localhost
+      - "6379:6379"
     volumes:
-      - redis-data:/var/lib/redis/data       # Persist Redis data
+      - redis-data:/var/lib/redis/data
+    networks:
+      - yas-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   vault:
-    image: hashicorp/vault:1.18 # Updated image
+    image: hashicorp/vault:1.18
     container_name: vault-logistics
     ports:
-      - "8200:8200" # Expose Vault on localhost
+      - "8200:8200"
     environment:
-      - VAULT_DEV_ROOT_TOKEN_ID=tranleduy # Set the root token for Vault
-
-    command: server -dev -dev-root-token-id=tranleduy
-
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_DEV_ROOT_TOKEN_ID}
+    command: server -dev -dev-root-token-id=${VAULT_DEV_ROOT_TOKEN_ID}
     volumes:
-      - vault-data:/vault/file # Persist Vault data
+      - vault-data:/vault/file
+    networks:
+      - yas-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8200/v1/sys/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
-#  mysqlcontainer:
-#    image: mysql:latest
-#    restart: always
-#    container_name: mysqlcontainer
-#    ports:
-#      - "3306:3306"
-#    environment:
-#      MYSQL_ROOT_PASSWORD: root
-#      MYSQL_DATABASE: root
-#      MYSQL_PASSWORD: root
-#    volumes:
-#      - mysql_data:/var/lib/mysql
-#    networks:
-#      - yas-network
-#  phpmyadmin:
-#      image: phpmyadmin
-#      restart: always
-#      ports:
-#        - "8888:80"
-#      environment:
-#        - PMA_ARBITRARY=1
-#      networks:
-#        - yas-network
+  postgres:
+    image: postgres:15
+    container_name: postgres-temporal
+    environment:
+      - POSTGRES_USER=temporal
+      - POSTGRES_PASSWORD=temporalpassword
+      - POSTGRES_DB=temporal
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - yas-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  temporal:
+    container_name: temporal
+    image: temporalio/auto-setup:latest
+    ports:
+      - "7233:7233"
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporalpassword
+      - POSTGRES_SEEDS=postgres
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development_es.yaml
+    volumes:
+      - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - yas-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:7233 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  temporal-admin-tools:
+    container_name: temporal-admin-tools
+    image: temporalio/admin-tools:latest
+    environment:
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    depends_on:
+      - temporal
+    stdin_open: true
+    tty: true
+    networks:
+      - yas-network
+
+  temporal-web:
+    container_name: temporal-web
+    image: temporalio/web:latest
+    ports:
+      - "8088:8088"
+    environment:
+      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+      - TEMPORAL_PERMIT_WRITE_API=true
+    depends_on:
+      - temporal
+    networks:
+      - yas-network
 
 volumes:
   vault-data:
     driver: local
-  mysql_data:
   redis-data:
     driver: local
-
+  postgres-data:
+    driver: local
 
 networks:
   yas-network:
     driver: bridge
-    name: yas-network
-
-

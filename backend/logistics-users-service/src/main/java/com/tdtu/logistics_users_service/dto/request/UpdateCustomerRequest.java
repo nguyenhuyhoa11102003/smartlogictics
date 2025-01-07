@@ -2,19 +2,26 @@ package com.tdtu.logistics_users_service.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tdtu.logistics_users_service.enumrators.Gender;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateCustomerRequest {
 
-    private String phoneNumber;
-
-    private String fullName;
+    String fullName;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dateOfBirth;
+    LocalDate dateOfBirth;
 
-    private Gender gender;
+    String identityCard;
+
+    UpdateAddressRequest address;
+
+    Gender gender;
 }

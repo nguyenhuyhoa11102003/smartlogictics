@@ -34,6 +34,8 @@ public abstract class User {
 
     private LocalDate dateOfBirth;
 
+    private String identityCard;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
 

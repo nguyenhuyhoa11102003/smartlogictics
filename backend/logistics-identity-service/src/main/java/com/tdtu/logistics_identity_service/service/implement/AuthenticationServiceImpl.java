@@ -17,7 +17,7 @@ import com.tdtu.logistics_identity_service.entity.Account;
 import com.tdtu.logistics_identity_service.exception.ErrorCode;
 import com.tdtu.logistics_identity_service.exception.AppException;
 import com.tdtu.logistics_identity_service.repository.InvalidTokenRepository;
-import com.tdtu.logistics_identity_service.repository.UserAccountRepository;
+import com.tdtu.logistics_identity_service.repository.AccountRepository;
 import com.tdtu.logistics_identity_service.service.AuthenticationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    final UserAccountRepository userAccountRepository;
+    final AccountRepository userAccountRepository;
 
     final InvalidTokenRepository invalidatedTokenRepository;
 

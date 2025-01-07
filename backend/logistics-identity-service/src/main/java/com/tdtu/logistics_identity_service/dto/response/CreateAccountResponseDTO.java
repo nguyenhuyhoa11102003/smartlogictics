@@ -4,8 +4,7 @@ import com.tdtu.logistics_identity_service.enumrator.Gender;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.Instant;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -14,9 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateAccountResponseDTO {
-    String accountId;
-
-    String id;
+    String userId;
 
     String username;
 
@@ -28,13 +25,5 @@ public class CreateAccountResponseDTO {
 
     Gender gender;
 
-    LocalDate dob;
-
-    Instant createdDate;
-
-    Instant lastModifiedDate;
-
-    String lastModifiedBy;
-
-    //Add-Permission
+    LocalDateTime dob;
 }

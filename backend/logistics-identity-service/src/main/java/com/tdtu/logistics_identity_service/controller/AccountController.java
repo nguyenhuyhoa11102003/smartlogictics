@@ -2,7 +2,7 @@ package com.tdtu.logistics_identity_service.controller;
 
 
 import com.tdtu.logistics_identity_service.dto.request.ChangesPasswordRequest;
-import com.tdtu.logistics_identity_service.dto.request.CreateAccountRequest;
+import com.tdtu.logistics_identity_service.dto.request.CustomerRegisterAccountRequest;
 import com.tdtu.logistics_identity_service.dto.response.AccountInfResponseDTO;
 import com.tdtu.logistics_identity_service.dto.response.ApiResponse;
 import com.tdtu.logistics_identity_service.dto.response.CreateAccountResponseDTO;
@@ -31,13 +31,14 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class AccountController {
-    AccountService userAccountService;
+
+    AccountService accountService;
 
     //Create Account
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<CreateAccountResponseDTO> createAccount(
-            @RequestBody CreateAccountRequest createAccountRequest) {
-        CreateAccountResponseDTO result = userAccountService.createAccount(createAccountRequest);
+            @RequestBody CustomerRegisterAccountRequest createAccountRequest) {
+        CreateAccountResponseDTO result = accountService.createAccount(createAccountRequest);
 
         return ApiResponse.<CreateAccountResponseDTO>builder()
                 .code(HttpStatus.CREATED.value())
@@ -54,7 +55,7 @@ public class AccountController {
 
         log.info("Updating password for account ID: {}", accountId);
 
-        AccountInfResponseDTO result = userAccountService.updatePassword(accountId, request);
+        AccountInfResponseDTO result = accountService.updatePassword(accountId, request);
 
         return ApiResponse.<AccountInfResponseDTO>builder()
                 .code(HttpStatus.OK.value())
@@ -71,7 +72,7 @@ public class AccountController {
 
         return ApiResponse.<UserInfResponseDTO>builder()
                 .code(HttpStatus.OK.value())
-                .result(userAccountService.getUserInfo())
+                .result(accountService.getUserInfo())
                 .message("Get account inf_details successfully")
                 .build();
     }
@@ -80,7 +81,7 @@ public class AccountController {
     @GetMapping(value = "/accounts", produces = "application/json")
     public ApiResponse<Page<AccountInfResponseDTO>> getAccounts(@PageableDefault(20) Pageable pageable) {
         log.debug("Get accounts...");
-        Page<AccountInfResponseDTO> result = userAccountService.getAccounts(pageable);
+        Page<AccountInfResponseDTO> result = accountService.getAccounts(pageable);
 
         return ApiResponse.<Page<AccountInfResponseDTO>>builder()
                 .code(HttpStatus.OK.value())
@@ -98,7 +99,7 @@ public class AccountController {
 
         return ApiResponse.<List<AccountInfResponseDTO>>builder()
                 .code(HttpStatus.OK.value())
-                .result(userAccountService.getAllAccounts())
+                .result(accountService.getAllAccounts())
                 .message("Get all accounts successfully")
                 .build();
     }

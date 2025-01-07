@@ -4,7 +4,7 @@ import com.tdtu.logistics_identity_service.constant.PredefinedRole;
 import com.tdtu.logistics_identity_service.entity.Account;
 import com.tdtu.logistics_identity_service.entity.Role;
 import com.tdtu.logistics_identity_service.repository.RoleRepository;
-import com.tdtu.logistics_identity_service.repository.UserAccountRepository;
+import com.tdtu.logistics_identity_service.repository.AccountRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -33,7 +33,7 @@ public class ApplicationInitConfig {
     static final String ADMIN_PASSWORD = "admin";
 
     @Bean
-    ApplicationRunner applicationRunner(UserAccountRepository userAccountRepository, RoleRepository roleRepository) {
+    ApplicationRunner applicationRunner(AccountRepository userAccountRepository, RoleRepository roleRepository) {
         log.info("Initializing application.....");
 
         return args -> {

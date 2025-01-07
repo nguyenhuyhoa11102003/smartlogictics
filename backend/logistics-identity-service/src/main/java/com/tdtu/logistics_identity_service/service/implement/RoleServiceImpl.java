@@ -37,7 +37,7 @@ public class RoleServiceImpl implements RoleService {
     public RoleResponseDTO createRole(CreateRoleRequest request) {
         log.info("Create role: {}", request);
 
-        if (roleRepository.existsByName(request.getName())) {
+        if (Boolean.TRUE.equals(roleRepository.existsByName(request.getName()))) {
             throw new AppException(ErrorCode.ROLE_ALREADY_EXISTED);
         }
         Role role = roleMapper.toRole(request);
@@ -73,7 +73,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void deleteRole(String id) {
-
+        // TODO document why this method is empty
     }
 
     private Set<Permission> mapToPermissions(List<String> permissions) {
