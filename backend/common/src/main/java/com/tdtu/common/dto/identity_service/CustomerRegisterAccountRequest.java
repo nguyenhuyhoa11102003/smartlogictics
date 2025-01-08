@@ -1,4 +1,4 @@
-package com.tdtu.logistics_identity_service.dto.request;
+package com.tdtu.common.dto.identity_service;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

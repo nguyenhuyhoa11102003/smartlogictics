@@ -29,33 +29,52 @@ ext {
 }
 
 dependencies {
+
+	implementation project(':common')
+
+	// Các dependency Spring Boot và Spring Cloud
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-	implementation 'org.springframework.boot:spring-boot-starter-actuator' // Thêm dependency actuator
+	// Các dependency bổ sung
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-
 	implementation 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
+	// MapStruct
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
-	implementation 'org.mapstruct:mapstruct:1.5.5.Final' // Thêm MapStruct
-	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign' // Thêm OpenFeign
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0' // Thêm SpringDoc
-	runtimeOnly 'com.mysql:mysql-connector-j' // Thay PostgreSQL bằng MySQL
+	// OpenFeign
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	// SpringDoc
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+	// MySQL Connector
+	runtimeOnly 'com.mysql:mysql-connector-j'
 
 	// Spring Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.security:spring-security-crypto' // Thêm Spring Security Crypto
+	implementation 'org.springframework.security:spring-security-crypto'
 
-	// Thêm dependency Redis
+	// Temporal SDK với gRPC và protobuf được ép buộc sử dụng phiên bản an toàn hơn
+	implementation 'io.temporal:temporal-sdk:1.23.0'
+	implementation 'com.google.protobuf:protobuf-java:4.28.2' // Sử dụng phiên bản đã vá lỗi
+	implementation 'io.grpc:grpc-protobuf:1.56.2'
+	implementation 'io.grpc:grpc-netty:1.56.2'
+
+	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'redis.clients:jedis' // Thêm Jedis nếu bạn sử dụng Jedis làm client
+	implementation 'redis.clients:jedis'
 
+	// **Ép buộc sử dụng phiên bản Guava an toàn**
+	implementation 'com.google.guava:guava:32.1.2-jre' // Cập nhật phiên bản mới nhất của Guava
+
+	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

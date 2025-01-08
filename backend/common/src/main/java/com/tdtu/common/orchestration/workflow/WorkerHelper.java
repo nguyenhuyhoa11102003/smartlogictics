@@ -13,7 +13,7 @@ public class WorkerHelper {
 
     public static final String WORKFLOW_ACCOUNT_TASK_QUEUE = "AccountTaskQueue";
 
-    public static RetryOptions retryoptions = RetryOptions.newBuilder()
+    private static final RetryOptions RETRY_OPTIONS = RetryOptions.newBuilder()
             .setInitialInterval(Duration.ofSeconds(1))
             .setMaximumInterval(Duration.ofSeconds(100))
             .setBackoffCoefficient(2)
@@ -43,7 +43,7 @@ public class WorkerHelper {
                 ActivityOptions.newBuilder()
                         // Timeout options specify when to automatically timeout Activities if the process is taking too long.
                         .setStartToCloseTimeout(Duration.ofSeconds(5))
-                        .setRetryOptions(retryoptions)
+                        .setRetryOptions(RETRY_OPTIONS)
                         .build();
     }
 }

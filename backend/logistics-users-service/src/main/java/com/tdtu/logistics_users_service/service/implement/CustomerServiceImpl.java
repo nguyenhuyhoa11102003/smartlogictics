@@ -11,6 +11,7 @@ import com.tdtu.logistics_users_service.mapper.AddressMapper;
 import com.tdtu.logistics_users_service.mapper.CustomerMapper;
 import com.tdtu.logistics_users_service.repository.CustomerRepository;
 import com.tdtu.logistics_users_service.service.CustomerService;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     final AddressMapper addressMapper;
 
+    @Transactional
     @Override
     public CustomerInfResponse createCustomer(CreateCustomerRequest createCustomerRequest) {
         log.info("Logistics-Users-Service -> Customer-Service -> Create-Customer: Create customer: {}", createCustomerRequest.getEmail());
@@ -41,6 +43,7 @@ public class CustomerServiceImpl implements CustomerService {
         return customerMapper.toCustomerInfResponse(customerRepository.save(customer));
     }
 
+    @Transactional
     @Override
     public CustomerInfResponse updateCustomer(String id, UpdateCustomerRequest customerRequest) {
         log.info("Logistics-Users-Service -> Customer-Service -> Update-Customer: Update customer: {}", id);

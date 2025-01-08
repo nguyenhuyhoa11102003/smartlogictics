@@ -26,7 +26,11 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	implementation 'io.temporal:temporal-sdk:1.17.0'
+	// Temporal SDK với gRPC và protobuf được ép buộc sử dụng phiên bản an toàn hơn
+	implementation 'io.temporal:temporal-sdk:1.23.0'
+	implementation 'com.google.protobuf:protobuf-java:4.28.2' // Sử dụng phiên bản đã vá lỗi
+	implementation 'io.grpc:grpc-protobuf:1.56.2' // Ép buộc gRPC an toàn hơn
+	implementation 'io.grpc:grpc-netty:1.56.2' // Nếu cần Netty cho gRPC
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

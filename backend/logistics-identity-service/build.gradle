@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.0' // Cập nhật phiên bản ở đây
+	id 'org.springframework.boot' version '3.3.0' // Cập nhật phiên bản Spring Boot nếu cần
 	id 'io.spring.dependency-management' version '1.1.6'
 }
 
@@ -25,14 +25,19 @@ repositories {
 }
 
 ext {
-	set('springCloudVersion', "2023.0.3") // Cập nhật version Spring Cloud
+	set('springCloudVersion', "2023.0.3") // Cập nhật phiên bản Spring Cloud
 }
 
 dependencies {
 
 	implementation project(':common')
 
+	// OkHttp với Okio được cập nhật phiên bản an toàn
 	implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+	implementation 'com.squareup.okio:okio:3.5.0' // Sử dụng phiên bản an toàn của Okio
+
+	// Guava cập nhật phiên bản an toàn
+	implementation 'com.google.guava:guava:32.1.2-jre'
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -45,22 +50,34 @@ dependencies {
 	implementation 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
+	// MapStruct
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
-	implementation 'org.mapstruct:mapstruct:1.5.5.Final' // Thêm MapStruct
-	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign' // Thêm OpenFeign
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0' // Thêm SpringDoc
-	runtimeOnly 'com.mysql:mysql-connector-j' // Thay PostgreSQL bằng MySQL
+	// OpenFeign
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	// SpringDoc
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+	// MySQL Connector
+	runtimeOnly 'com.mysql:mysql-connector-j'
 
 	// Spring Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.security:spring-security-crypto' // Thêm Spring Security Crypto
+	implementation 'org.springframework.security:spring-security-crypto'
 
-	// Thêm dependency Redis
+	// Temporal SDK với gRPC và protobuf được ép buộc sử dụng phiên bản an toàn hơn
+	implementation 'io.temporal:temporal-sdk:1.23.0'
+	implementation 'com.google.protobuf:protobuf-java:4.28.2'
+	implementation 'io.grpc:grpc-protobuf:1.56.2'
+	implementation 'io.grpc:grpc-netty:1.56.2'
+
+	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'redis.clients:jedis' // Thêm Jedis nếu bạn sử dụng Jedis làm client
+	implementation 'redis.clients:jedis'
 
+	// Test dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

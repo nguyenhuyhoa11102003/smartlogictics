@@ -2,7 +2,7 @@ package com.tdtu.logistics_identity_service.controller;
 
 
 import com.tdtu.logistics_identity_service.dto.request.ChangesPasswordRequest;
-import com.tdtu.logistics_identity_service.dto.request.CustomerRegisterAccountRequest;
+import com.tdtu.common.dto.identity_service.CustomerRegisterAccountRequest;
 import com.tdtu.logistics_identity_service.dto.response.AccountInfResponseDTO;
 import com.tdtu.logistics_identity_service.dto.response.ApiResponse;
 import com.tdtu.logistics_identity_service.dto.response.CreateAccountResponseDTO;
