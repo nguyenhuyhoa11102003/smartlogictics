@@ -1,0 +1,54 @@
+/* Tổng thể SidebarMenu */
+.SidebarMenu {
+  list-style-type: none; /* Loại bỏ dấu chấm trước các mục */
+  padding: 0;
+  margin: 0;
+  background-color: #f8f9fa; /* Màu nền sáng giống Bootstrap */
+  border-radius: 0.25rem; /* Bo góc menu */
+  overflow: hidden; /* Đảm bảo nội dung không tràn */
+}
+
+/* SidebarMenuItem */
+.SidebarMenuItem {
+  padding: 0.5rem 1rem; /* Thêm khoảng cách trong mỗi item */
+  border-bottom: 1px solid #dee2e6; /* Đường ngăn cách giữa các mục */
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.SidebarMenuItem:last-child {
+  border-bottom: none; /* Loại bỏ đường ngăn cách ở mục cuối */
+}
+
+/* Trạng thái bình thường */
+.SidebarMenuItem a {
+  text-decoration: none; /* Loại bỏ gạch chân */
+  color: #212529; /* Màu chữ tối (mặc định Bootstrap) */
+  display: block; /* Đảm bảo toàn bộ item click được */
+}
+
+/* Trạng thái hover */
+.SidebarMenuItem:hover {
+  background-color: #e9ecef; /* Màu nền khi hover */
+}
+
+.SidebarMenuItem a:hover {
+  color: #495057; /* Màu chữ khi hover */
+}
+
+/* Trạng thái active */
+.SidebarMenuButton.isActive {
+  background-color: #0d6efd; /* Màu nền active (Primary màu của Bootstrap) */
+  color: white; /* Màu chữ trắng khi active */
+}
+
+.SidebarMenuButton.isActive a {
+  color: white; /* Màu chữ trắng khi active */
+}
+
+/* Responsive (tuỳ chọn) */
+@media (max-width: 768px) {
+  .SidebarMenu {
+    font-size: 0.9rem; /* Giảm kích thước chữ trên màn hình nhỏ */
+  }
+}

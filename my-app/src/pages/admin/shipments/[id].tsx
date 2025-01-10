@@ -1,4 +1,3 @@
-// import 'bootstrap/dist/css/bootstrap.min.css';
 import { Shipment } from "@/modules/shipment/models/Shipment";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";

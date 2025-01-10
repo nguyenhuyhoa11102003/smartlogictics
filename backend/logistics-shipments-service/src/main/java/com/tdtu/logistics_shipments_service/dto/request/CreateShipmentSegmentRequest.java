@@ -20,10 +20,6 @@ public class CreateShipmentSegmentRequest {
 	TrafficCondition trafficCondition;
 	SegmentStatus segmentStatus;
 	String notes;
-	Long fromWarehouseId;
-	Long toWarehouseId;
-	Double plannedDuration;
-	Double actualDuration;
-	Double plannedStopoverDuration;
-	Double actualStopoverDuration;
+	Long destinationWarehouseId;
+	float stopoverDuration;
 }

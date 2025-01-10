@@ -2,6 +2,8 @@ package com.tdtu.logistics_shipments_service.service.client;
 
 
 import com.tdtu.logistics_shipments_service.config.feignClient.ClientConfig;
+import com.tdtu.logistics_shipments_service.dto.response.ApiResponse;
+import com.tdtu.logistics_shipments_service.dto.response.delivery.Route;
 import com.tdtu.logistics_shipments_service.service.client.fallback.DeliveryServiceFallback;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @FeignClient(
 		value = "delivery-service",
 		url = "${delivery-service.url}",
@@ -17,10 +21,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 		fallback = DeliveryServiceFallback.class
 )
 public interface DeliveryServiceFeignClient {
-	@RequestMapping(value = "/delivery/deliver/routes", method = RequestMethod.GET)
-	ResponseEntity<?> getRoutes(@RequestParam("origin") String origin,
-	                            @RequestParam("destination") String destination,
-	                            @RequestParam(value = "return_summary" ,  defaultValue = "summary") String returnSummary  ,
-	                            @RequestParam(value = "transport_mode" , defaultValue = "car") String transportMode);
+
+	// calculate a route between two locations
+	@GetMapping("/routes")
+	ApiResponse<List<Route>> getRoutes(@RequestParam("origin") String origin,
+	                                    @RequestParam("destination") String destination,
+	                                    @RequestParam(value = "return_summary", defaultValue = "summary") String returnSummary,
+	                                    @RequestParam(value = "transport_mode", defaultValue = "car") String transportMode);
 
 }

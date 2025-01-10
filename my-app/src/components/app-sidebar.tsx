@@ -25,6 +25,7 @@ const URL_ADMIN = "/admin"
 const data = {
     navMain: [
         {
+            id :1,
             title: "Tạo đơn",
             url: `${URL_ADMIN}/create-order`,
             items: [
@@ -33,6 +34,7 @@ const data = {
             ]
         },
         {
+            id :2,
             title: "Quản lý",
             url: `${URL_ADMIN}/quan-ly-van-don`,
             items: [
@@ -41,6 +43,7 @@ const data = {
             ]
         },
         {
+            id:3,
             title: "Quản lý lô hàng",
             url: `${URL_ADMIN}/quan-ly-van-don`,
             items: [
@@ -64,7 +67,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {/* We create a collapsible SidebarGroup for each parent. */}
                 {data.navMain.map((item) => (
                     <Collapsible
-                        key={item.title}
+                        key={item.id}
                         title={item.title}
                         defaultOpen
                         className="group/collapsible"
@@ -81,7 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             </SidebarGroupLabel>
                             <CollapsibleContent>
                                 <SidebarGroupContent>
-                                    <SidebarMenu>
+                                    <SidebarMenu className="">
                                         {item.items.map((subItem) => (
                                             <SidebarMenuItem key={item.title}>
                                                 <SidebarMenuButton

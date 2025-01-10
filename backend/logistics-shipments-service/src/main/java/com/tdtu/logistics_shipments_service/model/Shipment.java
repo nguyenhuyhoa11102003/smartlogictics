@@ -20,7 +20,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Shipment extends AbstractMappedEntity implements java.io.Serializable{
+public class Shipment extends AbstractMappedEntity implements java.io.Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long id;
@@ -45,19 +45,16 @@ public class Shipment extends AbstractMappedEntity implements java.io.Serializab
 	Long toWarehouseId;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "shipment_status")
+	@Column(name = "shipment_status", nullable = false)
 	ShipmentStatus shipmentStatus;
 
-	@Column(name = "shipment_start_date")
-	LocalDateTime shipmentStartDate;
+	@Column(name = "departure_time", nullable = false)
+	LocalDateTime departureTime;
 
-	@Column(name = "estimated_delivery_date")
-	LocalDateTime estimatedDeliveryDate;
+	@Column(name = "arrival_time")
+	LocalDateTime arrivalTime;
 
-	@Column(name = "actual_delivery_date")
-	LocalDateTime actualDeliveryDate;
-
-	@Column(name = "orders")
+	@Column(name = "orders", nullable = false)
 	@ElementCollection
 	List<String> orders = new ArrayList<>();
 

@@ -78,6 +78,26 @@ export const formatToVietnamTime = (isoString: string) => {
 }
 
 
+export const vehicles = [
+  {
+      id: 1,
+      name: 'Xe tải A',
+      employee: { id: 101, name: 'Nguyễn Văn A', role: 'Lái xe' }
+  },
+  {
+      id: 2,
+      name: 'Xe tải B',
+      employee: { id: 102, name: 'Trần Thị B', role: 'Lái xe' }
+  },
+  {
+      id: 3,
+      name: 'Xe tải C',
+      employee: { id: 103, name: 'Lê Minh C', role: 'Lái xe' }
+  },
+];
+
+
+
 export const warehouses: Warehouse[] = [
   {
     id: 1,

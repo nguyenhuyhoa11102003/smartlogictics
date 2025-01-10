@@ -8,6 +8,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
+
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "shipment_segments")
@@ -26,26 +28,39 @@ public class ShipmentSegment extends AbstractMappedEntity implements java.io.Ser
 	@JoinColumn(name = "shipment_id", nullable = false)
 	Shipment shipment;
 
+	@Column(name = "from_warehouse_id", nullable = false)
 	Long fromWarehouseId;
+
+	@Column(name = "to_warehouse_id", nullable = false)
 	Long toWarehouseId;
 
-	Double plannedDuration; // Thời gian dự tính chuyến đi
-	Double actualDuration; // Thời gian thực tế chuyến đi
+	@Column(name = "start_time", nullable = false)
+	LocalDateTime departureTime;
 
-	Double plannedStopoverDuration;  // Thời gian dự tính dừng lại tại chặng
-	Double actualStopoverDuration;  // thời gian  thực tế dừng lại tại chặng
+	@Column(name = "end_time", nullable = false)
+	LocalDateTime arrivalTime;
 
-	@Enumerated(EnumType.STRING)
-	WeatherCondition weatherCondition;
-
-	@Enumerated(EnumType.STRING)
-	TrafficCondition trafficCondition;
+	@Column(name = "planned_stopover_duration", nullable = false)
+	float stopoverDuration;
 
 	@Enumerated(EnumType.STRING)
-	SegmentStatus segmentStatus;
+	WeatherCondition weatherCondition = WeatherCondition.CLEAR;
 
+	@Enumerated(EnumType.STRING)
+	TrafficCondition trafficCondition = TrafficCondition.LIGHT;
+
+	@Enumerated(EnumType.STRING)
+	SegmentStatus segmentStatus = SegmentStatus.NOT_STARTED;
+
+	@Column(name = "notes", columnDefinition = "TEXT")
 	String notes;
 
+	@Column(name = "summary_duration")
+	float summaryDuration;
 
+	@Column(name = "summary_length")
+	float summaryLength;
 
+	@Column(name = "summary_base_duration")
+	float summaryBaseDuration;
 }

@@ -22,9 +22,7 @@ public class CreateShipmentRequest {
 	List<Long> intermediateWarehouseIds;
 	Long toWarehouseId;
 	ShipmentStatus shipmentStatus;
-	String shipmentStartDate;
-	String estimatedDeliveryDate;
-	String actualDeliveryDate;
+	String departureTime;
 	List<String> orders;
 	List<CreateShipmentSegmentRequest> shipmentSegmentRequests;
 }

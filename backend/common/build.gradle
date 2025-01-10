@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.4.0'
+	id 'org.springframework.boot' version '3.3.0' // Cập nhật phiên bản ở đây
 	id 'io.spring.dependency-management' version '1.1.6'
 }
 
@@ -26,12 +26,13 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	// Quản lý đồng bộ phiên bản gRPC
-	implementation platform('io.grpc:grpc-bom:1.56.2')
-	implementation 'io.temporal:temporal-sdk:1.23.0'
-	implementation 'io.grpc:grpc-protobuf:1.56.2' // Chỉ định phiên bản
-	implementation 'io.grpc:grpc-netty:1.56.2' // Chỉ định phiên bản
-	implementation 'com.google.protobuf:protobuf-java:4.28.2'
+// gRPC version bom
+	implementation platform('io.grpc:grpc-bom:1.50.2') // 1.50.2 phù hợp với Java 17
+	implementation 'io.temporal:temporal-sdk:1.22.1' // Phiên bản ổn định với Java 17
+	implementation 'io.grpc:grpc-protobuf:1.50.2'
+	implementation 'io.grpc:grpc-netty:1.50.2'
+	implementation 'com.google.protobuf:protobuf-java:3.21.12' // Chuyển về phiên bản an toàn
+
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

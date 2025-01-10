@@ -1,6 +1,5 @@
 package com.tdtu.logistics_shipments_service.controller;
 
-
 import com.tdtu.logistics_shipments_service.dto.request.ActualDeliveryTimeRequest;
 import com.tdtu.logistics_shipments_service.dto.request.AddOrdersToShipmentRequest;
 import com.tdtu.logistics_shipments_service.dto.request.CreateShipmentRequest;
@@ -28,18 +27,15 @@ import java.util.Map;
 public class ShipmentController {
 	ShipmentService shipmentService;
 
-
 	@PostMapping("/create")
-	public ApiResponse<ShipmentInfResponse> createShipment(@RequestBody CreateShipmentRequest request
-	) {
-		ShipmentInfResponse shipmentInfResponse = shipmentService.createShipment(request);
+	public ApiResponse<ShipmentInfResponse> createShipment(@RequestBody CreateShipmentRequest request) {
+		ShipmentInfResponse response = shipmentService.createShipment(request);
 		return ApiResponse.<ShipmentInfResponse>builder()
 				.code(HttpStatus.CREATED.value())
 				.message("Shipment created successfully")
-				.result(shipmentInfResponse)
+				.result(response)
 				.build();
 	}
-
 
 	@PostMapping("/add-orders")
 	public ApiResponse<?> addOrdersToShipment(@RequestBody AddOrdersToShipmentRequest request) {
@@ -130,6 +126,5 @@ public class ShipmentController {
 				.result(response)
 				.build();
 	}
-
 
 }

@@ -3,6 +3,7 @@ package com.tdtu.logistics_warehouse_service.dto.response;
 import com.tdtu.logistics_warehouse_service.model.Warehouse;
 import lombok.*;
 import com.tdtu.logistics_warehouse_service.enumarators.WarehouseStatus;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -13,23 +14,23 @@ import java.time.ZoneId;
 @Getter
 @Setter
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class WarehouseInfResponse {
-	private Long id;  // ID kho
+	Long id;
 
-	private String name;  // Tên kho
+	String name;
 
+	String phoneNumber;
 
-	private String phoneNumber;  // Số điện thoại kho
+	double capacity;
 
-	private double capacity;  // Dung lượng kho
+	WarehouseStatus status;
 
-	private WarehouseStatus status;  // Trạng thái kho
+	AddressInfResponse address;
 
-	private AddressInfResponse address;  // Thay vì addressId, trả về đối tượng Address
+	LocalDateTime createdAt;
 
-	private LocalDateTime createdAt;  // Thời gian tạo kho
-
-	private LocalDateTime updatedAt;  // Thời gian cập nhật kho
+	LocalDateTime updatedAt;
 
 	public static WarehouseInfResponse toWarehouseInfResponse(Warehouse warehouse) {
 		return WarehouseInfResponse.builder()

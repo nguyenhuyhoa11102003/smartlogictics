@@ -1,6 +1,5 @@
 package com.tdtu.logistics_identity_service.exception;
 
-
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
@@ -23,12 +22,16 @@ public enum ErrorCode {
 
     FORBIDDEN(403, "forbidden", HttpStatus.FORBIDDEN),
     NOT_FOUND(404, "not_found", HttpStatus.NOT_FOUND),
+<<<<<<< HEAD
+    INTERNAL_SERVER_ERROR(500, "internal_server_error", HttpStatus.INTERNAL_SERVER_ERROR);
+=======
     INTERNAL_SERVER_ERROR(500, "internal_server_error", HttpStatus.INTERNAL_SERVER_ERROR),
 
     ACCOUNT_NOT_FOUND(404, "account_not_found", HttpStatus.NOT_FOUND),
 
     WORKFLOW_FAILED(500, "workflow_failed", HttpStatus.INTERNAL_SERVER_ERROR)
     ;
+>>>>>>> 1bd25e14c88250c163d958725ad6e4ed8150f0e4
 
     ErrorCode(int statusCode, String message, HttpStatus httpStatus) {
         this.statusCode = statusCode;
