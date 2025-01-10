@@ -1,8 +1,8 @@
 package com.tdtu.logistics_users_service.service.implement;
 
+import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import com.tdtu.logistics_users_service.dto.request.CreateCustomerRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateCustomerRequest;
-import com.tdtu.logistics_users_service.dto.response.CustomerInfResponse;
 import com.tdtu.logistics_users_service.entity.Address;
 import com.tdtu.logistics_users_service.entity.Customer;
 import com.tdtu.logistics_users_service.exception.AppException;
@@ -88,7 +88,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerInfResponse getCustomerByPhoneNumber(String phoneNumber) {
-        log.info("Logistics-Users-Service -> Customer-Service -> Get-Customer-By-Phone-Number: Get customer by phone number: {}", phoneNumber);
+        log.debug("Logistics-Users-Service -> Customer-Service -> Get-Customer-By-Phone-Number: Get customer by phone number: {}", phoneNumber);
 
         Customer customer = customerRepository.findByPhoneNumber(phoneNumber).orElseThrow(() -> {
                     log.error("Logistics-Users-Service -> Customer-Service -> Get-Customer: Customer not found with phone number: {}", phoneNumber);
@@ -96,6 +96,20 @@ public class CustomerServiceImpl implements CustomerService {
             );
 
         return customerMapper.toCustomerInfResponse(customer);
+    }
+
+    @Override
+    public boolean deleteCustomer(String customerId) {
+        log.debug("Logistics-Users-Service -> Customer-Service -> Delete-Customer: Delete customer: {}", customerId);
+
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> {
+                    log.error("Logistics-Users-Service -> Customer-Service -> Delete-Customer: Customer not found with id: {}", customerId);
+                    return new AppException(ErrorCode.CUSTOMER_NOT_EXISTED);}
+            );
+
+        customerRepository.delete(customer);
+
+        return true;
     }
 
     private Customer updateCustomerFromRequest(Customer customer, UpdateCustomerRequest customerRequest) {

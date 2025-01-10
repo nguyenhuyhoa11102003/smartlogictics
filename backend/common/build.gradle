@@ -21,19 +21,21 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven { url 'https://repo1.maven.org/maven2/' } // Đảm bảo có repo Maven chính thức
 }
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	// Temporal SDK với gRPC và protobuf được ép buộc sử dụng phiên bản an toàn hơn
+	// Quản lý đồng bộ phiên bản gRPC
+	implementation platform('io.grpc:grpc-bom:1.56.2')
 	implementation 'io.temporal:temporal-sdk:1.23.0'
-	implementation 'com.google.protobuf:protobuf-java:4.28.2' // Sử dụng phiên bản đã vá lỗi
-	implementation 'io.grpc:grpc-protobuf:1.56.2' // Ép buộc gRPC an toàn hơn
-	implementation 'io.grpc:grpc-netty:1.56.2' // Nếu cần Netty cho gRPC
+	implementation 'io.grpc:grpc-protobuf:1.56.2' // Chỉ định phiên bản
+	implementation 'io.grpc:grpc-netty:1.56.2' // Chỉ định phiên bản
+	implementation 'com.google.protobuf:protobuf-java:4.28.2'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

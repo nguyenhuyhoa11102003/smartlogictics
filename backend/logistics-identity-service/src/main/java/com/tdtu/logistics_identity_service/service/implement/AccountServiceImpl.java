@@ -1,11 +1,13 @@
 package com.tdtu.logistics_identity_service.service.implement;
 
 
+import com.tdtu.common.orchestration.workflow.RegistryAccountWorkflow;
+import com.tdtu.common.orchestration.workflow.WorkerHelper;
+import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import com.tdtu.logistics_identity_service.constant.PredefinedRole;
 import com.tdtu.logistics_identity_service.dto.request.ChangesPasswordRequest;
 import com.tdtu.common.dto.identity_service.CustomerRegisterAccountRequest;
 import com.tdtu.logistics_identity_service.dto.response.AccountInfResponseDTO;
-import com.tdtu.logistics_identity_service.dto.response.CreateAccountResponseDTO;
 import com.tdtu.logistics_identity_service.dto.response.UserInfResponseDTO;
 import com.tdtu.logistics_identity_service.entity.Account;
 import com.tdtu.logistics_identity_service.entity.Role;
@@ -15,6 +17,8 @@ import com.tdtu.logistics_identity_service.mapper.AccountMapper;
 import com.tdtu.logistics_identity_service.repository.RoleRepository;
 import com.tdtu.logistics_identity_service.repository.AccountRepository;
 import com.tdtu.logistics_identity_service.service.AccountService;
+import io.temporal.client.WorkflowException;
+import io.temporal.client.WorkflowOptions;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Transactional
     @Override
-    public CreateAccountResponseDTO createAccount(CustomerRegisterAccountRequest request) {
+    public String createAccount(CustomerRegisterAccountRequest request) {
 
         try {
             Account account = accountMapper.toAccount(request);
@@ -66,7 +70,8 @@ public class AccountServiceImpl implements AccountService {
             account = accountRepository.save(account);
             log.info("Created account by username {}", account.getUsername());
 
-            return toCreateAccountResp(account);
+            return account.getId();
+
         } catch (DataIntegrityViolationException e) {
             log.warn("Errors: Create new account-profile by cause: {}, Throw by: {}", e.getCause(), e.getClass());
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -76,11 +81,24 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    private CreateAccountResponseDTO toCreateAccountResp(Account account) {
-        return CreateAccountResponseDTO.builder()
-                .userId(account.getId())
-                .username(account.getUsername())
-                .build();
+    private CustomerInfResponse createCustomer(CustomerRegisterAccountRequest request) {
+
+        try {
+
+            var workerClient = WorkerHelper.getWorkflowClient(target);
+
+            WorkflowOptions options = WorkflowOptions.newBuilder()
+                    .setTaskQueue(WorkerHelper.WORKFLOW_CREATE_ACCOUNT_TASK_QUEUE)
+                    .build();
+
+            RegistryAccountWorkflow workflow = workerClient.newWorkflowStub(RegistryAccountWorkflow.class, options);
+
+            return workflow.processRegistryAccount(request);
+        } catch (WorkflowException exception) {
+            log.error("Workflow failed for request: {}", request, exception);
+            throw new AppException(ErrorCode.WORKFLOW_FAILED);
+        }
+
     }
 
     @Override
@@ -102,5 +120,19 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountInfResponseDTO updatePassword(String accountId, ChangesPasswordRequest request) {
         return null;
+    }
+
+    @Override
+    public boolean deleteAccount(String accountId) {
+        log.debug("Delete account by id {}", accountId);
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        accountRepository.delete(account);
+
+        log.info("Deleted account by id {}", accountId);
+
+        return true;
     }
 }

@@ -27,6 +27,7 @@ public abstract class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false, unique = true)
     private String phoneNumber;
 
     @Column(nullable = false)
@@ -34,6 +35,7 @@ public abstract class User {
 
     private LocalDate dateOfBirth;
 
+    @Column(nullable = false, unique = true)
     private String identityCard;
 
     @Enumerated(EnumType.STRING)

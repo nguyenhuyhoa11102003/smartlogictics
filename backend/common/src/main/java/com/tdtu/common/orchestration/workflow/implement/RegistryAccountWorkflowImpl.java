@@ -3,6 +3,7 @@ package com.tdtu.common.orchestration.workflow.implement;
 import com.tdtu.common.dto.identity_service.CustomerRegisterAccountRequest;
 import com.tdtu.common.orchestration.activity.RegistryAccountActivity;
 import com.tdtu.common.orchestration.workflow.RegistryAccountWorkflow;
+import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.RetryOptions;
 import io.temporal.workflow.Workflow;
@@ -26,7 +27,8 @@ public class RegistryAccountWorkflowImpl implements RegistryAccountWorkflow {
     private final RegistryAccountActivity registryAccount = Workflow.newActivityStub(RegistryAccountActivity.class, defaultActivityOptions);
 
     @Override
-    public void processRegistryAccount(Object request) {
+    public CustomerInfResponse processRegistryAccount(Object request) {
         registryAccount.createAccount((CustomerRegisterAccountRequest) request);
+        return null;
     }
 }

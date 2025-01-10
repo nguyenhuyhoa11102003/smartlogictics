@@ -8,5 +8,17 @@ import io.temporal.activity.ActivityMethod;
 public interface RegistryAccountActivity {
 
     @ActivityMethod
-    void createAccount(CustomerRegisterAccountRequest request);
+    String createAccount(CustomerRegisterAccountRequest request);
+
+    @ActivityMethod
+    String createUserProfile(CustomerRegisterAccountRequest request);
+
+    @ActivityMethod
+    void linkAccountToUserProfile(String acountId, String userProfileId);
+
+    @ActivityMethod
+    void rollbackCreateAccount(String accountId);
+
+    @ActivityMethod
+    void rollbackCreateUserProfile(String userProfileId);
 }

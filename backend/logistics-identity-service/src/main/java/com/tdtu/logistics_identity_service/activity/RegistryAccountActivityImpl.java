@@ -1,8 +1,7 @@
-package com.tdtu.logistics_users_service.activity;
+package com.tdtu.logistics_identity_service.activity;
 
 import com.tdtu.common.dto.identity_service.CustomerRegisterAccountRequest;
 import com.tdtu.common.orchestration.activity.RegistryAccountActivity;
-import com.tdtu.logistics_users_service.service.CustomerService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +16,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RegistryAccountActivityImpl implements RegistryAccountActivity {
 
-    CustomerService customerService;
-
-
     @Override
     public String createAccount(CustomerRegisterAccountRequest request) {
         return "";
@@ -31,7 +27,7 @@ public class RegistryAccountActivityImpl implements RegistryAccountActivity {
     }
 
     @Override
-    public void linkAccountToUserProfile(String accountId, String userProfileId) {
+    public void linkAccountToUserProfile(String acountId, String userProfileId) {
 
     }
 

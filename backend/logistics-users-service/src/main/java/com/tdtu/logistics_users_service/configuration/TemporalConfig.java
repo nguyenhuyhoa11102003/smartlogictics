@@ -24,7 +24,7 @@ public class TemporalConfig {
     RegistryAccountActivity registryAccountActivity;
 
     @NonFinal
-    @Value("${temporal.serviceAddress}")
+    @Value("${temporal.host}")
     String target;
 
     @PostConstruct
@@ -39,7 +39,7 @@ public class TemporalConfig {
 
         var factory = WorkerFactory.newInstance(client);
 
-        Worker worker = factory.newWorker(WorkerHelper.WORKFLOW_ACCOUNT_TASK_QUEUE);
+        Worker worker = factory.newWorker(WorkerHelper.WORKFLOW_CREATE_ACCOUNT_TASK_QUEUE);
 
         worker.registerWorkflowImplementationTypes(RegistryAccountWorkflow.class);
         worker.registerActivitiesImplementations(registryAccountActivity);

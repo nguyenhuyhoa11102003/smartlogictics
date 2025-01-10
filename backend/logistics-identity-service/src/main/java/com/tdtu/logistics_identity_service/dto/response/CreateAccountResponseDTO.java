@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateAccountResponseDTO {
-    String userId;
+    String accountId;
 
     String username;
 

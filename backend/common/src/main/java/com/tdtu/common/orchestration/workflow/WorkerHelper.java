@@ -8,10 +8,9 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 
 import java.time.Duration;
-
 public class WorkerHelper {
 
-    public static final String WORKFLOW_ACCOUNT_TASK_QUEUE = "AccountTaskQueue";
+    public static final String WORKFLOW_CREATE_ACCOUNT_TASK_QUEUE = "CreateAccountTaskQueue";
 
     private static final RetryOptions RETRY_OPTIONS = RetryOptions.newBuilder()
             .setInitialInterval(Duration.ofSeconds(1))
@@ -20,7 +19,12 @@ public class WorkerHelper {
             .setMaximumAttempts(500)
             .build();
 
-    private static WorkflowOptions getWorkflowOptions(String taskQueue, String workflowId) {
+    // Private constructor to prevent instantiation
+    private WorkerHelper() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
+    public static WorkflowOptions getWorkflowOptions(String taskQueue, String workflowId) {
         var builder = WorkflowOptions.newBuilder();
 
         builder.setWorkflowId(workflowId);
@@ -39,12 +43,9 @@ public class WorkerHelper {
     }
 
     public static ActivityOptions defaultActivityOptions() {
-        return
-                ActivityOptions.newBuilder()
-                        // Timeout options specify when to automatically timeout Activities if the process is taking too long.
-                        .setStartToCloseTimeout(Duration.ofSeconds(5))
-                        .setRetryOptions(RETRY_OPTIONS)
-                        .build();
+        return ActivityOptions.newBuilder()
+                .setStartToCloseTimeout(Duration.ofSeconds(5))
+                .setRetryOptions(RETRY_OPTIONS)
+                .build();
     }
 }
-

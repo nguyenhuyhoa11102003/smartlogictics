@@ -1,13 +1,13 @@
 package com.tdtu.logistics_identity_service.repository;
 
 import com.tdtu.logistics_identity_service.entity.Account;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.Optional;
 
-@Repository
-public interface AccountRepository extends JpaRepository<Account, String> {
+@RepositoryRestResource(collectionResourceRel = "accounts", path = "accounts")
+public interface AccountRepository extends PagingAndSortingRepository<Account, String> {
     Optional<Account> findByUsername(String username);
 
     Optional<Account> findById(String id);

@@ -26,6 +26,8 @@ public enum ErrorCode {
     ADDRESS_NOT_EXISTED(404, "address_not_existed", HttpStatus.NOT_FOUND),
 
     SHIPPER_NOT_EXISTED(404, "shipper_not_existed", HttpStatus.NOT_FOUND),
+
+    WORKFLOW_FAILED(500, "workflow_failed", HttpStatus.INTERNAL_SERVER_ERROR)
     ;
 
     ErrorCode(int statusCode, String message, HttpStatus httpStatus) {

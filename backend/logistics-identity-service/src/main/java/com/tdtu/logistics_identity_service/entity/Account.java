@@ -23,11 +23,16 @@ public class Account extends BaseEntity{
     String id;
 
     @NotBlank
-    @Column(name = "username", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     String username;
 
     @NotBlank
+    @Column(name = "password", nullable = false)
     String password;
+
+    @NotBlank
+    @Column(name = "user_profile_id")
+    String userProfileId;
 
     @ManyToMany
     @ToString.Exclude

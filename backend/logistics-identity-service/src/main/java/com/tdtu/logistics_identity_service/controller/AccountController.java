@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController()
+@RestController("accountRestController")
 @RequestMapping("/account")
 @Validated
 @RequiredArgsConstructor
@@ -38,11 +38,11 @@ public class AccountController {
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<CreateAccountResponseDTO> createAccount(
             @RequestBody CustomerRegisterAccountRequest createAccountRequest) {
-        CreateAccountResponseDTO result = accountService.createAccount(createAccountRequest);
+        //CreateAccountResponseDTO result = accountService.createAccount(createAccountRequest);
 
         return ApiResponse.<CreateAccountResponseDTO>builder()
                 .code(HttpStatus.CREATED.value())
-                .result(result)
+                .result(null)
                 .message("Create account successfully")
                 .build();
     }

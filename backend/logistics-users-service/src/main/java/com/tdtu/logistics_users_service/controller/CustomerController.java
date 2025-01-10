@@ -3,7 +3,6 @@ package com.tdtu.logistics_users_service.controller;
 import com.tdtu.logistics_users_service.dto.request.CreateCustomerRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateCustomerRequest;
 import com.tdtu.logistics_users_service.dto.response.ApiResponse;
-import com.tdtu.logistics_users_service.dto.response.CustomerInfResponse;
 import com.tdtu.logistics_users_service.service.CustomerService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
