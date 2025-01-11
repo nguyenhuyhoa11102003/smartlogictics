@@ -1,10 +1,12 @@
 package com.tdtu.logistics_identity_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.Set;
 
@@ -23,14 +25,14 @@ public class Account extends BaseEntity{
     String id;
 
     @NotBlank
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     String username;
 
     @NotBlank
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     String password;
 
-    @NotBlank
     @Column(name = "user_profile_id")
     String userProfileId;
 

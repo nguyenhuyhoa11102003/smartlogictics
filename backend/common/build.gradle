@@ -26,13 +26,12 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-// gRPC version bom
-	implementation platform('io.grpc:grpc-bom:1.50.2') // 1.50.2 phù hợp với Java 17
-	implementation 'io.temporal:temporal-sdk:1.22.1' // Phiên bản ổn định với Java 17
-	implementation 'io.grpc:grpc-protobuf:1.50.2'
-	implementation 'io.grpc:grpc-netty:1.50.2'
-	implementation 'com.google.protobuf:protobuf-java:3.21.12' // Chuyển về phiên bản an toàn
+	// Temporal SDK với gRPC và protobuf được ép buộc sử dụng phiên bản an toàn hơn
+	implementation 'io.temporal:temporal-sdk:1.23.0'
+	implementation platform("io.grpc:grpc-bom:1.54.1")
 
+	implementation 'io.grpc:grpc-protobuf'
+	implementation 'io.grpc:grpc-netty'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

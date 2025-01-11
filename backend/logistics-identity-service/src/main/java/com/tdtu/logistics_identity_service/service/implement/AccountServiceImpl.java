@@ -62,7 +62,11 @@ public class AccountServiceImpl implements AccountService {
             Account account = accountMapper.toAccount(request);
             account.setPassword(passwordEncoder.encode(request.getPassword()));
 
-            Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER_ROLE);
+            Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER_ROLE).orElseGet(() -> roleRepository.save(Role.builder()
+                    .name(PredefinedRole.CUSTOMER_ROLE)
+                    .description("Customer role")
+                    .build()));
+
             Set<Role> roles = new HashSet<>();
             roles.add(customerRole);
             account.setRoles(roles);
