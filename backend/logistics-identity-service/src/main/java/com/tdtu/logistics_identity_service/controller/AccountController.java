@@ -45,13 +45,14 @@ public class AccountController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
     })
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<CreateAccountResponseDTO> createAccount(
+    public ApiResponse<String> createAccount(
             @RequestBody CustomerRegisterAccountRequest createAccountRequest) {
-        // CreateAccountResponseDTO result = accountService.createAccount(createAccountRequest);
 
-        return ApiResponse.<CreateAccountResponseDTO>builder()
+        String result = accountService.createAccount(createAccountRequest);
+
+        return ApiResponse.<String>builder()
                 .code(HttpStatus.CREATED.value())
-                .result(null)
+                .result(result)
                 .message("Create account successfully")
                 .build();
     }

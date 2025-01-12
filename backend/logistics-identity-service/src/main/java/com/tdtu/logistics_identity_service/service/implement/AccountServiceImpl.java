@@ -1,7 +1,7 @@
 package com.tdtu.logistics_identity_service.service.implement;
 
 
-import com.tdtu.common.orchestration.workflow.RegistryAccountWorkflow;
+import com.tdtu.common.orchestration.workflow.UserRegistrationWorkflow;
 import com.tdtu.common.orchestration.workflow.WorkerHelper;
 import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import com.tdtu.logistics_identity_service.constant.PredefinedRole;
@@ -17,6 +17,7 @@ import com.tdtu.logistics_identity_service.mapper.AccountMapper;
 import com.tdtu.logistics_identity_service.repository.RoleRepository;
 import com.tdtu.logistics_identity_service.repository.AccountRepository;
 import com.tdtu.logistics_identity_service.service.AccountService;
+import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
 import io.temporal.client.WorkflowOptions;
 import jakarta.transaction.Transactional;
@@ -50,6 +51,8 @@ public class AccountServiceImpl implements AccountService {
 
     PasswordEncoder passwordEncoder;
 
+    WorkflowClient workflowClient;
+
     @NonFinal
     @Value("${temporal.host}")
     String target;
@@ -57,6 +60,10 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     @Override
     public String createAccount(CustomerRegisterAccountRequest request) {
+
+        // Test create account with workflow
+        createCustomer(request);
+        // Test create account with workflow
 
         try {
             Account account = accountMapper.toAccount(request);
@@ -86,24 +93,22 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private CustomerInfResponse createCustomer(CustomerRegisterAccountRequest request) {
-
         try {
-
-            var workerClient = WorkerHelper.getWorkflowClient(target);
-
             WorkflowOptions options = WorkflowOptions.newBuilder()
                     .setTaskQueue(WorkerHelper.WORKFLOW_CREATE_ACCOUNT_TASK_QUEUE)
                     .build();
 
-            RegistryAccountWorkflow workflow = workerClient.newWorkflowStub(RegistryAccountWorkflow.class, options);
+            UserRegistrationWorkflow workflow = workflowClient.newWorkflowStub(UserRegistrationWorkflow.class, options);
+
+            log.info("Start workflow for request: {}", request);
 
             return workflow.processRegistryAccount(request);
         } catch (WorkflowException exception) {
             log.error("Workflow failed for request: {}", request, exception);
             throw new AppException(ErrorCode.WORKFLOW_FAILED);
         }
-
     }
+
 
     @Override
     public UserInfResponseDTO getUserInfo() {

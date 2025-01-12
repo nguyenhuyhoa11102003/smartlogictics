@@ -1,7 +1,7 @@
-package com.tdtu.logistics_users_service.activity;
+package com.tdtu.logistics_users_service.orchestration.activity;
 
 import com.tdtu.common.dto.identity_service.CustomerRegisterAccountRequest;
-import com.tdtu.common.orchestration.activity.RegistryAccountActivity;
+import com.tdtu.common.orchestration.activity.UserRegistrationActivity;
 import com.tdtu.logistics_users_service.service.CustomerService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Transactional
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-public class RegistryAccountActivityImpl implements RegistryAccountActivity {
+public class RegistryAccountActivityImpl implements UserRegistrationActivity {
 
     CustomerService customerService;
 
@@ -27,6 +27,9 @@ public class RegistryAccountActivityImpl implements RegistryAccountActivity {
 
     @Override
     public String createUserProfile(CustomerRegisterAccountRequest request) {
+
+        log.info("Den doan createUserProfile roi nhe");
+
         return "";
     }
 
@@ -42,6 +45,6 @@ public class RegistryAccountActivityImpl implements RegistryAccountActivity {
 
     @Override
     public void rollbackCreateUserProfile(String userProfileId) {
-
+        log.info("Den doan rollbackCreateUserProfile roi nhe");
     }
 }

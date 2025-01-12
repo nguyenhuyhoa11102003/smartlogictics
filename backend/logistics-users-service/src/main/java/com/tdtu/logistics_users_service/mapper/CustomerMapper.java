@@ -5,6 +5,7 @@ import com.tdtu.logistics_users_service.dto.request.CreateCustomerRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateCustomerRequest;
 import com.tdtu.logistics_users_service.entity.Customer;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
@@ -13,6 +14,7 @@ public interface CustomerMapper {
 
     Customer toCustomer(UpdateCustomerRequest customerRequest);
 
+    @Mapping(target = "address", ignore = true)
     CustomerInfResponse toCustomerInfResponse(Customer customer);
 
 }
