@@ -123,24 +123,20 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findByUsername(auth)
                 .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-
-
-        return null;
-    }
-
-    @Override
-    public List<AccountInfResponseDTO> getAllAccounts() {
-        return List.of();
-    }
-
-    @Override
-    public Page<AccountInfResponseDTO> getAccounts(Pageable pageable) {
-        return null;
+        return UserInfResponseDTO.builder()
+                .accountId(account.getId())
+                .profileId(account.getUserProfileId())
+                .email(account.getUsername())
+                .role(account.getRoles().stream().findFirst().get().getName())
+                .build();
     }
 
     @Transactional
     @Override
     public AccountInfResponseDTO updatePassword(String accountId, ChangesPasswordRequest request) {
+
+
+
         return null;
     }
 

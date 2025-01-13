@@ -38,4 +38,8 @@ public class Account extends BaseEntity{
     @ManyToMany
     @ToString.Exclude
     Set<Role> roles;
+
+    public Set<Role> getRolesSet() {
+        return roles;
+    }
 }
