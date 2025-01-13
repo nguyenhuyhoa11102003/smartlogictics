@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -60,24 +61,24 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     @Override
     public String createAccount(CustomerRegisterAccountRequest request) {
-
-        // Test create account with workflow
-        createCustomer(request);
-        // Test create account with workflow
-
         try {
             Account account = accountMapper.toAccount(request);
             account.setPassword(passwordEncoder.encode(request.getPassword()));
 
-            Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER_ROLE).orElseGet(() -> roleRepository.save(Role.builder()
-                    .name(PredefinedRole.CUSTOMER_ROLE)
-                    .description("Customer role")
-                    .build()));
+            Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER_ROLE)
+                    .orElseGet(() -> roleRepository.save(Role.builder()
+                            .name(PredefinedRole.CUSTOMER_ROLE)
+                            .description("Customer role")
+                            .build()));
 
             Set<Role> roles = new HashSet<>();
             roles.add(customerRole);
             account.setRoles(roles);
 
+            // Chỉ gọi một lần và lưu kết quả
+            CustomerInfResponse customerInfResponse = createCustomer(request);
+
+            account.setUserProfileId(customerInfResponse.getId());
             account = accountRepository.save(account);
             log.info("Created account by username {}", account.getUsername());
 
@@ -98,20 +99,32 @@ public class AccountServiceImpl implements AccountService {
                     .setTaskQueue(WorkerHelper.WORKFLOW_CREATE_ACCOUNT_TASK_QUEUE)
                     .build();
 
+            log.info("Create new user profile by username {}", request.getUsername());
+
             UserRegistrationWorkflow workflow = workflowClient.newWorkflowStub(UserRegistrationWorkflow.class, options);
 
-            log.info("Start workflow for request: {}", request);
+            CustomerInfResponse response = workflow.processRegistryAccount(request);
 
-            return workflow.processRegistryAccount(request);
+            log.debug("Created new user profile by username {}", request.getUsername());
+
+            return response;
         } catch (WorkflowException exception) {
             log.error("Workflow failed for request: {}", request, exception);
             throw new AppException(ErrorCode.WORKFLOW_FAILED);
         }
     }
 
-
     @Override
     public UserInfResponseDTO getUserInfo() {
+
+        var context = SecurityContextHolder.getContext().getAuthentication();
+        var auth = context.getName();
+
+        Account account = accountRepository.findByUsername(auth)
+                .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+
+
         return null;
     }
 

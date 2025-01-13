@@ -1,7 +1,7 @@
 package com.tdtu.logistics_users_service.service.implement;
 
 import com.tdtu.common.user_service.dto.CustomerInfResponse;
-import com.tdtu.logistics_users_service.dto.request.CreateCustomerRequest;
+import com.tdtu.common.user_service.dto.CreateCustomerRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateCustomerRequest;
 import com.tdtu.logistics_users_service.entity.Address;
 import com.tdtu.logistics_users_service.entity.Customer;

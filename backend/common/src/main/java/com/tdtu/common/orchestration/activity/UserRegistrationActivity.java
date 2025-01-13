@@ -1,6 +1,7 @@
 package com.tdtu.common.orchestration.activity;
 
 import com.tdtu.common.dto.identity_service.CustomerRegisterAccountRequest;
+import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
 
@@ -8,17 +9,8 @@ import io.temporal.activity.ActivityMethod;
 public interface UserRegistrationActivity {
 
     @ActivityMethod
-    String createAccount(CustomerRegisterAccountRequest request);
+    CustomerInfResponse createUserProfile(CustomerRegisterAccountRequest request);
 
     @ActivityMethod
-    String createUserProfile(CustomerRegisterAccountRequest request);
-
-    @ActivityMethod
-    void linkAccountToUserProfile(String acountId, String userProfileId);
-
-    @ActivityMethod
-    void rollbackCreateAccount(String accountId);
-
-    @ActivityMethod
-    void rollbackCreateUserProfile(String userProfileId);
+    boolean rollbackCreateUserProfile(String userProfileId);
 }
