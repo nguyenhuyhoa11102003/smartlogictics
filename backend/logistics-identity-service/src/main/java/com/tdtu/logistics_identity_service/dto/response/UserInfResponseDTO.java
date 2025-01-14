@@ -1,5 +1,6 @@
 package com.tdtu.logistics_identity_service.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tdtu.logistics_identity_service.enumrator.Gender;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,11 +11,12 @@ import lombok.experimental.FieldDefaults;
 @ToString
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserInfResponseDTO {
 
     String accountId;
 
-    String username;
+    String profileId;
 
     String fullName;
 
@@ -23,4 +25,6 @@ public class UserInfResponseDTO {
     String phoneNumber;
 
     Gender gender;
+
+    String role;
 }

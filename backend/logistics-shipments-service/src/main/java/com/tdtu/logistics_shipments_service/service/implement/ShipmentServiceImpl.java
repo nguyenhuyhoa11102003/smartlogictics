@@ -67,12 +67,17 @@ public class ShipmentServiceImpl implements ShipmentService {
 
 		List<CreateShipmentSegmentRequest> createShipmentSegmentRequests = requestDTO.getShipmentSegmentRequests();
 
+
+		List<Long> intermediateWarehouseIds = requestDTO.getShipmentSegmentRequests().stream()
+				.map(CreateShipmentSegmentRequest::getDestinationWarehouseId)
+				.toList();
+
 		Shipment shipment = Shipment.builder()
 				.trackingNumber(requestDTO.getTrackingNumber())
 				.shipper(requestDTO.getShipper())
 				.shipmentMethod(requestDTO.getShipmentMethod())
 				.fromWarehouseId(requestDTO.getFromWarehouseId())
-				.intermediateWarehouseIds(requestDTO.getIntermediateWarehouseIds())
+				.intermediateWarehouseIds(intermediateWarehouseIds)
 				.toWarehouseId(requestDTO.getToWarehouseId())
 				.shipmentStatus(requestDTO.getShipmentStatus())
 				.build();
@@ -87,7 +92,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 
 		List<Long> warehouseIds = new ArrayList<>();
 		warehouseIds.add(requestDTO.getFromWarehouseId());
-		warehouseIds.addAll(requestDTO.getIntermediateWarehouseIds());
+		warehouseIds.addAll(intermediateWarehouseIds);
 		warehouseIds.add(requestDTO.getToWarehouseId());
 
 		// Validate shipment segments

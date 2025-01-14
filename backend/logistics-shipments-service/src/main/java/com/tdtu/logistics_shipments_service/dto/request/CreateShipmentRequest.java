@@ -19,7 +19,6 @@ public class CreateShipmentRequest {
 	Long shipper;
 	String shipmentMethod;
 	Long fromWarehouseId;
-	List<Long> intermediateWarehouseIds;
 	Long toWarehouseId;
 	ShipmentStatus shipmentStatus;
 	String departureTime;

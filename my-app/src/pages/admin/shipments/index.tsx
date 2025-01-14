@@ -11,17 +11,19 @@ import ReactPaginate from 'react-paginate';
 import { Truck, Plus, Minus, Clock, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { CreateShipmentRequest } from '@/modules/shipment/dto/request/CreateShipmentRequest';
-import CreateShipmentSegmentRequest from '@/modules/shipment/dto/request/CreateShipmentSegmentRequest';
 
 
 // react datepicker
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { setHours, setMinutes } from "date-fns";
+import { Warehouse } from '@/modules/warehouse/models/Warehouse';
+import { getAllWarehouses } from '@/modules/warehouse/services/WarehouseService';
 
 const ShipmentManagement = () => {
     const [showModal, setShowModal] = useState(false);
     const [shipments, setShipments] = useState<Shipment[]>([]);
+    const [warehouses, setWarehouse] = useState<Warehouse[]>([]);
     const [newShipment, setNewShipment] = useState<CreateShipmentRequest>({
         trackingNumber: "",
         shipper: 0,
@@ -64,6 +66,24 @@ const ShipmentManagement = () => {
         };
         fetchShipmentDetails();
     }, []);
+
+    useEffect(() => {
+        const fetchWarehouses = async () => {
+            try {
+                const response: Warehouse[] = await getAllWarehouses();
+                if (response) {
+                    setWarehouse((prevWarehouses) => [...prevWarehouses, ...response]);
+                }
+            } catch (err) {
+                console.error("Error" + err)
+            }
+        }
+
+        fetchWarehouses();
+    }, []);
+
+
+
 
     const handleAddShipment = async () => {
         console.log(newShipment)
@@ -451,7 +471,12 @@ const ShipmentManagement = () => {
                                         </div>
                                         <button
                                             type="button"
-                                            onClick={() => { }}
+                                            onClick={() => {
+                                                setNewShipment((prevState) => ({
+                                                    ...prevState,
+                                                    shipmentSegmentRequests: prevState.shipmentSegmentRequests.filter((_, idx) => idx !== index),
+                                                }));
+                                            }}
                                             className="p-2 text-red-600 hover:text-red-700"
                                         >
                                             <Minus className="w-4 h-4" />

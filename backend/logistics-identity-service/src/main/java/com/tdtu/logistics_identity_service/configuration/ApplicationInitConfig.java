@@ -33,29 +33,32 @@ public class ApplicationInitConfig {
     static final String ADMIN_PASSWORD = "admin";
 
     @Bean
-    ApplicationRunner applicationRunner(AccountRepository userAccountRepository, RoleRepository roleRepository) {
+    ApplicationRunner applicationRunner(AccountRepository accountRepository, RoleRepository roleRepository) {
         log.info("Initializing application.....");
 
         return args -> {
-            if (userAccountRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
+            // Kiểm tra nếu user admin đã tồn tại
+            if (accountRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
+                // Kiểm tra sự tồn tại của các role trước khi tạo mới
+                Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER_ROLE)
+                        .orElseGet(() -> roleRepository.save(Role.builder()
+                                .name(PredefinedRole.CUSTOMER_ROLE)
+                                .description("Customer role")
+                                .build()));
 
-                Role customerRole = Role.builder()
-                        .name(PredefinedRole.CUSTOMER_ROLE)
-                        .description("Customer role")
-                        .build();
+                Role adminRole = roleRepository.findByName(PredefinedRole.ADMIN_ROLE)
+                        .orElseGet(() -> roleRepository.save(Role.builder()
+                                .name(PredefinedRole.ADMIN_ROLE)
+                                .description("Admin role")
+                                .build()));
 
-                Role adminRole = roleRepository.save(Role.builder()
-                        .name(PredefinedRole.ADMIN_ROLE)
-                        .description("Admin role")
-                        .build());
+                Role shipperRole = roleRepository.findByName(PredefinedRole.SHIPPER_ROLE)
+                        .orElseGet(() -> roleRepository.save(Role.builder()
+                                .name(PredefinedRole.SHIPPER_ROLE)
+                                .description("Shipper role")
+                                .build()));
 
-                Role shipperRole = roleRepository.save(Role.builder()
-                        .name(PredefinedRole.SHIPPER_ROLE)
-                        .description("Shipper role")
-                        .build());
-
-                roleRepository.saveAll(Set.of(customerRole, adminRole, shipperRole));
-
+                // Thêm các role vào Set và tạo tài khoản admin
                 var roles = new HashSet<Role>();
                 roles.add(adminRole);
                 roles.add(shipperRole);
@@ -66,9 +69,10 @@ public class ApplicationInitConfig {
                         .roles(roles)
                         .build();
 
-//                userAccountRepository.save(account);
+                accountRepository.save(account);
                 log.warn("Admin user has been created with default password: '{}', please change it", ADMIN_PASSWORD);
             }
+
             log.info("Application initialization completed.");
         };
     }

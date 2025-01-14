@@ -1,7 +1,7 @@
 package com.tdtu.logistics_identity_service.service.implement;
 
 
-import com.tdtu.common.orchestration.workflow.RegistryAccountWorkflow;
+import com.tdtu.common.orchestration.workflow.UserRegistrationWorkflow;
 import com.tdtu.common.orchestration.workflow.WorkerHelper;
 import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import com.tdtu.logistics_identity_service.constant.PredefinedRole;
@@ -17,6 +17,7 @@ import com.tdtu.logistics_identity_service.mapper.AccountMapper;
 import com.tdtu.logistics_identity_service.repository.RoleRepository;
 import com.tdtu.logistics_identity_service.repository.AccountRepository;
 import com.tdtu.logistics_identity_service.service.AccountService;
+import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
 import io.temporal.client.WorkflowOptions;
 import jakarta.transaction.Transactional;
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +52,8 @@ public class AccountServiceImpl implements AccountService {
 
     PasswordEncoder passwordEncoder;
 
+    WorkflowClient workflowClient;
+
     @NonFinal
     @Value("${temporal.host}")
     String target;
@@ -57,16 +61,24 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     @Override
     public String createAccount(CustomerRegisterAccountRequest request) {
-
         try {
             Account account = accountMapper.toAccount(request);
             account.setPassword(passwordEncoder.encode(request.getPassword()));
 
-            Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER_ROLE);
+            Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER_ROLE)
+                    .orElseGet(() -> roleRepository.save(Role.builder()
+                            .name(PredefinedRole.CUSTOMER_ROLE)
+                            .description("Customer role")
+                            .build()));
+
             Set<Role> roles = new HashSet<>();
             roles.add(customerRole);
             account.setRoles(roles);
 
+            // Chỉ gọi một lần và lưu kết quả
+            CustomerInfResponse customerInfResponse = createCustomer(request);
+
+            account.setUserProfileId(customerInfResponse.getId());
             account = accountRepository.save(account);
             log.info("Created account by username {}", account.getUsername());
 
@@ -82,43 +94,49 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private CustomerInfResponse createCustomer(CustomerRegisterAccountRequest request) {
-
         try {
-
-            var workerClient = WorkerHelper.getWorkflowClient(target);
-
             WorkflowOptions options = WorkflowOptions.newBuilder()
                     .setTaskQueue(WorkerHelper.WORKFLOW_CREATE_ACCOUNT_TASK_QUEUE)
                     .build();
 
-            RegistryAccountWorkflow workflow = workerClient.newWorkflowStub(RegistryAccountWorkflow.class, options);
+            log.info("Create new user profile by username {}", request.getUsername());
 
-            return workflow.processRegistryAccount(request);
+            UserRegistrationWorkflow workflow = workflowClient.newWorkflowStub(UserRegistrationWorkflow.class, options);
+
+            CustomerInfResponse response = workflow.processRegistryAccount(request);
+
+            log.debug("Created new user profile by username {}", request.getUsername());
+
+            return response;
         } catch (WorkflowException exception) {
             log.error("Workflow failed for request: {}", request, exception);
             throw new AppException(ErrorCode.WORKFLOW_FAILED);
         }
-
     }
 
     @Override
     public UserInfResponseDTO getUserInfo() {
-        return null;
-    }
 
-    @Override
-    public List<AccountInfResponseDTO> getAllAccounts() {
-        return List.of();
-    }
+        var context = SecurityContextHolder.getContext().getAuthentication();
+        var auth = context.getName();
 
-    @Override
-    public Page<AccountInfResponseDTO> getAccounts(Pageable pageable) {
-        return null;
+        Account account = accountRepository.findByUsername(auth)
+                .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        return UserInfResponseDTO.builder()
+                .accountId(account.getId())
+                .profileId(account.getUserProfileId())
+                .email(account.getUsername())
+                .role(account.getRoles().stream().findFirst().get().getName())
+                .build();
     }
 
     @Transactional
     @Override
     public AccountInfResponseDTO updatePassword(String accountId, ChangesPasswordRequest request) {
+
+
+
         return null;
     }
 

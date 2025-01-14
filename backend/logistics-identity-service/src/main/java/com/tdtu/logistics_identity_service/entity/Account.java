@@ -1,5 +1,6 @@
 package com.tdtu.logistics_identity_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -23,18 +24,22 @@ public class Account extends BaseEntity{
     String id;
 
     @NotBlank
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     String username;
 
     @NotBlank
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     String password;
 
-    @NotBlank
     @Column(name = "user_profile_id")
     String userProfileId;
 
     @ManyToMany
     @ToString.Exclude
     Set<Role> roles;
+
+    public Set<Role> getRolesSet() {
+        return roles;
+    }
 }
