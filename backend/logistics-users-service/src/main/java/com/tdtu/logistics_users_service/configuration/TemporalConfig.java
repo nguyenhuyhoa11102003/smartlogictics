@@ -16,35 +16,35 @@ import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
-@FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
-@RequiredArgsConstructor
-public class TemporalConfig {
-
-    RegistryAccountActivity registryAccountActivity;
-
-    @NonFinal
-    @Value("${temporal.host}")
-    String target;
-
-    @PostConstruct
-    public void startWorker() {
-
-        var stub = WorkflowServiceStubs.newServiceStubs(WorkflowServiceStubsOptions.newBuilder()
-                        .setTarget(target)
-                        .setEnableHttps(true)
-                .build());
-
-        var client = WorkflowClient.newInstance(stub);
-
-        var factory = WorkerFactory.newInstance(client);
-
-        Worker worker = factory.newWorker(WorkerHelper.WORKFLOW_CREATE_ACCOUNT_TASK_QUEUE);
-
-        worker.registerWorkflowImplementationTypes(RegistryAccountWorkflow.class);
-        worker.registerActivitiesImplementations(registryAccountActivity);
-
-        factory.start();
-    }
-
-}
+//@Configuration
+//@FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
+//@RequiredArgsConstructor
+//public class TemporalConfig {
+//
+//    RegistryAccountActivity registryAccountActivity;
+//
+//    @NonFinal
+//    @Value("${temporal.host}")
+//    String target;
+//
+//    @PostConstruct
+//    public void startWorker() {
+//
+//        var stub = WorkflowServiceStubs.newServiceStubs(WorkflowServiceStubsOptions.newBuilder()
+//                        .setTarget(target)
+//                        .setEnableHttps(true)
+//                .build());
+//
+//        var client = WorkflowClient.newInstance(stub);
+//
+//        var factory = WorkerFactory.newInstance(client);
+//
+//        Worker worker = factory.newWorker(WorkerHelper.WORKFLOW_CREATE_ACCOUNT_TASK_QUEUE);
+//
+//        worker.registerWorkflowImplementationTypes(RegistryAccountWorkflow.class);
+//        worker.registerActivitiesImplementations(registryAccountActivity);
+//
+//        factory.start();
+//    }
+//
+//}

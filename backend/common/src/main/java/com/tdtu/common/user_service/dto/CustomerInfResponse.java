@@ -31,5 +31,5 @@ public class CustomerInfResponse {
 
     private UserStatus status;
 
-    private String address;
+//    private String address;
 }

@@ -66,7 +66,7 @@ public class ApplicationInitConfig {
                         .roles(roles)
                         .build();
 
-                userAccountRepository.save(account);
+//                userAccountRepository.save(account);
                 log.warn("Admin user has been created with default password: '{}', please change it", ADMIN_PASSWORD);
             }
             log.info("Application initialization completed.");
