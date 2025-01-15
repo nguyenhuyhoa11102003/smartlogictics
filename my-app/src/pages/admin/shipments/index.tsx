@@ -11,12 +11,19 @@ import ReactPaginate from 'react-paginate';
 import { Truck, Plus, Minus, Clock, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { CreateShipmentRequest } from '@/modules/shipment/dto/request/CreateShipmentRequest';
-import CreateShipmentSegmentRequest from '@/modules/shipment/dto/request/CreateShipmentSegmentRequest';
 
+
+// react datepicker
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { setHours, setMinutes } from "date-fns";
+import { Warehouse } from '@/modules/warehouse/models/Warehouse';
+import { getAllWarehouses } from '@/modules/warehouse/services/WarehouseService';
 
 const ShipmentManagement = () => {
     const [showModal, setShowModal] = useState(false);
     const [shipments, setShipments] = useState<Shipment[]>([]);
+    const [warehouses, setWarehouse] = useState<Warehouse[]>([]);
     const [newShipment, setNewShipment] = useState<CreateShipmentRequest>({
         trackingNumber: "",
         shipper: 0,
@@ -35,6 +42,16 @@ const ShipmentManagement = () => {
         }
     });
 
+    const [startDate, setStartDate] = useState(
+        setHours(setMinutes(new Date(), 0), 9),
+    );
+    const filterPassedTime = (time: Date): boolean => {
+        const currentDate = new Date();
+        const selectedDate = new Date(time);
+
+        return currentDate.getTime() < selectedDate.getTime();
+    };
+
     useEffect(() => {
         const fetchShipmentDetails = async () => {
             try {
@@ -49,6 +66,24 @@ const ShipmentManagement = () => {
         };
         fetchShipmentDetails();
     }, []);
+
+    useEffect(() => {
+        const fetchWarehouses = async () => {
+            try {
+                const response: Warehouse[] = await getAllWarehouses();
+                if (response) {
+                    setWarehouse((prevWarehouses) => [...prevWarehouses, ...response]);
+                }
+            } catch (err) {
+                console.error("Error" + err)
+            }
+        }
+
+        fetchWarehouses();
+    }, []);
+
+
+
 
     const handleAddShipment = async () => {
         console.log(newShipment)
@@ -76,54 +111,25 @@ const ShipmentManagement = () => {
         //     }
         // }
 
-        // check validate
-        // setShipments([...shipments, newShipment]);
-        // setNewShipment({
-        //     id: 1,
-        //     trackingNumber: "TN001",
-        //     shipper: 501,
-        //     shipmentMethod: "road",
-        //     fromWarehouse: {
-        //         id: 0,
-        //         name: "",
-        //         warehouseType: "",
-        //         address: "",
-        //         region: "",
-        //         phoneNumber: "",
-        //         status: ""
-        //     },
-        //     intermediateWarehouses: [{
-        //         id: 0,
-        //         name: "",
-        //         warehouseType: "",
-        //         address: "",
-        //         region: "",
-        //         phoneNumber: "",
-        //         status: ""
-        //     }],
-        //     toWarehouse: {
-        //         id: 0,
-        //         name: "",
-        //         warehouseType: "",
-        //         address: "",
-        //         region: "",
-        //         phoneNumber: "",
-        //         status: ""
-        //     },
-        //     shipmentStatus: ShipmentStatus.IN_TRANSIT,
-        //     shipmentStartDate: "2024-12-10T00:00:00",
-        //     estimatedDeliveryDate: "2024-12-15T00:00:00",
-        //     orders: ["ORD-001", "ORD-002"],
-        //     originName: '',
-        //     destination: '',
-        //     shipmentWeight: 0,
-        //     shipmentVolume: 0,
-        //     vehicle: {
-        //         id: 0,
-        //         name: "",
-        //         employee: { id: 0, name: "", role: "" }
-        //     }
-        // });
+        setNewShipment({
+            trackingNumber: "TN001",
+            shipper: 501,
+            shipmentMethod: "road",
+            fromWarehouseId: 0,
+            intermediateWarehouseIds: [],
+            toWarehouseId: 0,
+            shipmentStatus: ShipmentStatus.IN_TRANSIT,
+            departureTime: "2024-12-15T00:00:00",
+            orders: ["ORD-001", "ORD-002"],
+            shipmentSegmentRequests: [],
+            vehicle: {
+                id: 0,
+                name: "",
+                employee: { id: 0, name: "", role: "" }
+            }
+        });
+        console.log(JSON.stringify(newShipment));
+
         // setShowModal(false);
         // alert('Add shipment successfull')
 
@@ -365,15 +371,25 @@ const ShipmentManagement = () => {
                                 </Col>
                                 <Col md={4}>
                                     <Form.Group>
-                                        <Form.Control
-                                            type="datetime-local"
-                                            value={newShipment.departureTime}
-                                            onChange={(e) => {
-                                                setNewShipment((prevState) => ({
-                                                    ...prevState,
-                                                    shipmentStartDate: e.target.value,
-                                                }));
+                                        <DatePicker
+                                            selected={startDate} // Current selected date
+                                            onChange={(date: Date | null) => {
+                                                if (date) {
+                                                    setStartDate(date);
+                                                    setNewShipment({
+                                                        ...newShipment,
+                                                        departureTime: date.toISOString()
+                                                    });
+                                                }
                                             }}
+                                            showTimeSelect // Enable time selection
+                                            filterTime={filterPassedTime} // Filter out past times
+                                            dateFormat="MMMM d, yyyy h:mm aa" // Format for date and time
+                                            timeFormat="h:mm aa" // Format for time
+                                            timeIntervals={15} // Intervals for time selection (e.g., 15 minutes)
+                                            minDate={new Date()} // Prevent selecting past dates
+                                            placeholderText="Select a date and time" // Placeholder text
+                                            className="custom-date-picker" // Optional: Custom styling class
                                         />
                                     </Form.Group>
                                 </Col>
@@ -407,13 +423,18 @@ const ShipmentManagement = () => {
                                                     const selectedWarehouseId = Number(event.target.value);
                                                     setNewShipment((prevState) => ({
                                                         ...prevState,
-                                                        shipmentSegmentRequests: [...prevState.shipmentSegmentRequests, {
-                                                            destinationWarehouseId: selectedWarehouseId,
-                                                            stopoverDuration: 0
-                                                        }],
-                                                        intermediateWarehouseIds: [...prevState.intermediateWarehouseIds,selectedWarehouseId]
-                                                    }))
+                                                        shipmentSegmentRequests: prevState.shipmentSegmentRequests.map((segment, idx) => {
+                                                            if (idx === index) {
+                                                                return {
+                                                                    ...segment,
+                                                                    destinationWarehouseId: selectedWarehouseId,
+                                                                };
+                                                            }
+                                                            return segment;
+                                                        }),
+                                                    }));
                                                 }}>
+                                                <option value="" disabled>Chọn kho trung gian</option>
                                                 {warehouses.map((warehouse) => (
                                                     <option key={warehouse.id} value={warehouse.id}>
                                                         {warehouse.name} - {warehouse.address}
@@ -431,13 +452,31 @@ const ShipmentManagement = () => {
                                                     min="0"
                                                     value={stop.stopoverDuration}
                                                     onChange={(event) => {
+                                                        const newDuration = Number(event.target.value);
+                                                        setNewShipment((prevState) => ({
+                                                            ...prevState,
+                                                            shipmentSegmentRequests: prevState.shipmentSegmentRequests.map((segment, idx) => {
+                                                                if (idx === index) {
+                                                                    return {
+                                                                        ...segment,
+                                                                        stopoverDuration: newDuration,
+                                                                    };
+                                                                }
+                                                                return segment;
+                                                            }),
+                                                        }));
 
                                                     }} />
                                             </Form.Group>
                                         </div>
                                         <button
                                             type="button"
-                                            onClick={() => { }}
+                                            onClick={() => {
+                                                setNewShipment((prevState) => ({
+                                                    ...prevState,
+                                                    shipmentSegmentRequests: prevState.shipmentSegmentRequests.filter((_, idx) => idx !== index),
+                                                }));
+                                            }}
                                             className="p-2 text-red-600 hover:text-red-700"
                                         >
                                             <Minus className="w-4 h-4" />

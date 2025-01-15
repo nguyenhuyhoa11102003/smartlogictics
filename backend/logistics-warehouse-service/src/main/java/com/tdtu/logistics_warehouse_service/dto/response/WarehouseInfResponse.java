@@ -26,7 +26,8 @@ public class WarehouseInfResponse {
 
 	WarehouseStatus status;
 
-	AddressInfResponse address;
+	AddressInfResponse addressDetail;
+	String address;
 
 	LocalDateTime createdAt;
 
@@ -39,7 +40,8 @@ public class WarehouseInfResponse {
 				.phoneNumber(warehouse.getPhoneNumber())
 				.capacity(warehouse.getCapacity())
 				.status(warehouse.getStatus())
-				.address(AddressInfResponse.toAddressInfResponse(warehouse.getAddress()))
+				.addressDetail(AddressInfResponse.toAddressInfResponse(warehouse.getAddress()))
+				.address(warehouse.getAddress().getAddressDetail())
 				.createdAt(LocalDateTime.ofInstant(warehouse.getCreateAt(), ZoneId.systemDefault()))
 				.updatedAt(LocalDateTime.now())
 				.build();

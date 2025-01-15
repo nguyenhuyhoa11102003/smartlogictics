@@ -26,7 +26,7 @@ public enum ErrorCode {
 
     ACCOUNT_NOT_FOUND(404, "account_not_found", HttpStatus.NOT_FOUND),
 
-    WORKFLOW_FAILED(500, "workflow_failed", HttpStatus.INTERNAL_SERVER_ERROR)
+    WORKFLOW_FAILED(500, "workflow_failed", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     ErrorCode(int statusCode, String message, HttpStatus httpStatus) {

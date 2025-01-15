@@ -27,79 +27,79 @@ import java.util.List;
 @Service
 public class MailServiceImpl implements MailService {
 
-    private final MailClient mailClient;
+	private final MailClient mailClient;
 
-    private final String apiKey;
+	private final String apiKey;
 
-    private final BaseSender baseSender;
+	private final BaseSender baseSender;
 
-    public MailServiceImpl(
-            MailClient mailClient,
-            @Value("${notification.email.brevo-apikey}") String apiKey,
-            BaseSender baseSender
-    ) {
-        this.mailClient = mailClient;
-        this.apiKey = apiKey;
-        this.baseSender = baseSender;
-    }
+	public MailServiceImpl(
+			MailClient mailClient,
+			@Value("${notification.email.brevo-apikey}") String apiKey,
+			BaseSender baseSender
+	) {
+		this.mailClient = mailClient;
+		this.apiKey = apiKey;
+		this.baseSender = baseSender;
+	}
 
-    @Override
-    public MailResponse sentVerifyAccount(MailVerifyAccount mailVerifyAccount) {
-        try {
-            MailClientRequest request = MailClientRequest.builder()
-                    .subject(mailVerifyAccount.getSubject())
-                    .sender(Sender.builder()
-                            .email(baseSender.getEmail())
-                            .name(baseSender.getName())
-                            .build())
-                    .to(List.of(Recipient.builder()
-                            .email(mailVerifyAccount.getTo())
-                            .build()))
-                    .textContent(mailVerifyAccount.getContents())
-                    .build();
+	@Override
+	public MailResponse sentVerifyAccount(MailVerifyAccount mailVerifyAccount) {
+		try {
+			MailClientRequest request = MailClientRequest.builder()
+					.subject(mailVerifyAccount.getSubject())
+					.sender(Sender.builder()
+							.email(baseSender.getEmail())
+							.name(baseSender.getName())
+							.build())
+					.to(List.of(Recipient.builder()
+							.email(mailVerifyAccount.getTo())
+							.build()))
+					.textContent(mailVerifyAccount.getContents())
+					.build();
 
-            log.info("Sending verify account to subject...: {}", request.getSubject());
+			log.info("Sending verify account to subject...: {}", request.getSubject());
 
-            return mailClient.sendEmail(apiKey, request);
-        } catch (FeignException e){
-            throw new AppException(ErrorCode.MAIL_SENDING_FAILED);
-        }
-    }
+			return mailClient.sendEmail(apiKey, request);
+		} catch (FeignException e) {
+			throw new AppException(ErrorCode.MAIL_SENDING_FAILED);
+		}
+	}
 
-    @Override
-    public MailResponse sentNotification(MailClientRequest request) {
-        try {
-            log.info("Sending email with content: {}", request.toString());
-            return mailClient.sendEmail(apiKey, request);
-        } catch (FeignException e){
-            throw new AppException(ErrorCode.MAIL_SENDING_FAILED);
-        }
-    }
+	@Override
+	public MailResponse sentNotification(MailClientRequest request) {
+		try {
+			log.info("Sending email with content: {}", request.toString());
+			return mailClient.sendEmail(apiKey, request);
+		} catch (FeignException e) {
+			throw new AppException(ErrorCode.MAIL_SENDING_FAILED);
+		}
+	}
 
-    @Override
-    public MailResponse sentUpdateOrderStatus(MailUpdateOrderStatus mailUpdateOrderStatus) {
-        try {
-            // Tạo request gửi email
-            MailClientRequest request = MailClientRequest.builder()
-                    .subject(mailUpdateOrderStatus.getSubject())
-                    .sender(Sender.builder()
-                            .email(baseSender.getEmail())
-                            .name(baseSender.getName())
-                            .build())
-                    .to(List.of(Recipient.builder()
-                            .email(mailUpdateOrderStatus.getTo())
-                            .build()))
-                    .htmlContent(mailUpdateOrderStatus.getHtmlContent()) // Đặt nội dung HTML
-                    .build();
+	@Override
+	public MailResponse sentUpdateOrderStatus(MailUpdateOrderStatus mailUpdateOrderStatus) {
+		try {
+			// Tạo request gửi email
+			MailClientRequest request = MailClientRequest.builder()
+					.subject(mailUpdateOrderStatus.getSubject())
+					.sender(Sender.builder()
+							.email(baseSender.getEmail())
+							.name(baseSender.getName())
+							.build())
+					.to(List.of(Recipient.builder()
+							.email(mailUpdateOrderStatus.getTo())
+							.build()))
+					.htmlContent(mailUpdateOrderStatus.getHtmlContent()) // Đặt nội dung HTML
+					.build();
 
-            log.info("Sending update order status email to: {}", mailUpdateOrderStatus.getTo());
+			log.info("Sending update order status email to: {}", mailUpdateOrderStatus.getTo());
 
-            return mailClient.sendEmail(apiKey, request);
-        } catch (FeignException e) {
-            log.error("Failed to send email: {}", e.getMessage(), e);
-            throw new AppException(ErrorCode.MAIL_SENDING_FAILED);
-        }
-    }
+			return mailClient.sendEmail(apiKey, request);
+		} catch (FeignException e) {
+			log.error("Failed to send email: {}", e.getMessage(), e);
+			throw new AppException(ErrorCode.MAIL_SENDING_FAILED);
+		}
+	}
 
 
 }

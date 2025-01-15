@@ -20,6 +20,8 @@ export interface Warehouse {
         street: string; // Street address
         postalCode: string; // Postal code
         addressDetail: string; // Full address detail
+        latitude: string;
+        longitude: string;
     };
     createdAt?: string | null; // Timestamp when the warehouse was created
     updatedAt?: string; // Timestamp when the warehouse was last updated

@@ -21,49 +21,49 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class TemporalConfig {
 
-    @NonFinal
-    @Value("${temporal.host}")
-    String target;
+	@NonFinal
+	@Value("${temporal.host}")
+	String target;
 
-    @Bean
-    public WorkflowServiceStubs workflowServiceStubs() {
-        log.info("Creating WorkflowServiceStubs with Temporal host: {}", target);
-        WorkflowServiceStubs stubs = WorkflowServiceStubs.newServiceStubs(
-                WorkflowServiceStubsOptions.newBuilder()
-                        .setTarget(target)
-                        .setEnableHttps(false)
-                        .build()
-        );
-        log.info("WorkflowServiceStubs created successfully.");
-        return stubs;
-    }
+	@Bean
+	public WorkflowServiceStubs workflowServiceStubs() {
+		log.info("Creating WorkflowServiceStubs with Temporal host: {}", target);
+		WorkflowServiceStubs stubs = WorkflowServiceStubs.newServiceStubs(
+				WorkflowServiceStubsOptions.newBuilder()
+						.setTarget(target)
+						.setEnableHttps(false)
+						.build()
+		);
+		log.info("WorkflowServiceStubs created successfully.");
+		return stubs;
+	}
 
-    @Bean
-    public WorkflowClient workflowClient(WorkflowServiceStubs stubs) {
-        log.info("Initializing WorkflowClient...");
-        WorkflowClient client = WorkflowClient.newInstance(stubs);
-        log.info("WorkflowClient initialized successfully.");
-        return client;
-    }
+	@Bean
+	public WorkflowClient workflowClient(WorkflowServiceStubs stubs) {
+		log.info("Initializing WorkflowClient...");
+		WorkflowClient client = WorkflowClient.newInstance(stubs);
+		log.info("WorkflowClient initialized successfully.");
+		return client;
+	}
 
-    @Bean
-    public WorkerFactory workerFactory(WorkflowClient client) {
-        log.info("Creating WorkerFactory...");
-        WorkerFactory factory = WorkerFactory.newInstance(client);
-        log.info("WorkerFactory created successfully.");
-        return factory;
-    }
+	@Bean
+	public WorkerFactory workerFactory(WorkflowClient client) {
+		log.info("Creating WorkerFactory...");
+		WorkerFactory factory = WorkerFactory.newInstance(client);
+		log.info("WorkerFactory created successfully.");
+		return factory;
+	}
 
-    @Bean
-    public ApplicationListener<ApplicationReadyEvent> applicationReadyEventApplicationListener(WorkerFactory workerFactory) {
-        return event -> {
-            log.info("Application is ready. Starting Temporal Worker Factory...");
-            try {
-                workerFactory.start();
-                log.info("Temporal Worker Factory started successfully.");
-            } catch (Exception e) {
-                log.error("Failed to start Temporal Worker Factory.", e);
-            }
-        };
-    }
+	@Bean
+	public ApplicationListener<ApplicationReadyEvent> applicationReadyEventApplicationListener(WorkerFactory workerFactory) {
+		return event -> {
+			log.info("Application is ready. Starting Temporal Worker Factory...");
+			try {
+				workerFactory.start();
+				log.info("Temporal Worker Factory started successfully.");
+			} catch (Exception e) {
+				log.error("Failed to start Temporal Worker Factory.", e);
+			}
+		};
+	}
 }
