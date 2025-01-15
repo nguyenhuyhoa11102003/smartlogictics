@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,6 +60,7 @@ public class ReceiverController {
                 .build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/get-all/{customerId}", produces = "application/json")
     public ApiResponse<List<ReceiverInfResponse>> getAllReceiversByCustomerId(@PathVariable String customerId) {
         List<ReceiverInfResponse> result = receiverService.getAllReceiversByCustomerId(customerId);

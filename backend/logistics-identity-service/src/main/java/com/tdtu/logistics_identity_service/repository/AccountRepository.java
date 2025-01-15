@@ -31,7 +31,6 @@ public interface AccountRepository extends PagingAndSortingRepository<Account, S
     @Query("SELECT a from account a JOIN a.roles r WHERE r.name = :roleName")
     Page<Account> findAccountsByRoleName(@Param("roleName") String roleName, Pageable pageable);
 
-
     @RestResource(exported = false)
     Account save(Account account);
 
