@@ -16,11 +16,11 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "shipping_services")
-public class ShippingService {
+public class ShippingMetadata {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String id; // UUID của dịch vụ vận chuyển
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id; // UUID của dịch vụ vận chuyển
 
     @Enumerated(EnumType.STRING)
     @Column(name = "shipping_method", nullable = false)
@@ -32,7 +32,6 @@ public class ShippingService {
     @Column(name = "desired_delivery_time")
     LocalDateTime desiredDeliveryTime; // Thời gian giao hàng mong muốn của khách hàng
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    Orders order; // Quan hệ với đơn hàng
+    @Column(name = "delivery_id")
+    String deliveryId; // Liên kết đến thông tin giao hàng
 }

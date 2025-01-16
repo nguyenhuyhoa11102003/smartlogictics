@@ -65,9 +65,6 @@ public class Orders extends BaseEntity {
 	@Column(name = "is_broken")
 	boolean isBroken; // Hàng hóa có bị hư hỏng không
 
-	@Column(name = "delivery_time")
-	String deliveryTime; // Thời gian giao hàng dự kiến
-
 	@Column(name = "delivery_require")
 	String deliveryRequire; // Yêu cầu giao hàng
 
@@ -75,16 +72,16 @@ public class Orders extends BaseEntity {
 	String deliveryInstruction; // Hướng dẫn giao hàng
 
 	@Column(name = "weight")
-	String weight; // Trọng lượng đơn vị hàng (gram)
+	double weight; // Trọng lượng đơn vị hàng (gram)
 
 	@Column(name = "width")
-	String width; // Chiều rộng của hàng hóa
+	double width; // Chiều rộng của hàng hóa
 
 	@Column(name = "length")
-	String length; // Chiều dài của hàng hóa
+	double length; // Chiều dài của hàng hóa
 
 	@Column(name = "height")
-	String height; // Chiều cao của hàng hóa
+	double height; // Chiều cao của hàng hóa
 
 	@Column(name = "pickup_shipper_id")
 	String pickupShipperId; // Thông tin shipper nhận đơn hàng
@@ -100,8 +97,9 @@ public class Orders extends BaseEntity {
 	@Column(name = "add_on_services")
 	List<AddOnService> addOnServices;
 
-	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	List<ShippingService> shippingServices; // Danh sách dịch vụ vận chuyển
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "shipping_metadata_id", referencedColumnName = "id") // Khóa ngoại trong bảng Orders
+	ShippingMetadata shippingMetadata; // Liên kết đến dịch vụ vận chuyển
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "payment_metadata_id") // Thêm cột để liên kết

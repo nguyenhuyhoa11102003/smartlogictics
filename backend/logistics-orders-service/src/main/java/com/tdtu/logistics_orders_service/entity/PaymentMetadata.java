@@ -29,4 +29,7 @@ public class PaymentMetadata {
 
     @Column(name = "payer")
     String payer; // Người trả cước
+
+    @Column(name = "payment_code")
+    String paymentCode; // Lien ket voi Payment-Service
 }
