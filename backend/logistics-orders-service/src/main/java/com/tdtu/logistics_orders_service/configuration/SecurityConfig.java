@@ -36,6 +36,7 @@ public class SecurityConfig extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     private static final String[] AUTH_WHITELIST = {
+            "/**",
             "/swagger-ui/**",
             "/swagger-ui-custom.html",
     };
