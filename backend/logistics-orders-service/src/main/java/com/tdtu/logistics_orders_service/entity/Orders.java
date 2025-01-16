@@ -1,5 +1,6 @@
 package com.tdtu.logistics_orders_service.entity;
 
+import com.tdtu.common.orders_service.enums.AddOnService;
 import com.tdtu.logistics_orders_service.enumrator.DeliveryServiceType;
 import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
 import com.tdtu.logistics_orders_service.enumrator.ReceivingMethod;
@@ -9,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+import java.util.List;
 
 @Getter
 @Setter
@@ -94,15 +95,23 @@ public class Orders extends BaseEntity {
 	@Column(name = "totalAmount")
 	BigDecimal totalAmount; // Tổng giá trị đơn hàng
 
+	@ElementCollection
+	@Enumerated(EnumType.STRING)
+	@Column(name = "add_on_services")
+	List<AddOnService> addOnServices;
+
+	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	List<ShippingService> shippingServices; // Danh sách dịch vụ vận chuyển
+
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "payment_metadata_id") // Thêm cột để liên kết
+	PaymentMetadata paymentMetadata; // Thông tin thanh toán
 
 	private LocalDateTime pickupDate;  // Thời gian pickup
 	private String pickupStatus;  // Trạng thái pickup (PENDING, COMPLETED, FAILED)
 	private String pickupRemarks;  // Ghi chú pick
 
-
 	private LocalDateTime deliveredDate;  // Thời gian giao hàng
 	private String deliveryStatus;  // Trạng thái giao hàng (DELIVERED, FAILED)
 	private String deliveryRemarks;  // Ghi chú giao hàng
-
-
 }

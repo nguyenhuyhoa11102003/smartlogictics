@@ -1,0 +1,32 @@
+package com.tdtu.logistics_orders_service.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@Builder
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
+@Table(name = "payment_metadata")
+public class PaymentMetadata {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id; // ID của thông tin thanh toán
+
+    @Column(name = "total_cost", nullable = false)
+    BigDecimal totalCost; // Tổng cước
+
+    @Column(name = "cod_amount")
+    BigDecimal codAmount; // Tiền thu hộ
+
+    @Column(name = "payer")
+    String payer; // Người trả cước
+}

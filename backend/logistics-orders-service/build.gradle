@@ -65,6 +65,13 @@ dependencies {
 	// Spring Kafka
 	implementation 'org.springframework.kafka:spring-kafka:3.2.4'
 
+	// Temporal SDK với gRPC và protobuf được ép buộc sử dụng phiên bản an toàn hơn
+	implementation 'io.temporal:temporal-sdk:1.23.0'
+	implementation platform("io.grpc:grpc-bom:1.54.1")
+
+	implementation 'io.grpc:grpc-protobuf'
+	implementation 'io.grpc:grpc-netty'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
