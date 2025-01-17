@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "shipping_services")
+@Table(name = "shipping_metadata")
 public class ShippingMetadata {
 
     @Id
@@ -26,8 +26,19 @@ public class ShippingMetadata {
     @Column(name = "shipping_method", nullable = false)
     ShippingMethod shippingMethod; // Phương thức vận chuyển
 
-    @Column(name = "expected_delivery_time", nullable = false)
-    LocalDateTime expectedDeliveryTime; // Thời gian giao hàng dự kiến
+    // Chuyen sang day roi nha'
+    @Column(name = "delivered_pickup_date", nullable = false)
+    LocalDateTime deliveredDate;  // Ngày pickup
+
+    @Column(name = "delivery_status")
+    String deliveryStatus;  // Trạng thái giao hàng (DELIVERED, FAILED)
+
+    @Column(name = "delivery_remarks")
+    String deliveryRemarks;  // Ghi chú giao hàng
+    // Chuyen sang day roi nha'
+
+    @Column(name = "delivery_estimate_time")
+    LocalDateTime deliveryEstimateTime; // Thời gian giao hàng du kien
 
     @Column(name = "desired_delivery_time")
     LocalDateTime desiredDeliveryTime; // Thời gian giao hàng mong muốn của khách hàng

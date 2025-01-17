@@ -11,6 +11,7 @@ import com.tdtu.logistics_orders_service.dto.request.PickupRequest;
 import com.tdtu.logistics_orders_service.dto.response.OrderInfResponse;
 import com.tdtu.logistics_orders_service.dto.response.PaginatedResponse;
 import com.tdtu.logistics_orders_service.entity.Orders;
+import com.tdtu.logistics_orders_service.entity.ShippingMetadata;
 import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
 import com.tdtu.logistics_orders_service.enumrator.ReceivingMethod;
 import com.tdtu.logistics_orders_service.exception.AppException;
@@ -200,9 +201,11 @@ public class OrdersServiceImpl implements OrdersService {
 			return new AppException(ErrorCode.ORDER_NOT_FOUND);
 		});
 
-		orderEntity.setDeliveredDate(deliveryRequest.getDeliveredDate()); // Ngày pickup
-		orderEntity.setDeliveryStatus("PENDING");
-		orderEntity.setDeliveryRemarks(deliveryRequest.getRemarks());
+		ShippingMetadata shippingMetadata = orderEntity.getShippingMetadata();
+
+		shippingMetadata.setDeliveredDate(deliveryRequest.getDeliveredDate()); // Ngày pickup
+		shippingMetadata.setDeliveryStatus("PENDING");
+		shippingMetadata.setDeliveryRemarks(deliveryRequest.getRemarks());
 
 		// Check Receiving Method
 		if (orderEntity.getReceivingMethod().equals(ReceivingMethod.CUSTOMER_ADDRESS)) {
@@ -256,9 +259,8 @@ public class OrdersServiceImpl implements OrdersService {
 
 
 	private ShipperInfResponse assignShipper(String shipperId) {
-		ShipperInfResponse shipper = userServiceClient
+		return userServiceClient
 				.getShipperById(shipperId)
 				.getResult();
-		return shipper;
 	}
 }

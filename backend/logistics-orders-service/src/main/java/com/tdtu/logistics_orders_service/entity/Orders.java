@@ -46,7 +46,7 @@ public class Orders extends BaseEntity {
 	String recipientId; // Liên kết đến người nhận
 
 	@Column(name = "sender_id")
-	String senderId; // Liên kết đến người gửi
+	String senderId; // Liên kết đến người gửi Email
 
 	@Column(name = "branch_code")
 	String branchCode; // Mã chi nhánh warehouse
@@ -89,8 +89,10 @@ public class Orders extends BaseEntity {
 	@Column(name = "delivery_shipper_id")
 	String deliveryShipperId; // Shipper giao hàng
 
-	@Column(name = "totalAmount")
-	BigDecimal totalAmount; // Tổng giá trị đơn hàng
+// Chuyen collunm nay sang payment_metadata roi nha fen:
+// Sang entity payment_metadata la co
+//	@Column(name = "totalAmount")
+//	BigDecimal totalAmount; // Tổng giá trị đơn hàng
 
 	@ElementCollection
 	@Enumerated(EnumType.STRING)
@@ -109,7 +111,8 @@ public class Orders extends BaseEntity {
 	private String pickupStatus;  // Trạng thái pickup (PENDING, COMPLETED, FAILED)
 	private String pickupRemarks;  // Ghi chú pick
 
-	private LocalDateTime deliveredDate;  // Thời gian giao hàng
-	private String deliveryStatus;  // Trạng thái giao hàng (DELIVERED, FAILED)
-	private String deliveryRemarks;  // Ghi chú giao hàng
+	// Chuyen deliveredDate sang bang ShippingMetadata roi nha'
+	// private LocalDateTime deliveredDate;  // Thời gian giao hàng
+	// private String deliveryStatus;  // Trạng thái giao hàng (DELIVERED, FAILED)
+	// private String deliveryRemarks;  // Ghi chú giao hàng
 }

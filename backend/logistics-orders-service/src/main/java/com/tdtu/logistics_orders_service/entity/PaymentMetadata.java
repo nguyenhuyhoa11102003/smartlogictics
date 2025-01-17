@@ -30,6 +30,10 @@ public class PaymentMetadata {
     @Column(name = "payer")
     String payer; // Người trả cước
 
+    // Mang sang day roi nha'
+    @Column(name = "totalAmount")
+    BigDecimal totalAmount; // Tổng giá trị đơn hàng
+
     @Column(name = "payment_code")
     String paymentCode; // Lien ket voi Payment-Service
 }

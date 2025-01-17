@@ -15,7 +15,4 @@ import org.springframework.stereotype.Service;
 public class OrderGoodDetailServiceImpl implements OrderGoodDetailService {
 
     OrderGoodDetailRepository orderGoodDetailRepository;
-
-
-
 }

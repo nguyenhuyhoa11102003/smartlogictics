@@ -5,6 +5,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ShippingServiceRepository extends CrudRepository<ShippingMetadata, Long> {
+public interface ShippingMetadataRepository extends CrudRepository<ShippingMetadata, Long> {
 
 }
