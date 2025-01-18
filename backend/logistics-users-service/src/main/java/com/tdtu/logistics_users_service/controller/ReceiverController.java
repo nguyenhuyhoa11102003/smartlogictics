@@ -60,7 +60,6 @@ public class ReceiverController {
                 .build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/get-all/{customerId}", produces = "application/json")
     public ApiResponse<List<ReceiverInfResponse>> getAllReceiversByCustomerId(@PathVariable String customerId) {
         List<ReceiverInfResponse> result = receiverService.getAllReceiversByCustomerId(customerId);

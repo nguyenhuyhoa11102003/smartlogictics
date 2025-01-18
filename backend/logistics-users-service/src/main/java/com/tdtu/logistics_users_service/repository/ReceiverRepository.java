@@ -36,10 +36,10 @@ public interface ReceiverRepository extends PagingAndSortingRepository<Receiver,
     // List Spring Data REST have been exported: Receiver Entity
 
     @RestResource(path = "by-customer", rel = "by-customer")
-    Page<ReceiverDetailProjection> searchByCustomer_Id(String customerId, Pageable pageable);
+    Page<Receiver> searchByCustomer_Id(String customerId, Pageable pageable);
 
     @RestResource(path = "by-id", rel = "by-id")
-    List<ReceiverDetailProjection> searchById(String id);
+    List<Receiver> searchById(String id);
 
     @RestResource(exported = true)
     boolean existsById(String id);

@@ -10,8 +10,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateReceiverRequest {
 
-    String customerId; // Id của khách hàng.
-
     String fullName; // Tên đầy đủ của người nhận.
 
     String phoneNumber; // Số điện thoại của người nhận.

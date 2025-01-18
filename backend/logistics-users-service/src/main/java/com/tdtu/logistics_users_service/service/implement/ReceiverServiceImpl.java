@@ -3,7 +3,6 @@ package com.tdtu.logistics_users_service.service.implement;
 import com.tdtu.logistics_users_service.dto.request.CreateReceiverRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateReceiverRequest;
 import com.tdtu.logistics_users_service.dto.response.ReceiverInfResponse;
-import com.tdtu.logistics_users_service.entity.Customer;
 import com.tdtu.logistics_users_service.entity.Receiver;
 import com.tdtu.logistics_users_service.exception.AppException;
 import com.tdtu.logistics_users_service.exception.ErrorCode;
@@ -16,6 +15,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,17 +37,26 @@ public class ReceiverServiceImpl implements ReceiverService {
     @Transactional
     @Override
     public ReceiverInfResponse createReceiver(CreateReceiverRequest createReceiverRequest) {
-        log.info("Logistics-Users-Service -> Receiver-Service -> Create-Receiver: Create receiver: {}", createReceiverRequest.getFullName());
+        // Lấy thông tin người dùng từ SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String author = authentication.getName();
 
-        Customer customer = customerRepository.findById(createReceiverRequest.getCustomerId()).orElseThrow(() -> {
-                    log.error("Logistics-Users-Service -> Receiver-Service -> Create-Receiver: Customer not found with id: {}", createReceiverRequest.getCustomerId());
-                    return new AppException(ErrorCode.CUSTOMER_NOT_EXISTED);}
-            );
+        if (authentication.isAuthenticated()) {
+            // Lấy thông tin từ claims của JWT
 
-        Receiver receiver = receiverMapper.toReceiver(createReceiverRequest);
-        receiver.setCustomer(customer);
+            Receiver receiver = receiverMapper.toReceiver(createReceiverRequest);
+            receiver.setCustomer(customerRepository.findByEmail(author).orElseThrow(() -> {
+                        log.error("Logistics-Users-Service -> Receiver-Service -> Create-Receiver: Customer not found with id: {}", author);
+                        return new AppException(ErrorCode.CUSTOMER_NOT_EXISTED);}
+            ));
 
-        return receiverMapper.toReceiverInfResponse(receiverRepository.save(receiver));
+            log.info("Logistics-Users-Service -> Receiver-Service -> Create-Receiver: Create receiver with customer id: {}", author);
+            return receiverMapper.toReceiverInfResponse(receiverRepository.save(receiver));
+        } else {
+            log.error("Logistics-Users-Service -> Receiver-Service -> Create-Receiver: Unauthorized");
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
     }
 
     @Override

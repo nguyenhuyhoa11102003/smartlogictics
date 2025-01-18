@@ -33,11 +33,11 @@ public interface CustomerRepository extends PagingAndSortingRepository<Customer,
     // List Spring Data REST have been exported: Receiver Entity
 
     @RestResource(path = "by-email", rel = "by-email")
-    CustomerDetailProjection searchByEmail(String email);
+    Customer searchByEmail(String email);
 
     @RestResource(path = "by-phone-number", rel = "by-phone-number")
-    CustomerDetailProjection searchByPhoneNumber(String phoneNumber);
+    Customer searchByPhoneNumber(String phoneNumber);
 
     @RestResource(path = "by-id", rel = "by-id")
-    CustomerDetailProjection searchById(String id);
+    Customer searchById(String id);
 }

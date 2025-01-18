@@ -3,8 +3,12 @@ package com.tdtu.logistics_users_service.service.implement;
 import com.tdtu.logistics_users_service.dto.request.CreateSenderRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateSenderRequest;
 import com.tdtu.logistics_users_service.dto.response.SenderInfResponse;
+import com.tdtu.logistics_users_service.entity.Customer;
 import com.tdtu.logistics_users_service.entity.Sender;
+import com.tdtu.logistics_users_service.exception.AppException;
+import com.tdtu.logistics_users_service.exception.ErrorCode;
 import com.tdtu.logistics_users_service.mapper.SenderMapper;
+import com.tdtu.logistics_users_service.repository.CustomerRepository;
 import com.tdtu.logistics_users_service.repository.SenderRepository;
 import com.tdtu.logistics_users_service.service.SenderService;
 import jakarta.transaction.Transactional;
@@ -12,6 +16,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,9 +27,11 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SenderServiceImpl implements SenderService {
 
-    SenderRepository senderRepository;
+    final SenderRepository senderRepository;
 
-    SenderMapper senderMapper;
+    final SenderMapper senderMapper;
+
+    final CustomerRepository customerRepository;
 
     @Override
     @Transactional
@@ -30,14 +39,29 @@ public class SenderServiceImpl implements SenderService {
         // Map the request DTO to entity
         Sender sender = senderMapper.toEntity(createSenderRequest);
 
-        // Save the sender in the database
-        sender = senderRepository.save(sender);
+        // Lấy thông tin người dùng từ SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String author = authentication.getName();
 
-        // Map the entity back to response DTO
+        if (authentication.isAuthenticated()) {
+            // Lấy thông tin từ claims của JWT
 
-        log.info("Logistics-Users-Service -> Sender-Service -> Create-Sender: Create sender: {}", createSenderRequest.senderName());
+            Customer customer = customerRepository.findByEmail(author).orElseThrow(() -> {
+                log.error("Logistics-Users-Service -> Sender-Service -> Create-Sender: Customer not found with id: {}", author);
+                return new IllegalArgumentException("Customer not found");
+            });
 
-        return senderMapper.toResponse(sender);
+            sender.setCustomer(customer);
+
+            sender = senderRepository.save(sender);
+
+            log.info("Logistics-Users-Service -> Sender-Service -> Create-Sender: Create sender with customer id: {}", author);
+            return senderMapper.toResponse(sender);
+
+        } else {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
     }
 
     @Override

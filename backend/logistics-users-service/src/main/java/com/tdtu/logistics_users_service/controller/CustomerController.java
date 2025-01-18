@@ -1,6 +1,5 @@
 package com.tdtu.logistics_users_service.controller;
 
-import com.tdtu.common.user_service.dto.CreateCustomerRequest;
 import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import com.tdtu.logistics_users_service.dto.request.UpdateCustomerRequest;
 import com.tdtu.logistics_users_service.dto.response.ApiResponse;
@@ -21,17 +20,17 @@ public class CustomerController {
 
 	CustomerService customerService;
 
-	@PostMapping(value = "/create", consumes = "application/json", produces = "application/json")
-	public ApiResponse<CustomerInfResponse> createCustomer(
-			@RequestBody CreateCustomerRequest createCustomerRequest) {
-		CustomerInfResponse result = customerService.createCustomer(createCustomerRequest);
-
-		return ApiResponse.<CustomerInfResponse>builder()
-				.code(HttpStatus.CREATED.value())
-				.result(result)
-				.message("Create customer successfully")
-				.build();
-	}
+//	@PostMapping(value = "/create", consumes = "application/json", produces = "application/json")
+//	public ApiResponse<CustomerInfResponse> createCustomer(
+//			@RequestBody CreateCustomerRequest createCustomerRequest) {
+//		CustomerInfResponse result = customerService.createCustomer(createCustomerRequest);
+//
+//		return ApiResponse.<CustomerInfResponse>builder()
+//				.code(HttpStatus.CREATED.value())
+//				.result(result)
+//				.message("Create customer successfully")
+//				.build();
+//	}
 
 	@PutMapping(value = "/update/{id}", consumes = "application/json", produces = "application/json")
 	public ApiResponse<CustomerInfResponse> updateCustomer(

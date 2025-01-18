@@ -36,10 +36,10 @@ public interface SenderRepository extends PagingAndSortingRepository<Sender, Str
     // List Spring Data REST have been exported: Receiver Entity
 
     @RestResource(path = "by-customer", rel = "by-customer")
-    Page<SenderDetailProjection> searchAllByCustomer_Id(String customerId, Pageable pageable);
+    Page<Sender> searchAllByCustomer_Id(String customerId, Pageable pageable);
 
     @RestResource(path = "by-id", rel = "by-id")
-    SenderDetailProjection searchById(String id);
+    Sender searchById(String id);
 
     @Transactional
     @Modifying
