@@ -1,13 +1,16 @@
 package com.tdtu.logistics_users_service.service.implement;
 
+import com.tdtu.logistics_users_service.dto.model.SenderDetailDTO;
 import com.tdtu.logistics_users_service.dto.request.CreateSenderRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateSenderRequest;
 import com.tdtu.logistics_users_service.dto.response.SenderInfResponse;
+import com.tdtu.logistics_users_service.entity.Address;
 import com.tdtu.logistics_users_service.entity.Customer;
 import com.tdtu.logistics_users_service.entity.Sender;
 import com.tdtu.logistics_users_service.exception.AppException;
 import com.tdtu.logistics_users_service.exception.ErrorCode;
 import com.tdtu.logistics_users_service.mapper.SenderMapper;
+import com.tdtu.logistics_users_service.repository.AddressRepository;
 import com.tdtu.logistics_users_service.repository.CustomerRepository;
 import com.tdtu.logistics_users_service.repository.SenderRepository;
 import com.tdtu.logistics_users_service.service.SenderService;
@@ -16,10 +19,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +39,8 @@ public class SenderServiceImpl implements SenderService {
     final SenderMapper senderMapper;
 
     final CustomerRepository customerRepository;
+
+    final AddressRepository addressRepository;
 
     @Override
     @Transactional
@@ -53,6 +62,21 @@ public class SenderServiceImpl implements SenderService {
 
             sender.setCustomer(customer);
 
+            Address address = Address.builder()
+                    .provinceCode(createSenderRequest.senderProvinceCode())
+                    .province(createSenderRequest.senderProvinceName())
+                    .districtCode(createSenderRequest.senderDistrictCode())
+                    .district(createSenderRequest.senderDistrictName())
+                    .wardCode(createSenderRequest.senderCommuneCode())
+                    .ward(createSenderRequest.senderCommuneName())
+                    .street(createSenderRequest.senderAddress())
+                    .postalCode(createSenderRequest.senderPostalCode())
+                    .build();
+
+
+            addressRepository.save(address);
+            sender.setAddress(address);
+
             sender = senderRepository.save(sender);
 
             log.info("Logistics-Users-Service -> Sender-Service -> Create-Sender: Create sender with customer id: {}", author);
@@ -65,29 +89,56 @@ public class SenderServiceImpl implements SenderService {
     }
 
     @Override
+    public SenderDetailDTO getSenderById(String id) {
+
+        SenderDetailDTO senderDetailDTO = senderRepository.findSenderDetailById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Sender not found"));
+
+        log.info("Logistics-Users-Service -> Sender-Service -> Get-Sender: Get sender by id: {}", id);
+
+        return senderDetailDTO;
+    }
+
+    @Override
+    public Page<SenderDetailDTO> searchByCustomerIdDto(String customerId, Pageable pageable) {
+
+        Page<SenderDetailDTO> senders = senderRepository.searchByCustomerIdDto(customerId, pageable);
+
+        log.info("Logistics-Users-Service -> Sender-Service -> Search-Sender: Search sender by customer id: {}", customerId);
+
+        return senders;
+    }
+
+    @Override
     @Transactional
     public SenderInfResponse updateSender(String senderId, UpdateSenderRequest updateSenderRequest) {
         // Find the sender by ID
-        Sender existingSender = senderRepository.findById(senderId)
+        Sender sender = senderRepository.findById(senderId)
                 .orElseThrow(() -> new IllegalArgumentException("Sender not found"));
 
         // Update the sender's information
-        existingSender.setFullName(updateSenderRequest.senderName());
-        existingSender.setPhoneNumber(updateSenderRequest.senderPhone());
-        existingSender.setEmail(updateSenderRequest.senderMail());
-        existingSender.setProvince(updateSenderRequest.senderProvinceName());
-        existingSender.setDistrict(updateSenderRequest.senderDistrictName());
-        existingSender.setWard(updateSenderRequest.senderCommuneName());
-        existingSender.setStreet(updateSenderRequest.senderAddress());
-        existingSender.setPostalCode(updateSenderRequest.senderPostalCode());
+        sender.setFullName(updateSenderRequest.senderName());
+        sender.setPhoneNumber(updateSenderRequest.senderPhone());
+        sender.setEmail(updateSenderRequest.senderMail());
+
+        Address address = sender.getAddress();
+
+        address.setProvince(updateSenderRequest.senderProvinceName());
+        address.setDistrict(updateSenderRequest.senderDistrictName());
+        address.setWard(updateSenderRequest.senderCommuneName());
+        address.setStreet(updateSenderRequest.senderAddress());
+        address.setPostalCode(updateSenderRequest.senderPostalCode());
 
         // Save the updated sender in the database
-        existingSender = senderRepository.save(existingSender);
+        sender.setAddress(address);
+        sender = senderRepository.save(sender);
 
         log.info("Logistics-Users-Service -> Sender-Service -> Update-Sender: Update sender: {}", updateSenderRequest.senderName());
 
         // Map the entity back to response DTO
-        return senderMapper.toResponse(existingSender);
+        return senderMapper.toResponse(sender);
     }
+
+
 
 }

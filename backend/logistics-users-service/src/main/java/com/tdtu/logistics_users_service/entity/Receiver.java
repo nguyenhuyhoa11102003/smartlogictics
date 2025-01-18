@@ -30,25 +30,7 @@ public class Receiver {
     @Column(nullable = false)
     private String email; // Email liên hệ.
 
-    @Column(nullable = false)
-    private String province; // Tỉnh.
-
-    private String senderProvinceCode; // Mã tỉnh của người nhan
-
-    @Column(nullable = false)
-    private String district; // Huyện.
-
-    private String senderDistrictCode; // Mã quận/huyện của người nhan
-
-    @Column(nullable = false)
-    private String ward; // Xã/Phường.
-
-    private String senderCommuneCode; // Mã xã/phường của người nhan
-
-    @Column(nullable = false)
-    private String street; // Đường.
-
-    @Column
-    private String postalCode; // Mã bưu chính.
+    @OneToOne
+    @JoinColumn(name = "address_id", referencedColumnName = "id", nullable = false)
+    private Address address; // Quan hệ 1-1 với Address.
 }
-

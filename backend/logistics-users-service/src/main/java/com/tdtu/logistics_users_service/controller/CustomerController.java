@@ -1,6 +1,7 @@
 package com.tdtu.logistics_users_service.controller;
 
 import com.tdtu.common.user_service.dto.CustomerInfResponse;
+import com.tdtu.logistics_users_service.dto.model.CustomerDetailDTO;
 import com.tdtu.logistics_users_service.dto.request.UpdateCustomerRequest;
 import com.tdtu.logistics_users_service.dto.response.ApiResponse;
 import com.tdtu.logistics_users_service.service.CustomerService;
@@ -8,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,6 +78,30 @@ public class CustomerController {
 				.code(HttpStatus.OK.value())
 				.result(result)
 				.message("Get customer by phone successfully")
+				.build();
+	}
+
+	@GetMapping(value = "/detail/{id}", produces = "application/json")
+	public ApiResponse<CustomerDetailDTO> findCustomerDetailById(@PathVariable String id) {
+		log.info("Fetching customer detail for ID: {}", id);
+		CustomerDetailDTO result = customerService.findCustomerDetailById(id);
+
+		return ApiResponse.<CustomerDetailDTO>builder()
+				.code(HttpStatus.OK.value())
+				.result(result)
+				.message("Customer detail fetched successfully")
+				.build();
+	}
+
+	@GetMapping(value = "/searchWithAddress", produces = "application/json")
+	public ApiResponse<Page<CustomerDetailDTO>> searchAllCustomersWithAddress(Pageable pageable) {
+		log.info("Fetching paginated customers with address.");
+		Page<CustomerDetailDTO> result = customerService.searchAllCustomersWithAddress(pageable);
+
+		return ApiResponse.<Page<CustomerDetailDTO>>builder()
+				.code(HttpStatus.OK.value())
+				.result(result)
+				.message("Customers with address fetched successfully")
 				.build();
 	}
 }

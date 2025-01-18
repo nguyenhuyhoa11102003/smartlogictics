@@ -35,14 +35,14 @@ public abstract class User {
 
     private LocalDate dateOfBirth;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String identityCard;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate

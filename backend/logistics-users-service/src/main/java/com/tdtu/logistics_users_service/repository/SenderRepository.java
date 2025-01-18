@@ -1,7 +1,7 @@
 package com.tdtu.logistics_users_service.repository;
 
+import com.tdtu.logistics_users_service.dto.model.SenderDetailDTO;
 import com.tdtu.logistics_users_service.entity.Sender;
-import com.tdtu.logistics_users_service.repository.projections.SenderDetailProjection;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +16,7 @@ import java.util.Optional;
 
 @RepositoryRestResource(
         collectionResourceRel = "sender",
-        path = "sender",
-        excerptProjection = SenderDetailProjection.class
+        path = "sender"
 )
 public interface SenderRepository extends PagingAndSortingRepository<Sender, String> {
 
@@ -33,7 +32,19 @@ public interface SenderRepository extends PagingAndSortingRepository<Sender, Str
     @RestResource(exported = false)
     <S extends Sender> void delete(S entity);
 
-    // List Spring Data REST have been exported: Receiver Entity
+    // Method to find Sender detail by ID with address concatenation
+    @RestResource(exported = false)
+    @Query("SELECT new com.tdtu.logistics_users_service.dto.model.SenderDetailDTO(s.id, s.fullName, CONCAT(s.address.province, ', ', s.address.district, ', ', s.address.ward, ', ', s.address.street, ', ', s.address.postalCode)) " +
+            "FROM Sender s WHERE s.id = :id")
+    Optional<SenderDetailDTO> findSenderDetailById(String id);
+
+    // Method to get a page of Sender details by Customer ID with address concatenation
+    @RestResource(exported = false)
+    @Query("SELECT new com.tdtu.logistics_users_service.dto.model.SenderDetailDTO(s.id, s.fullName, CONCAT(s.address.province, ', ', s.address.district, ', ', s.address.ward, ', ', s.address.street, ', ', s.address.postalCode)) " +
+            "FROM Sender s WHERE s.customer.id = :customerId")
+    Page<SenderDetailDTO> searchByCustomerIdDto(String customerId, Pageable pageable);
+
+    // List Spring Data REST have been exported: Sender Entity
 
     @RestResource(path = "by-customer", rel = "by-customer")
     Page<Sender> searchAllByCustomer_Id(String customerId, Pageable pageable);
@@ -43,7 +54,7 @@ public interface SenderRepository extends PagingAndSortingRepository<Sender, Str
 
     @Transactional
     @Modifying
-    @Query("UPDATE Sender s SET s.province = :province, s.district = :district, s.ward = :ward, s.street = :street, s.postalCode = :postalCode WHERE s.id = :id")
+    @Query("UPDATE Sender s SET s.address.province = :province, s.address.district = :district, s.address.ward = :ward, s.address.street = :street, s.address.postalCode = :postalCode WHERE s.id = :id")
     @RestResource(path = "update-sender-address", rel = "update-address")
     int updateAddressById(String id, String province, String district, String ward, String street, String postalCode);
 }

@@ -1,0 +1,21 @@
+Cong viec can hoan thanh BE:
+
+- Api Cac loai tao don hang:
+ + them 1:
+   - them moi nguoi gui va nguoi nhan luon
+   - them moi nguoi gui cu~ va nguoi nhan moi
+
+ + them nhieu su dung excel:
+   - nguoi cui la customer luon -> them moi nguoi nhan thoi
+
+- Api Thay doi trang thai don hang: chua hoan thanh: 
+   +can kiem tra lai -> co the phai update lai mot chut
+
+- Api Tim kien don hang: chua hoan thanh
+
+- Api thong ke don hang: chua hoan thanh
+
+- Api thong ke doanh thu: chua hoan thanh
+
+- Api file-storage aws: hoan thanh 70%
+  ** can update som trc ngay 22/01/2025

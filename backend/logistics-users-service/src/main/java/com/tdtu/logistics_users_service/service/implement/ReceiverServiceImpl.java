@@ -1,12 +1,15 @@
 package com.tdtu.logistics_users_service.service.implement;
 
+import com.tdtu.logistics_users_service.dto.model.ReceiverDetailDTO;
 import com.tdtu.logistics_users_service.dto.request.CreateReceiverRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateReceiverRequest;
 import com.tdtu.logistics_users_service.dto.response.ReceiverInfResponse;
+import com.tdtu.logistics_users_service.entity.Address;
 import com.tdtu.logistics_users_service.entity.Receiver;
 import com.tdtu.logistics_users_service.exception.AppException;
 import com.tdtu.logistics_users_service.exception.ErrorCode;
 import com.tdtu.logistics_users_service.mapper.ReceiverMapper;
+import com.tdtu.logistics_users_service.repository.AddressRepository;
 import com.tdtu.logistics_users_service.repository.CustomerRepository;
 import com.tdtu.logistics_users_service.repository.ReceiverRepository;
 import com.tdtu.logistics_users_service.service.ReceiverService;
@@ -15,11 +18,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
 import java.util.List;
 
 @Service
@@ -33,6 +38,8 @@ public class ReceiverServiceImpl implements ReceiverService {
     final ReceiverMapper receiverMapper;
 
     final CustomerRepository customerRepository;
+
+    final AddressRepository addressRepository;
 
     @Transactional
     @Override
@@ -50,6 +57,17 @@ public class ReceiverServiceImpl implements ReceiverService {
                         return new AppException(ErrorCode.CUSTOMER_NOT_EXISTED);}
             ));
 
+            Address address = Address.builder()
+                    .province(createReceiverRequest.getProvince())
+                    .district(createReceiverRequest.getDistrict())
+                    .ward(createReceiverRequest.getWard())
+                    .street(createReceiverRequest.getStreet())
+                    .postalCode(createReceiverRequest.getPostalCode())
+                    .build();
+
+            addressRepository.save(address);
+            receiver.setAddress(address);
+
             log.info("Logistics-Users-Service -> Receiver-Service -> Create-Receiver: Create receiver with customer id: {}", author);
             return receiverMapper.toReceiverInfResponse(receiverRepository.save(receiver));
         } else {
@@ -60,15 +78,14 @@ public class ReceiverServiceImpl implements ReceiverService {
     }
 
     @Override
-    public ReceiverInfResponse getReceiverById(String id) {
+    public ReceiverDetailDTO getReceiverById(String id) {
         log.info("Logistics-Users-Service -> Receiver-Service -> Get-Receiver-By-ID: Get receiver by id: {}", id);
 
-        Receiver receiver = receiverRepository.findById(id).orElseThrow(() -> {
-                    log.error("Logistics-Users-Service -> Receiver-Service -> Get-Receiver: Receiver not found with id: {}", id);
-                    return new AppException(ErrorCode.RECEIVER_NOT_EXISTED);}
-            );
-
-        return receiverMapper.toReceiverInfResponse(receiver);
+        return receiverRepository.findReceiverDetailById(id)
+                .orElseThrow(() -> {
+                    log.error("Logistics-Users-Service -> Receiver-Service -> Get-Receiver-By-ID: Receiver not found with id: {}", id);
+                    return new AppException(ErrorCode.RECEIVER_NOT_EXISTED);
+                });
     }
 
     @Override
@@ -89,10 +106,29 @@ public class ReceiverServiceImpl implements ReceiverService {
             Receiver receiver = receiverMapper.toReceiver(updateReceiverRequest);
             receiver.setId(id);
 
+            Address address = receiver.getAddress();
+
+            address.setDistrict(updateReceiverRequest.getDistrict());
+            address.setProvince(updateReceiverRequest.getProvince());
+            address.setStreet(updateReceiverRequest.getStreet());
+            address.setWard(updateReceiverRequest.getWard());
+            address.setPostalCode(updateReceiverRequest.getPostalCode());
+
+            receiver.setAddress(address);
+
             return receiverMapper.toReceiverInfResponse(receiverRepository.save(receiver));
         } else {
             log.error("Logistics-Users-Service -> Receiver-Service -> Update-Receiver-By-ID: Receiver not found with id: {}", id);
             throw new AppException(ErrorCode.RECEIVER_NOT_EXISTED);
         }
     }
+
+    @Override
+    public Page<ReceiverDetailDTO> searchByCustomerIdDto(String customerId, org.springframework.data.domain.Pageable pageable) {
+        log.info("Searching receivers for customerId: {}", customerId);
+
+        // Call the repository method with the native query
+        return receiverRepository.searchByCustomerIdDto(customerId, pageable);
+    }
+
 }

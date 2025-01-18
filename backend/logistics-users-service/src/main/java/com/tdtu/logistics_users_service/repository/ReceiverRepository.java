@@ -1,5 +1,6 @@
 package com.tdtu.logistics_users_service.repository;
 
+import com.tdtu.logistics_users_service.dto.model.ReceiverDetailDTO;
 import com.tdtu.logistics_users_service.entity.Receiver;
 import com.tdtu.logistics_users_service.repository.projections.ReceiverDetailProjection;
 import jakarta.transaction.Transactional;
@@ -28,10 +29,20 @@ public interface ReceiverRepository extends PagingAndSortingRepository<Receiver,
     Optional<Receiver> findById(String id);
 
     @RestResource(exported = false)
+    @Query("SELECT new com.tdtu.logistics_users_service.dto.model.ReceiverDetailDTO(r.id, r.fullName, CONCAT(r.address.province, ', ', r.address.district, ', ', r.address.ward, ', ', r.address.street, ', ', r.address.postalCode)) " +
+            "FROM Receiver r WHERE r.id = :id")
+    Optional<ReceiverDetailDTO> findReceiverDetailById(String id);
+
+    @RestResource(exported = false)
     <S extends Receiver> S save(S entity);
 
     @RestResource(exported = false)
     <S extends Receiver> void delete(S entity);
+
+    @RestResource(exported = false)
+    @Query("SELECT new com.tdtu.logistics_users_service.dto.model.ReceiverDetailDTO(r.id, r.fullName, CONCAT(r.address.province, ', ', r.address.district, ', ', r.address.ward, ', ', r.address.street, ', ', r.address.postalCode)) " +
+            "FROM Receiver r WHERE r.customer.id = :customerId")
+    Page<ReceiverDetailDTO> searchByCustomerIdDto(String customerId, Pageable pageable);
 
     // List Spring Data REST have been exported: Receiver Entity
 
@@ -46,7 +57,7 @@ public interface ReceiverRepository extends PagingAndSortingRepository<Receiver,
 
     @Transactional
     @Modifying
-    @Query("UPDATE Receiver r SET r.province = :province, r.district = :district, r.ward = :ward, r.street = :street, r.postalCode = :postalCode WHERE r.id = :id")
+    @Query("UPDATE Receiver r SET r.address.province = :province, r.address.district = :district, r.address.ward = :ward, r.address.street = :street, r.address.postalCode = :postalCode WHERE r.id = :id")
     @RestResource(path = "update-receiver-address", rel = "update-address")
     int updateAddressById(String id, String province, String district, String ward, String street, String postalCode);
 

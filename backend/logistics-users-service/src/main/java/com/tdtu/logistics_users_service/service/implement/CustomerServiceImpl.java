@@ -2,6 +2,7 @@ package com.tdtu.logistics_users_service.service.implement;
 
 import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import com.tdtu.common.user_service.dto.CreateCustomerRequest;
+import com.tdtu.logistics_users_service.dto.model.CustomerDetailDTO;
 import com.tdtu.logistics_users_service.dto.request.UpdateCustomerRequest;
 import com.tdtu.logistics_users_service.entity.Address;
 import com.tdtu.logistics_users_service.entity.Customer;
@@ -16,7 +17,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -96,6 +101,27 @@ public class CustomerServiceImpl implements CustomerService {
             );
 
         return customerMapper.toCustomerInfResponse(customer);
+    }
+
+    @Override
+    public CustomerDetailDTO findCustomerDetailById(String id) {
+        log.info("Logistics-Users-Service -> Customer-Service -> Find-Customer-Detail-By-ID: Find customer detail by ID: {}", id);
+
+        // Call repository method to get customer details with concatenated address
+        Optional<CustomerDetailDTO> customerDetailDTO = customerRepository.findCustomerDetailById(id);
+
+        return customerDetailDTO.orElseThrow(() -> {
+            log.error("Logistics-Users-Service -> Customer-Service -> Find-Customer-Detail-By-ID: Customer not found with id: {}", id);
+            return new AppException(ErrorCode.CUSTOMER_NOT_EXISTED);
+        });
+    }
+
+    @Override
+    public Page<CustomerDetailDTO> searchAllCustomersWithAddress(Pageable pageable) {
+        log.info("Logistics-Users-Service -> Customer-Service -> Search-All-Customers-With-Address: Fetching all customers with address.");
+
+        // Call repository method to get paginated customer details with address
+        return customerRepository.searchAllCustomersWithAddress(pageable);
     }
 
     @Override

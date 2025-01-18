@@ -1,5 +1,6 @@
 package com.tdtu.logistics_users_service.repository.projections;
 
+import com.tdtu.logistics_users_service.entity.Address;
 import com.tdtu.logistics_users_service.entity.Sender;
 import org.springframework.data.rest.core.config.Projection;
 
@@ -9,8 +10,5 @@ public interface SenderDetailProjection {
     String getFullName();
     String getPhoneNumber();
     String getEmail();
-    String getProvince();
-    String getDistrict();
-    String getWard();
-    String getStreet();
+    Address getAddress();
 }

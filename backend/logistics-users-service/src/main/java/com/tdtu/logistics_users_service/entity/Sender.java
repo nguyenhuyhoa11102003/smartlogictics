@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "sender")
+@Table(name = "senders")
 public class Sender {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -21,32 +21,15 @@ public class Sender {
     private Customer customer; // Người tạo đơn hàng.
 
     @Column(nullable = false)
-    private String fullName; // Tên đầy đủ người nhận.
+    private String fullName; // Tên đầy đủ người gửi.
 
     @Column(nullable = false)
-    private String phoneNumber; // Số điện thoại người nhận.
+    private String phoneNumber; // Số điện thoại người gửi.
 
     @Column(nullable = false)
     private String email; // Email liên hệ.
 
-    @Column(nullable = false)
-    private String province; // Tỉnh.
-
-    private String senderProvinceCode; // Mã tỉnh của người gửi
-
-    @Column(nullable = false)
-    private String district; // Huyện.
-
-    private String senderDistrictCode; // Mã quận/huyện của người gửi
-
-    @Column(nullable = false)
-    private String ward; // Xã/Phường.
-
-    private String senderCommuneCode; // Mã xã/phường của người gửi
-
-    @Column(nullable = false)
-    private String street; // Đường.
-
-    @Column
-    private String postalCode; // Mã bưu chính.
+    @OneToOne
+    @JoinColumn(name = "address_id", referencedColumnName = "id", nullable = false)
+    private Address address; // Quan hệ 1-1 với Address (địa chỉ của người gửi).
 }
