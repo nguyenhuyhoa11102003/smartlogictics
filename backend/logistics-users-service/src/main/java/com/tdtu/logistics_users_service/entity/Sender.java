@@ -10,9 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "receivers")
-public class Receiver {
-
+@Table(name = "sender")
+public class Sender {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -33,17 +32,17 @@ public class Receiver {
     @Column(nullable = false)
     private String province; // Tỉnh.
 
-    private String senderProvinceCode; // Mã tỉnh của người nhan
+    private String senderProvinceCode; // Mã tỉnh của người gửi
 
     @Column(nullable = false)
     private String district; // Huyện.
 
-    private String senderDistrictCode; // Mã quận/huyện của người nhan
+    private String senderDistrictCode; // Mã quận/huyện của người gửi
 
     @Column(nullable = false)
     private String ward; // Xã/Phường.
 
-    private String senderCommuneCode; // Mã xã/phường của người nhan
+    private String senderCommuneCode; // Mã xã/phường của người gửi
 
     @Column(nullable = false)
     private String street; // Đường.
@@ -51,4 +50,3 @@ public class Receiver {
     @Column
     private String postalCode; // Mã bưu chính.
 }
-

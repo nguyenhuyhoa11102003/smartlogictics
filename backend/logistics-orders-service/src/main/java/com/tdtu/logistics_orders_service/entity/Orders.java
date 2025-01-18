@@ -42,11 +42,14 @@ public class Orders extends BaseEntity {
 	@Column(name = "more_require")
 	String moreRequire; // Yêu cầu bổ sung
 
+	@Column(name = "customer_id")
+	String customerId; // Liên kết đến tao don dang
+
 	@Column(name = "recipient_id")
 	String recipientId; // Liên kết đến người nhận
 
 	@Column(name = "sender_id")
-	String senderId; // Liên kết đến người gửi Email
+	String senderId; // Liên kết đến người gửi
 
 	@Column(name = "branch_code")
 	String branchCode; // Mã chi nhánh warehouse

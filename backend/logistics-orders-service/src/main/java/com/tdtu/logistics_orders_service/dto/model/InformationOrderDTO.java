@@ -16,12 +16,34 @@ import java.util.List;
 public class InformationOrderDTO {
 
     // Thông tin người gửi
-    private String senderId; // Tên người gửi
+    private String senderId;
+
+//    private String senderName; // Tên người gửi
+//
+//    private String senderPhone; // Số điện thoại người gửi
+//
+//    private String senderMail; // Email của người gửi
+//
+//    private String senderAddress; // Địa chỉ người gửi
+//
+//    private String senderProvinceCode; // Mã tỉnh/thành phố của người gửi
+//
+//    private String senderProvinceName; // Tên tỉnh/thành phố của người gửi
+//
+//    private String senderDistrictCode; // Mã quận/huyện của người gửi
+//
+//    private String senderDistrictName; // Tên quận/huyện của người gửi
+//
+//    private String senderCommuneCode; // Mã xã/phường của người gửi
+//
+//    private String senderCommuneName; // Tên xã/phường của người gửi
+//
+//    private String senderPostalCode; // Mã bưu chính của người gửi
 
     // Thông tin người nhận
-    private String receiverPhone; // Số điện thoại người nhận
-
     private String recipientName; // Tên người nhận
+
+    private String receiverPhone; // Số điện thoại người nhận
 
     private String receiverAddress; // Địa chỉ người nhận
 
@@ -41,6 +63,8 @@ public class InformationOrderDTO {
 
     @DecimalMin(value = "0.0", inclusive = true, message = "Tiền thu hộ không được nhỏ hơn 0.0")
     private BigDecimal codAmount; // Tiền thu hộ
+
+    private String receiverPostalCode; // Mã bưu chính của người nhận
 
     // Dịch vụ và yêu cầu bổ sung
     private ShippingMethod shippingMethod; // Mã dịch vụ giao hàng
