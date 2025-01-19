@@ -12,11 +12,7 @@ public class CreateOrderRequest {
 
     private OrderStatus orderCreationStatus;
 
-    private String type;
-
     private String customerCode;
-
-    private String contractCode;
 
     private InformationOrderDTO informationOrder;
 }

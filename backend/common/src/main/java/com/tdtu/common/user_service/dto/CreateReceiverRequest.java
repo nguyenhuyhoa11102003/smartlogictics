@@ -1,4 +1,4 @@
-package com.tdtu.logistics_users_service.dto.request;
+package com.tdtu.common.user_service.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

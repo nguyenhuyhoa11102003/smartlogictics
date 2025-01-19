@@ -1,10 +1,14 @@
-package com.tdtu.logistics_users_service.dto.response;
+package com.tdtu.common.user_service;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ReceiverInfResponse {
     UUID id; // ID của người nhận (tự sinh).
 

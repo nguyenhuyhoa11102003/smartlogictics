@@ -61,4 +61,5 @@ public interface ReceiverRepository extends PagingAndSortingRepository<Receiver,
     @RestResource(path = "update-receiver-address", rel = "update-address")
     int updateAddressById(String id, String province, String district, String ward, String street, String postalCode);
 
+    void deleteById(String id);
 }

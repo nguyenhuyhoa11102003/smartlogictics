@@ -1,6 +1,8 @@
 package com.tdtu.logistics_users_service.configuration;
 
+import com.tdtu.common.orchestration.activity.CreateReceiverActivity;
 import com.tdtu.common.orchestration.activity.UserRegistrationActivity;
+import com.tdtu.common.orchestration.workflow.CreateReceiverWorkflow;
 import com.tdtu.common.orchestration.workflow.WorkerHelper;
 import com.tdtu.common.orchestration.workflow.implement.UserRegistrationWorkflowImpl;
 import io.temporal.client.WorkflowClient;
@@ -26,6 +28,8 @@ import org.springframework.context.annotation.Configuration;
 public class TemporalConfig {
 
     UserRegistrationActivity userRegistrationActivity;
+
+    CreateReceiverActivity createReceiverActivity;
 
     @NonFinal
     @Value("${temporal.host}")
@@ -66,6 +70,16 @@ public class TemporalConfig {
 
         worker.registerWorkflowImplementationTypes(UserRegistrationWorkflowImpl.class);
         worker.registerActivitiesImplementations(userRegistrationActivity);
+
+        return worker;
+    }
+
+    @Bean
+    public Worker createReceiverWorker(WorkerFactory factory) {
+        Worker worker = factory.newWorker(WorkerHelper.WORKFLOW_CREATE_ORDER_TASK_QUEUE);
+
+        worker.registerWorkflowImplementationTypes(CreateReceiverWorkflow.class);
+        worker.registerActivitiesImplementations(createReceiverActivity);
 
         return worker;
     }

@@ -21,6 +21,9 @@ public class PaymentMetadata {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id; // ID của thông tin thanh toán
 
+    @Column(name = "customer_code")
+    String customerCode; // Mã khách hàng
+
     @Column(name = "total_cost", nullable = false)
     BigDecimal totalCost; // Tổng cước
 

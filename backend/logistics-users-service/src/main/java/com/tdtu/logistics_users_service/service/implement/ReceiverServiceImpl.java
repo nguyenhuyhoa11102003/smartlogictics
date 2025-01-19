@@ -1,9 +1,9 @@
 package com.tdtu.logistics_users_service.service.implement;
 
 import com.tdtu.logistics_users_service.dto.model.ReceiverDetailDTO;
-import com.tdtu.logistics_users_service.dto.request.CreateReceiverRequest;
+import com.tdtu.common.user_service.dto.CreateReceiverRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateReceiverRequest;
-import com.tdtu.logistics_users_service.dto.response.ReceiverInfResponse;
+import com.tdtu.common.user_service.ReceiverInfResponse;
 import com.tdtu.logistics_users_service.entity.Address;
 import com.tdtu.logistics_users_service.entity.Receiver;
 import com.tdtu.logistics_users_service.exception.AppException;
@@ -21,10 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 import java.util.List;
 
 @Service
@@ -129,6 +127,18 @@ public class ReceiverServiceImpl implements ReceiverService {
 
         // Call the repository method with the native query
         return receiverRepository.searchByCustomerIdDto(customerId, pageable);
+    }
+
+    @Override
+    public void deleteReceiver(String id) {
+
+        if (receiverRepository.existsById(id)) {
+            receiverRepository.deleteById((id));
+            log.info("Logistics-Users-Service -> Receiver-Service -> Delete-Receiver-By-ID: Delete receiver with id: {}", id);
+        } else {
+            log.error("Logistics-Users-Service -> Receiver-Service -> Delete-Receiver-By-ID: Receiver not found with id: {}", id);
+            throw new AppException(ErrorCode.RECEIVER_NOT_EXISTED);
+        }
     }
 
 }

@@ -31,12 +31,14 @@ public class UserRegistrationWorkflowImpl implements UserRegistrationWorkflow {
 
         try {
             CustomerInfResponse customerInfResponse = userRegistrationActivity.createUserProfile(request);
+
             return CustomerInfResponse.builder()
                     .id(customerInfResponse.getId())
                     .email(customerInfResponse.getEmail())
                     .fullName(customerInfResponse.getFullName())
                     .phoneNumber(customerInfResponse.getPhoneNumber())
                     .build();
+
         } catch (Exception e) {
             // Xử lý lỗi
             log.info("Error: {}", e.getMessage());

@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class Orders extends BaseEntity {
 	String moreRequire; // Yêu cầu bổ sung
 
 	@Column(name = "customer_id")
-	String customerId; // Liên kết đến tao don dang
+	String customerId; // Liên kết đến nguoi tao don dang
 
 	@Column(name = "recipient_id")
 	String recipientId; // Liên kết đến người nhận

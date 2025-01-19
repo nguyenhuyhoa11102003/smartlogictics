@@ -1,10 +1,10 @@
 package com.tdtu.logistics_users_service.controller;
 
 import com.tdtu.logistics_users_service.dto.model.ReceiverDetailDTO;
-import com.tdtu.logistics_users_service.dto.request.CreateReceiverRequest;
+import com.tdtu.common.user_service.dto.CreateReceiverRequest;
 import com.tdtu.logistics_users_service.dto.request.UpdateReceiverRequest;
 import com.tdtu.logistics_users_service.dto.response.ApiResponse;
-import com.tdtu.logistics_users_service.dto.response.ReceiverInfResponse;
+import com.tdtu.common.user_service.ReceiverInfResponse;
 import com.tdtu.logistics_users_service.service.ReceiverService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController()
 @RequestMapping("/receiver")

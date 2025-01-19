@@ -12,6 +12,8 @@ public class WorkerHelper {
 
     public static final String WORKFLOW_CREATE_ACCOUNT_TASK_QUEUE = "CreateAccountTaskQueue";
 
+    public static final String WORKFLOW_CREATE_ORDER_TASK_QUEUE = "CreateOrderTaskQueue";
+
     private static final RetryOptions RETRY_OPTIONS = RetryOptions.newBuilder()
             .setInitialInterval(Duration.ofSeconds(1))
             .setMaximumInterval(Duration.ofSeconds(100))
