@@ -72,6 +72,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.security:spring-security-crypto'
 
+	// Temporal
 	implementation platform('io.grpc:grpc-bom:1.50.2') // 1.50.2 phù hợp với Java 17
 	implementation 'io.temporal:temporal-sdk:1.22.1' // Phiên bản ổn định với Java 17
 	implementation 'io.grpc:grpc-protobuf:1.50.2'

@@ -63,18 +63,6 @@ public class OrdersController {
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ApiResponse<OrderInfResponse> getOrderById(@PathVariable String orderId) {
 
-		// Lấy thông tin người dùng từ SecurityContext
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String userId = null;
-
-		if (authentication != null && authentication.isAuthenticated()) {
-			// Lấy thông tin từ claims của JWT
-			Jwt jwt = (Jwt) authentication.getPrincipal();
-			userId = (String) jwt.getClaims().get("userId"); // Lấy userId từ claims
-		}
-
-		log.info("User ID: {}", userId); // Ghi log userId nếu cần
-
 		return ApiResponse.<OrderInfResponse>builder()
 				.code(HttpStatus.OK.value())
 				.message("Get order by id successfully")

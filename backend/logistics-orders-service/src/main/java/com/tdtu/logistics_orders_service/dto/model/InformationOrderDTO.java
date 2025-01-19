@@ -2,8 +2,11 @@ package com.tdtu.logistics_orders_service.dto.model;
 
 import com.tdtu.common.orders_service.enums.AddOnService;
 import com.tdtu.common.orders_service.enums.ShippingMethod;
+import com.tdtu.logistics_orders_service.enumrator.DeliveryServiceType;
 import com.tdtu.logistics_orders_service.enumrator.ReceivingMethod;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -18,27 +21,7 @@ public class InformationOrderDTO {
     // Thông tin người gửi
     private String senderId;
 
-//    private String senderName; // Tên người gửi
-//
-//    private String senderPhone; // Số điện thoại người gửi
-//
-//    private String senderMail; // Email của người gửi
-//
-//    private String senderAddress; // Địa chỉ người gửi
-//
-//    private String senderProvinceCode; // Mã tỉnh/thành phố của người gửi
-//
-//    private String senderProvinceName; // Tên tỉnh/thành phố của người gửi
-//
-//    private String senderDistrictCode; // Mã quận/huyện của người gửi
-//
-//    private String senderDistrictName; // Tên quận/huyện của người gửi
-//
-//    private String senderCommuneCode; // Mã xã/phường của người gửi
-//
-//    private String senderCommuneName; // Tên xã/phường của người gửi
-//
-//    private String senderPostalCode; // Mã bưu chính của người gửi
+    private String senderName; // Tên người gửi
 
     // Thông tin người nhận
     private String recipientName; // Tên người nhận
@@ -79,23 +62,41 @@ public class InformationOrderDTO {
 //    private Integer orgCodeAccept; // Mã tổ chức nhận hàng
 
     // Thông tin vận chuyển
+    private DeliveryServiceType serviceCode; // Mã dịch vụ vận chuyển   (VD: NHANH - HOA TOC - CHUYEN PHAT)
+
     private String vehicle; // Loại phương tiện vận chuyển (VD: BO - Bộ, BI - Bưu điện)
 
     private ReceivingMethod receivingMethod;
 
     private boolean isBroken; // Hàng hóa có bị hư hỏng không? (0 - Không, 1 - Có)
 
+    private String deliveryRequire; // Yêu cầu giao hàng
+
     private String deliveryInstruction; // Hướng dẫn giao hàng
+
+    private String moreRequire; // Hướng dẫn giao hàng
 
     private String contentNote; // Ghi chú về nội dung hàng hóa
 
-    private String weight; // Trọng lượng đơn vị hàng (gram)
+    @NotBlank
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false, message = "Trọng lượng phải lớn hơn 0.0")
+    private double weight; // Trọng lượng đơn vị hàng (gram)
 
-    private String width; // Chiều rộng của hàng hóa (có thể null)
+    @NotBlank
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = true, message = "Chiều rộng không được nhỏ hơn 0.0")
+    private Double width; // Chiều rộng của hàng hóa (có thể null)
 
-    private String length; // Chiều dài của hàng hóa (có thể null)
+    @NotBlank
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = true, message = "Chiều dài không được nhỏ hơn 0.0")
+    private Double length; // Chiều dài của hàng hóa (có thể null)
 
-    private String height; // Chiều cao của hàng hóa (có thể null)
+    @NotBlank
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = true, message = "Chiều cao không được nhỏ hơn 0.0")
+    private Double height; // Chiều cao của hàng hóa (có thể null)
 
     private String shipmentId;  // mã vận đơn
 

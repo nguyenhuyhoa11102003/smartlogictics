@@ -11,6 +11,7 @@ import com.tdtu.logistics_orders_service.dto.request.PickupRequest;
 import com.tdtu.logistics_orders_service.dto.response.OrderInfResponse;
 import com.tdtu.logistics_orders_service.dto.response.PaginatedResponse;
 import com.tdtu.logistics_orders_service.entity.Orders;
+import com.tdtu.logistics_orders_service.entity.PaymentMetadata;
 import com.tdtu.logistics_orders_service.entity.ShippingMetadata;
 import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
 import com.tdtu.logistics_orders_service.enumrator.ReceivingMethod;
@@ -18,6 +19,8 @@ import com.tdtu.logistics_orders_service.exception.AppException;
 import com.tdtu.logistics_orders_service.exception.ErrorCode;
 import com.tdtu.logistics_orders_service.mapper.OrderMapper;
 import com.tdtu.logistics_orders_service.repository.OrdersRepository;
+import com.tdtu.logistics_orders_service.repository.PaymentMetadataRepository;
+import com.tdtu.logistics_orders_service.repository.ShippingMetadataRepository;
 import com.tdtu.logistics_orders_service.service.*;
 import com.tdtu.logistics_orders_service.service.client.UserServiceClient;
 import com.tdtu.logistics_orders_service.utils.OrderStatusValidator;
@@ -30,6 +33,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,6 +52,10 @@ public class OrdersServiceImpl implements OrdersService {
 
 	final UserServiceClient userServiceClient;
 
+	final ShippingMetadataRepository shippingMetadataRepository;
+
+	final PaymentMetadataRepository paymentMetadataRepository;
+
 	final KafkaTemplate<String, Object> kafkaTemplate;
 
 
@@ -54,18 +64,113 @@ public class OrdersServiceImpl implements OrdersService {
 	public OrderInfResponse createOrder(CreateOrderRequest requestDTO) {
 		log.info("Logistic-Order-Service: Order-Service: Method-Create-order: {}", requestDTO);
 
-		Orders orders = orderMapper.toEntity(requestDTO.getInformationOrder());
-		orders.setStatus(requestDTO.getOrderCreationStatus());
 
-		CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
-		MailUpdateOrderStatus mailUpdateOrderStatus = MailUpdateOrderStatus.builder()
-				.to(customerInfResponse.getEmail())
-				.subject("Dear" + customerInfResponse.getFullName() + "Your order have bean status update: " + orders.getOrderCode())
+		ShippingMetadata shippingMetadata = toShippingMetadata(requestDTO);
+		shippingMetadataRepository.save(shippingMetadata);
+		log.info("Logistic-Order-Service: Order-Service: Method-Create-order: Shipping metadata saved");
+
+		PaymentMetadata paymentMetadata = toPaymentMetadata(requestDTO);
+		paymentMetadataRepository.save(paymentMetadata);
+		log.info("Logistic-Order-Service: Order-Service: Method-Create-order: Payment metadata saved");
+
+		Orders orderEntity = toOrder(requestDTO, shippingMetadata, paymentMetadata, "Test o day");
+
+// 		FIXME: 2021-08-26 : Notification service
+//		CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
+//
+//		MailUpdateOrderStatus mailUpdateOrderStatus = MailUpdateOrderStatus.builder()
+//				.to(customerInfResponse.getEmail())
+//				.subject("Dear" + customerInfResponse.getFullName() + "Your order have bean status update: " + orders.getOrderCode())
+//				.build();
+//		kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
+// 		FIXME: 2021-08-26 : Notification service
+
+
+		return orderMapper.toOrderInfResponse(ordersRepository.save(orderEntity));
+	}
+
+	private Orders toOrder(CreateOrderRequest requestDTO, ShippingMetadata shippingMetadata, PaymentMetadata paymentMetadata, String receiverId) {
+
+		// Lấy thông tin người dùng từ SecurityContext
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String userId = null;
+
+		if (authentication != null && authentication.isAuthenticated()) {
+			// Lấy thông tin từ claims của JWT
+			Jwt jwt = (Jwt) authentication.getPrincipal();
+			userId = (String) jwt.getClaims().get("userId"); // Lấy userId từ claims
+		}
+
+		log.debug("Logistic-Order-Service: Order-Service: Method-To-order: {}", userId);
+
+		return Orders.builder()
+				.customerId(userId)
+
+				.status(requestDTO.getOrderCreationStatus())
+				.shipmentCode(requestDTO.getInformationOrder().getShipmentId())
+				.note(requestDTO.getInformationOrder().getContentNote())
+				.orderCode(requestDTO.getInformationOrder().getSaleOrderCode()) // check lai cho nay
+				.moreRequire(requestDTO.getInformationOrder().getMoreRequire())
+
+				.senderId(requestDTO.getInformationOrder().getSenderId())
+				.senderName(requestDTO.getInformationOrder().getSenderName())
+
+				.recipientName(requestDTO.getInformationOrder().getRecipientName())
+				.recipientId(receiverId)
+
+				.branchCode(requestDTO.getInformationOrder().getBranchCode())
+				.serviceCode(requestDTO.getInformationOrder().getServiceCode())
+				.receivingMethod(requestDTO.getInformationOrder().getReceivingMethod())
+
+				.vehicle(requestDTO.getInformationOrder().getVehicle())
+				.isBroken(requestDTO.getInformationOrder().isBroken())
+				.deliveryRequire(requestDTO.getInformationOrder().getDeliveryRequire())
+
+				.deliveryInstruction(requestDTO.getInformationOrder().getDeliveryInstruction())
+
+				.weight(requestDTO.getInformationOrder().getWeight())
+				.width(requestDTO.getInformationOrder().getWidth())
+				.length(requestDTO.getInformationOrder().getLength())
+				.height(requestDTO.getInformationOrder().getHeight())
+
+//				.pickupShipperId(requestDTO.getInformationOrder().getPickupShipperId())
+//				.deliveryShipperId(requestDTO.getInformationOrder().getDeliveryShipperId())
+
+				.addOnServices(requestDTO.getInformationOrder().getAddOnServices())
 				.build();
+	}
 
-		kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
+	private PaymentMetadata toPaymentMetadata(CreateOrderRequest requestDTO) {
 
-		return orderMapper.toOrderInfResponse(ordersRepository.save(orders));
+		log.debug("Logistic-Order-Service: Order-Service: Method-To-payment-metadata: {}", requestDTO);
+
+		return PaymentMetadata.builder()
+				.customerCode(requestDTO.getCustomerCode())
+				// Tao method tinh di roi ghi vao day nha m goi sang service ben kia
+				//.totalCost(requestDTO.getInformationOrder().getTotalCost())
+				//.totalAmount(requestDTO.getInformationOrder().getTotalAmount())
+
+				.codAmount(requestDTO.getInformationOrder().getCodAmount())
+				.payer(requestDTO.getInformationOrder().getRecipientName()) // de tam day
+				.build();
+	}
+
+	private ShippingMetadata toShippingMetadata(CreateOrderRequest requestDTO) {
+
+		log.debug("Logistic-Order-Service: Order-Service: Method-To-shipping-metadata: {}", requestDTO);
+
+		return ShippingMetadata.builder()
+				.shippingMethod(requestDTO.getInformationOrder().getShippingMethod())
+
+				// Tao method tinh di roi ghi vao day nha m goi sang service ben kia
+				//.deliveredDate(requestDTO.getInformationOrder().getDeliveryTime())
+				//.deliveryStatus(requestDTO.getInformationOrder().getDeliveryStatus())
+				//.deliveryEstimateTime(requestDTO.getInformationOrder().getDeliveryTime())
+				//.desiredDeliveryTime(requestDTO.getInformationOrder().getDeliveryTime())
+
+				.deliveryRemarks(requestDTO.getInformationOrder().getDeliveryInstruction())
+				.deliveryId(requestDTO.getInformationOrder().getShipmentId())
+				.build();
 	}
 
 	@Transactional

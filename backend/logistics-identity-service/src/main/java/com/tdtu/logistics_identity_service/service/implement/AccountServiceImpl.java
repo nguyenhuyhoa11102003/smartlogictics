@@ -1,6 +1,5 @@
 package com.tdtu.logistics_identity_service.service.implement;
 
-
 import com.tdtu.common.orchestration.workflow.UserRegistrationWorkflow;
 import com.tdtu.common.orchestration.workflow.WorkerHelper;
 import com.tdtu.common.user_service.dto.CustomerInfResponse;
@@ -28,14 +27,11 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -123,11 +119,16 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findByUsername(auth)
                 .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
 
+        String roleName = account.getRoles().stream()
+                .findFirst()
+                .map(Role::getName) // Lấy tên role nếu tồn tại
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED)); // Ném lỗi nếu không tìm thấy role
+
         return UserInfResponseDTO.builder()
                 .accountId(account.getId())
                 .profileId(account.getUserProfileId())
                 .email(account.getUsername())
-                .role(account.getRoles().stream().findFirst().get().getName())
+                .role(roleName)
                 .build();
     }
 

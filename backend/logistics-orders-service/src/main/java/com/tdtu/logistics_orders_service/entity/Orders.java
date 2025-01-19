@@ -44,8 +44,14 @@ public class Orders extends BaseEntity {
 	@Column(name = "customer_id")
 	String customerId; // Liên kết đến nguoi tao don dang
 
+	@Column(name = "recipient_name")
+	String recipientName; // Liên kết đến người nhận
+
 	@Column(name = "recipient_id")
 	String recipientId; // Liên kết đến người nhận
+
+	@Column(name = "sender_name")
+	String senderName; // Tên người gửi
 
 	@Column(name = "sender_id")
 	String senderId; // Liên kết đến người gửi
