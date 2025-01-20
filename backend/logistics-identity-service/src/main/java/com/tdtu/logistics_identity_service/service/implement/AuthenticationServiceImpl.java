@@ -182,6 +182,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         Instant.now().plus(EXPIRED_TIME, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("userId", account.getId())
+                .claim("customerId", account.getUserProfileId())
+                .claim("email", account.getUsername())
                 .claim("scope", buildScope(account))
                 .build();
 

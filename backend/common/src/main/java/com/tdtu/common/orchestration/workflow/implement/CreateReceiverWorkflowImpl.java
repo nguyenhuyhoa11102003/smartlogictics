@@ -17,21 +17,19 @@ public class CreateReceiverWorkflowImpl implements CreateReceiverWorkflow {
             .setStartToCloseTimeout(Duration.ofSeconds(30))
             .setRetryOptions(RetryOptions.newBuilder()
                     .setInitialInterval(Duration.ofSeconds(1))
-                    .setMaximumInterval(Duration.ofSeconds(10))
+                    .setMaximumInterval(Duration.ofSeconds(5))
                     .setBackoffCoefficient(2)
-                    .setMaximumAttempts(30)
+                    .setMaximumAttempts(3)
                     .build())
             .build();
 
-
     @Override
-    public String processCreateReceiver(CreateReceiverRequest request) {
-
+    public String processCreateReceiver(String customerId, CreateReceiverRequest request) {
         CreateReceiverActivity createReceiverActivity = Workflow.newActivityStub(CreateReceiverActivity.class, defaultActivityOptions);
 
         try {
 
-            return String.valueOf(createReceiverActivity.createReceiver(request).getId());
+            return String.valueOf(createReceiverActivity.createReceiver(customerId, request));
 
         } catch (Exception e) {
             log.info("Error: {}", e.getMessage());
@@ -41,5 +39,4 @@ public class CreateReceiverWorkflowImpl implements CreateReceiverWorkflow {
             return "";
         }
     }
-
 }

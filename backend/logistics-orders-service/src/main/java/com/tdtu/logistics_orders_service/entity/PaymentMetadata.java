@@ -24,7 +24,7 @@ public class PaymentMetadata {
     @Column(name = "customer_code")
     String customerCode; // Mã khách hàng
 
-    @Column(name = "total_cost", nullable = false)
+    @Column(name = "total_cost")
     BigDecimal totalCost; // Tổng cước
 
     @Column(name = "cod_amount")

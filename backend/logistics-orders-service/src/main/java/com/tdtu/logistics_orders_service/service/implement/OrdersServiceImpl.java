@@ -2,6 +2,9 @@ package com.tdtu.logistics_orders_service.service.implement;
 
 import com.tdtu.common.constant.KafkaTopic;
 import com.tdtu.common.dto.MailUpdateOrderStatus;
+import com.tdtu.common.orchestration.workflow.CreateReceiverWorkflow;
+import com.tdtu.common.orchestration.workflow.WorkerHelper;
+import com.tdtu.common.user_service.dto.CreateReceiverRequest;
 import com.tdtu.common.user_service.dto.CustomerInfResponse;
 import com.tdtu.common.user_service.dto.ReceiverInfResponse;
 import com.tdtu.common.user_service.dto.ShipperInfResponse;
@@ -24,6 +27,9 @@ import com.tdtu.logistics_orders_service.repository.ShippingMetadataRepository;
 import com.tdtu.logistics_orders_service.service.*;
 import com.tdtu.logistics_orders_service.service.client.UserServiceClient;
 import com.tdtu.logistics_orders_service.utils.OrderStatusValidator;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowException;
+import io.temporal.client.WorkflowOptions;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +44,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -58,12 +66,24 @@ public class OrdersServiceImpl implements OrdersService {
 
 	final KafkaTemplate<String, Object> kafkaTemplate;
 
+	final WorkflowClient workflowClient;
 
 	@Transactional
 	@Override
 	public OrderInfResponse createOrder(CreateOrderRequest requestDTO) {
 		log.info("Logistic-Order-Service: Order-Service: Method-Create-order: {}", requestDTO);
 
+		// Lấy thông tin người dùng từ SecurityContext
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String customerId = null;
+
+		if (authentication != null && authentication.isAuthenticated()) {
+			// Lấy thông tin từ claims của JWT
+			Jwt jwt = (Jwt) authentication.getPrincipal();
+			customerId = (String) jwt.getClaims().get("customerId"); // Lấy userId từ claims
+
+			log.info("Aloooo debug o day: Logistic-Order-Service: Order-Service: Method-Create-order: Customer id: {}", customerId);
+		}
 
 		ShippingMetadata shippingMetadata = toShippingMetadata(requestDTO);
 		shippingMetadataRepository.save(shippingMetadata);
@@ -73,9 +93,12 @@ public class OrdersServiceImpl implements OrdersService {
 		paymentMetadataRepository.save(paymentMetadata);
 		log.info("Logistic-Order-Service: Order-Service: Method-Create-order: Payment metadata saved");
 
-		Orders orderEntity = toOrder(requestDTO, shippingMetadata, paymentMetadata, "Test o day");
+		String receiverId = createReceiver(customerId, requestDTO);
+		Orders orderEntity = toOrder(customerId, requestDTO, shippingMetadata, paymentMetadata, receiverId);
 
-// 		FIXME: 2021-08-26 : Notification service
+		if (Objects.nonNull(receiverId)){
+
+// 		FIXME: 2025-01-20 : Notification service
 //		CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
 //
 //		MailUpdateOrderStatus mailUpdateOrderStatus = MailUpdateOrderStatus.builder()
@@ -83,28 +106,55 @@ public class OrdersServiceImpl implements OrdersService {
 //				.subject("Dear" + customerInfResponse.getFullName() + "Your order have bean status update: " + orders.getOrderCode())
 //				.build();
 //		kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
-// 		FIXME: 2021-08-26 : Notification service
+// 		FIXME: 2025-01-20 : Notification service
 
+			log.info("Logistic-Order-Service: Order-Service: Method-Create-order: Receiver created");
+			return orderMapper.toOrderInfResponse(ordersRepository.save(orderEntity));
+		} else {
 
-		return orderMapper.toOrderInfResponse(ordersRepository.save(orderEntity));
-	}
-
-	private Orders toOrder(CreateOrderRequest requestDTO, ShippingMetadata shippingMetadata, PaymentMetadata paymentMetadata, String receiverId) {
-
-		// Lấy thông tin người dùng từ SecurityContext
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String userId = null;
-
-		if (authentication != null && authentication.isAuthenticated()) {
-			// Lấy thông tin từ claims của JWT
-			Jwt jwt = (Jwt) authentication.getPrincipal();
-			userId = (String) jwt.getClaims().get("userId"); // Lấy userId từ claims
+			throw new AppException(ErrorCode.CREATE_ORDER_FAILED);
 		}
 
-		log.debug("Logistic-Order-Service: Order-Service: Method-To-order: {}", userId);
+	}
+
+	private String createReceiver(String customerId, CreateOrderRequest requestDTO) {
+		try {
+			WorkflowOptions options = WorkflowOptions.newBuilder()
+					.setTaskQueue(WorkerHelper.WORKFLOW_CREATE_ORDER_TASK_QUEUE)
+					.build();
+
+			log.info("Logistic-Order-Service: Order-Service: Method-Create-receiver: {}", requestDTO);
+
+			CreateReceiverRequest request = CreateReceiverRequest.builder()
+					.fullName(requestDTO.getInformationOrder().getRecipientName())
+					.phoneNumber(requestDTO.getInformationOrder().getReceiverPhone())
+					.email(requestDTO.getInformationOrder().getReceiverEmail())
+					.province(requestDTO.getInformationOrder().getReceiverProvinceName())
+					.district(requestDTO.getInformationOrder().getReceiverDistrictName())
+					.ward(requestDTO.getInformationOrder().getReceiverWard())
+					.postalCode(requestDTO.getInformationOrder().getReceiverPostalCode())
+					.street(requestDTO.getInformationOrder().getReceiverStreet())
+					.build();
+
+			CreateReceiverWorkflow receiverWorkflow = workflowClient.newWorkflowStub(CreateReceiverWorkflow.class, options);
+
+			String receiverId = receiverWorkflow.processCreateReceiver(customerId, request);
+
+			log.debug("Logistic-Order-Service: Order-Service: Method-Create-receiver: Receiver created");
+
+			return receiverId;
+		}catch (WorkflowException exception) {
+			log.error("Logistic-Order-Service: Order-Service: Method-Create-receiver: Workflow failed for request: {}", requestDTO, exception);
+			throw new AppException(ErrorCode.WORKFLOW_FAILED);
+		}
+	}
+
+	private Orders toOrder(String customerId, CreateOrderRequest requestDTO, ShippingMetadata shippingMetadata, PaymentMetadata paymentMetadata, String receiverId) {
+
+		log.info("Logistic-Order-Service: Order-Service: Method-Create-Order: Request: {}, User: {}, Timestamp: {}", requestDTO, customerId, LocalDateTime.now());
 
 		return Orders.builder()
-				.customerId(userId)
+				.customerId(customerId)
 
 				.status(requestDTO.getOrderCreationStatus())
 				.shipmentCode(requestDTO.getInformationOrder().getShipmentId())
@@ -135,6 +185,9 @@ public class OrdersServiceImpl implements OrdersService {
 
 //				.pickupShipperId(requestDTO.getInformationOrder().getPickupShipperId())
 //				.deliveryShipperId(requestDTO.getInformationOrder().getDeliveryShipperId())
+
+				.shippingMetadata(shippingMetadata)
+				.paymentMetadata(paymentMetadata)
 
 				.addOnServices(requestDTO.getInformationOrder().getAddOnServices())
 				.build();

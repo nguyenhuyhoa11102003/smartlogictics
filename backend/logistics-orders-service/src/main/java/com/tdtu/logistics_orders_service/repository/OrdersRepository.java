@@ -18,7 +18,7 @@ public interface OrdersRepository extends PagingAndSortingRepository<Orders, Str
 
 	@Modifying
 	@Query("UPDATE Orders o SET o.status = :status WHERE o.id = :orderId and o.branchCode = :branchCode")
-	int updateOrderStatusById(String branchCode, String orderId, OrderStatus status);
+	void updateOrderStatusById(String branchCode, String orderId, OrderStatus status);
 
 	@Query("SELECT o FROM Orders o WHERE o.id = :orderId and o.branchCode = :branchCode")
 	Optional<Orders> findByOrderIdAndBranchCode(String orderId, String branchCode);
@@ -29,15 +29,11 @@ public interface OrdersRepository extends PagingAndSortingRepository<Orders, Str
 	@Query("SELECT o FROM Orders o WHERE o.senderId = :senderId AND o.status = :status")
 	List<Orders> findBySenderIdAndStatus(String senderId, OrderStatus status);
 
-
 	@Query("SELECT o FROM Orders o WHERE o.senderId = :senderId ")
 	Page<Orders> findBySenderId(String senderId, Pageable pageable);
 
 	@RestResource(exported = false)
 	<S extends Orders> S save(S entity);
-
-	@RestResource(exported = false)
-	<S extends Orders> S update(S entity);
 
 	@RestResource(exported = false)
 	void delete(Orders orders);

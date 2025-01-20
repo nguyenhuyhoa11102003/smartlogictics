@@ -25,6 +25,11 @@ public enum ErrorCode {
 	ORDER_STATUS_NOT_VALID(400, "order_status_not_valid", HttpStatus.BAD_REQUEST),
 
 	SHIPPER_ALREADY_EXISTS(409, "shipper_already_exists", HttpStatus.CONFLICT),
+
+	WORKFLOW_FAILED(500, "workflow_failed", HttpStatus.INTERNAL_SERVER_ERROR),
+
+	CREATE_ORDER_FAILED(500, "create_order_failed", HttpStatus.INTERNAL_SERVER_ERROR),
+
 	SHIPPER_NOT_AVAILABLE(400, "shipper_not_available", HttpStatus.BAD_REQUEST);
 
 

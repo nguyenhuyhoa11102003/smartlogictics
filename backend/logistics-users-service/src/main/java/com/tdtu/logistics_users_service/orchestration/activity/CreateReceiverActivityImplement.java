@@ -21,12 +21,13 @@ public class CreateReceiverActivityImplement implements CreateReceiverActivity {
     ReceiverService receiverService;
 
     @Override
-    public ReceiverInfResponse createReceiver(CreateReceiverRequest createReceiverRequest) {
+    public String createReceiver(String customerId, CreateReceiverRequest createReceiverRequest) {
 
-        ReceiverInfResponse result = receiverService.createReceiver(createReceiverRequest);
-        log.info("Logistics-Users-Service -> Orchestration-Service -> Create-Receiver-Activity: Create receiver: {}", createReceiverRequest.getEmail());
+        String receiverId = receiverService.createReceiver(customerId, createReceiverRequest);
 
-        return result;
+        log.info("Logistics-Users-Service -> Orchestration-Service -> Create-Receiver-Activity: Create receiver: {}", receiverId);
+
+        return receiverId;
     }
 
     @Override

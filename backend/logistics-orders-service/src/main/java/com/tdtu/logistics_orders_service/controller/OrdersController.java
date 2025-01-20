@@ -15,9 +15,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -74,14 +71,12 @@ public class OrdersController {
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ApiResponse<List<OrderInfResponse>> getOrderBySenderIdAndStatus(@PathVariable String senderId,
 	                                                                       @PathVariable OrderStatus status) {
-
 		return ApiResponse.<List<OrderInfResponse>>builder()
 				.code(HttpStatus.OK.value())
 				.message("Get order by sender id and status successfully")
 				.result(ordersService.getOrderBySenderIdAndStatus(senderId, status))
 				.build();
 	}
-
 
 	@GetMapping(value = "/get-by-sender-id-and-status/{senderId}",
 			produces = MediaType.APPLICATION_JSON_VALUE)

@@ -14,6 +14,8 @@ public interface ReceiverService {
 
     ReceiverInfResponse createReceiver(CreateReceiverRequest createReceiverRequest);
 
+    String createReceiver(String customerId, CreateReceiverRequest createReceiverRequest);
+
     ReceiverDetailDTO getReceiverById(String id);
 
     List<ReceiverInfResponse> getAllReceiversByCustomerId(String customerId);

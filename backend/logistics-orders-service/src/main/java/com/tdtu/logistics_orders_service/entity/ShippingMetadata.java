@@ -23,11 +23,11 @@ public class ShippingMetadata {
     Long id; // UUID của dịch vụ vận chuyển
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "shipping_method", nullable = false)
+    @Column(name = "shipping_method")
     ShippingMethod shippingMethod; // Phương thức vận chuyển
 
     // Chuyen sang day roi nha'
-    @Column(name = "delivered_pickup_date", nullable = false)
+    @Column(name = "delivered_pickup_date")
     LocalDateTime deliveredDate;  // Ngày pickup
 
     @Column(name = "delivery_status")

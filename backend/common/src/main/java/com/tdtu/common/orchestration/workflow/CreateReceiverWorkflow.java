@@ -8,6 +8,6 @@ import io.temporal.workflow.WorkflowMethod;
 public interface CreateReceiverWorkflow {
 
     @WorkflowMethod
-    String processCreateReceiver(CreateReceiverRequest request);
+    String processCreateReceiver(String customerId, CreateReceiverRequest request);
 
 }

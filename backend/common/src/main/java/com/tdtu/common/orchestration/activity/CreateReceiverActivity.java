@@ -1,6 +1,5 @@
 package com.tdtu.common.orchestration.activity;
 
-import com.tdtu.common.user_service.ReceiverInfResponse;
 import com.tdtu.common.user_service.dto.CreateReceiverRequest;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
@@ -9,7 +8,7 @@ import io.temporal.activity.ActivityMethod;
 public interface CreateReceiverActivity {
 
     @ActivityMethod
-    ReceiverInfResponse createReceiver(CreateReceiverRequest createReceiverRequest);
+    String createReceiver(String customerId, CreateReceiverRequest createReceiverRequest);
 
     @ActivityMethod
     boolean rollbackCreateReceiver(String receiverId);

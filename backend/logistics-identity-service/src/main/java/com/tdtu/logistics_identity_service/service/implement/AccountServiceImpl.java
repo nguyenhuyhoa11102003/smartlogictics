@@ -50,10 +50,6 @@ public class AccountServiceImpl implements AccountService {
 
     WorkflowClient workflowClient;
 
-    @NonFinal
-    @Value("${temporal.host}")
-    String target;
-
     @Transactional
     @Override
     public String createAccount(CustomerRegisterAccountRequest request) {

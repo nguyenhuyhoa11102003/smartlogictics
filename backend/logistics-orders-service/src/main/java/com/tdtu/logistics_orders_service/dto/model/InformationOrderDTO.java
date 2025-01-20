@@ -38,16 +38,18 @@ public class InformationOrderDTO {
 
     private String receiverDistrictName; // Tên quận/huyện của người nhận
 
-    private String receiverCommuneCode; // Mã xã/phường của người nhận
+    private String receiverWard; // Mã xã/phường của người nhận
 
-    private String receiverCommuneName; // Tên xã/phường của người nhận
+    private String receiverWardCode; // Tên xã/phường của người nhận
+
+    private String receiverStreet; // Đường của người nhận
+
+    private String receiverPostalCode; // Mã bưu chính của người nhận
 
     private String receiverEmail; // Email của người nhận (có thể null)
 
     @DecimalMin(value = "0.0", inclusive = true, message = "Tiền thu hộ không được nhỏ hơn 0.0")
     private BigDecimal codAmount; // Tiền thu hộ
-
-    private String receiverPostalCode; // Mã bưu chính của người nhận
 
     // Dịch vụ và yêu cầu bổ sung
     private ShippingMethod shippingMethod; // Mã dịch vụ giao hàng

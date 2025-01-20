@@ -76,6 +76,31 @@ public class ReceiverServiceImpl implements ReceiverService {
     }
 
     @Override
+    public String createReceiver(String customerId, CreateReceiverRequest createReceiverRequest) {
+
+        Receiver receiver = receiverMapper.toReceiver(createReceiverRequest);
+
+        receiver.setCustomer(customerRepository.findById(customerId).orElseThrow(() ->
+             new AppException(ErrorCode.CUSTOMER_NOT_EXISTED)
+        ));
+
+        Address address = Address.builder()
+                .province(createReceiverRequest.getProvince())
+                .district(createReceiverRequest.getDistrict())
+                .ward(createReceiverRequest.getWard())
+                .street(createReceiverRequest.getStreet())
+                .postalCode(createReceiverRequest.getPostalCode())
+                .build();
+
+        addressRepository.save(address);
+        receiver.setAddress(address);
+
+        log.info("GRPC Workflow: Logistics-Users-Service -> Receiver-Service -> Create-Receiver: Create receiver with customer id: {}", customerId);
+
+        return receiver.getId();
+    }
+
+    @Override
     public ReceiverDetailDTO getReceiverById(String id) {
         log.info("Logistics-Users-Service -> Receiver-Service -> Get-Receiver-By-ID: Get receiver by id: {}", id);
 
