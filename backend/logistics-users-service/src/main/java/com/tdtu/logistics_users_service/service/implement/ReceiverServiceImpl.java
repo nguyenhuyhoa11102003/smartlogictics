@@ -75,6 +75,7 @@ public class ReceiverServiceImpl implements ReceiverService {
 
     }
 
+    @Transactional
     @Override
     public String createReceiver(String customerId, CreateReceiverRequest createReceiverRequest) {
 
@@ -95,6 +96,7 @@ public class ReceiverServiceImpl implements ReceiverService {
         addressRepository.save(address);
         receiver.setAddress(address);
 
+        receiverRepository.save(receiver);
         log.info("GRPC Workflow: Logistics-Users-Service -> Receiver-Service -> Create-Receiver: Create receiver with customer id: {}", customerId);
 
         return receiver.getId();
@@ -154,6 +156,7 @@ public class ReceiverServiceImpl implements ReceiverService {
         return receiverRepository.searchByCustomerIdDto(customerId, pageable);
     }
 
+    @Transactional
     @Override
     public void deleteReceiver(String id) {
 

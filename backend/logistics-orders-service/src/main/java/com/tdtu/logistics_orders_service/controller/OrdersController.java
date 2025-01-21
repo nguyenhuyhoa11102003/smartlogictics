@@ -40,6 +40,18 @@ public class OrdersController {
 				.build();
 	}
 
+	@PostMapping(value = "/create-multiple",
+			consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ApiResponse<Void> createMultipleOrders(@RequestBody @Valid List<CreateOrderRequest> requestList) {
+		ordersService.createMultipleOrders(requestList);
+
+		return ApiResponse.<Void>builder()
+				.code(HttpStatus.CREATED.value())
+				.message("Create multiple orders successfully")
+				.build();
+	}
+
 	@PutMapping(value = "/{branchCode}/update-status/{orderId}",
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ApiResponse<OrderInfResponse> updateOrderStatus(

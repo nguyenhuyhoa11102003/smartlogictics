@@ -1,6 +1,5 @@
 package com.tdtu.logistics_orders_service.service;
 
-import com.tdtu.common.user_service.dto.ShipperInfResponse;
 import com.tdtu.logistics_orders_service.dto.request.CreateOrderRequest;
 import com.tdtu.logistics_orders_service.dto.request.DeliveryRequest;
 import com.tdtu.logistics_orders_service.dto.request.PickupRequest;
@@ -14,6 +13,8 @@ public interface OrdersService {
 
 
 	OrderInfResponse createOrder(CreateOrderRequest requestDTO);
+
+	void createMultipleOrders(List<CreateOrderRequest> requestList);
 
 	boolean updateOrderStatus(String branchCode, String orderId, OrderStatus orderStatus);
 

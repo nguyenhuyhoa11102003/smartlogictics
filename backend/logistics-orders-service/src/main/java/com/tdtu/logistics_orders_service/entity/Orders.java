@@ -7,6 +7,7 @@ import com.tdtu.logistics_orders_service.enumrator.ReceivingMethod;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.annotation.LastModifiedBy;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -123,4 +124,7 @@ public class Orders extends BaseEntity {
 	// private LocalDateTime deliveredDate;  // Thời gian giao hàng
 	// private String deliveryStatus;  // Trạng thái giao hàng (DELIVERED, FAILED)
 	// private String deliveryRemarks;  // Ghi chú giao hàng
+
+	@LastModifiedBy
+	String createBy;
 }

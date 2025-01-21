@@ -25,6 +25,8 @@ public interface OrdersRepository extends PagingAndSortingRepository<Orders, Str
 
 	Optional<Orders> findById(String orderId);
 
+	void saveAll(Iterable<Orders> entities);
+
 	// Query mới để tìm đơn hàng theo senderId và status
 	@Query("SELECT o FROM Orders o WHERE o.senderId = :senderId AND o.status = :status")
 	List<Orders> findBySenderIdAndStatus(String senderId, OrderStatus status);

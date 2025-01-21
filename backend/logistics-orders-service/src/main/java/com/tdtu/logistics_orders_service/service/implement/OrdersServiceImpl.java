@@ -45,6 +45,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,8 +82,6 @@ public class OrdersServiceImpl implements OrdersService {
 			// Lấy thông tin từ claims của JWT
 			Jwt jwt = (Jwt) authentication.getPrincipal();
 			customerId = (String) jwt.getClaims().get("customerId"); // Lấy userId từ claims
-
-			log.info("Aloooo debug o day: Logistic-Order-Service: Order-Service: Method-Create-order: Customer id: {}", customerId);
 		}
 
 		ShippingMetadata shippingMetadata = toShippingMetadata(requestDTO);
@@ -114,7 +113,41 @@ public class OrdersServiceImpl implements OrdersService {
 
 			throw new AppException(ErrorCode.CREATE_ORDER_FAILED);
 		}
+	}
 
+	@Override
+	@Transactional
+	public void createMultipleOrders(List<CreateOrderRequest> requestList) {
+		// Lấy thông tin người dùng từ SecurityContext
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String customerId = null;
+
+		if (authentication != null && authentication.isAuthenticated()) {
+			Jwt jwt = (Jwt) authentication.getPrincipal();
+			customerId = (String) jwt.getClaims().get("customerId");
+		}
+
+		List<Orders> ordersToSave = new ArrayList<>();
+
+		for (CreateOrderRequest requestDTO : requestList) {
+			ShippingMetadata shippingMetadata = toShippingMetadata(requestDTO);
+			shippingMetadataRepository.save(shippingMetadata);
+
+			PaymentMetadata paymentMetadata = toPaymentMetadata(requestDTO);
+			paymentMetadataRepository.save(paymentMetadata);
+
+			String receiverId = createReceiver(customerId, requestDTO);
+			Orders orderEntity = toOrder(customerId, requestDTO, shippingMetadata, paymentMetadata, receiverId);
+
+			if (receiverId != null) {
+				ordersToSave.add(orderEntity);
+			} else {
+				throw new AppException(ErrorCode.CREATE_ORDER_FAILED);
+			}
+		}
+
+		// Save all orders in a batch
+		ordersRepository.saveAll(ordersToSave);
 	}
 
 	private String createReceiver(String customerId, CreateOrderRequest requestDTO) {
