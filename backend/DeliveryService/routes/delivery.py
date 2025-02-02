@@ -28,7 +28,7 @@ async def estimate(request: PredictionRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/routes")
+@router.get("/routes" )
 async def get_routes(
         origin: str,
         destination: str,
@@ -57,10 +57,15 @@ async def get_routes(
         # Check if the response was successful
         if response.status_code == 200:
             data = response.json()
-            return data
+            return ApiResponse(
+                isSuccess=True,
+                message="Route data fetched successfully",
+                data=data,
+                result=data["routes"]
+            )            
         else:
             return ApiResponse(
-                success=False,
+                isSuccess=False,
                 message=f"Failed to fetch route data: {response.text}",
                 data=None
             )

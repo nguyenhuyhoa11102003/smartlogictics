@@ -25,6 +25,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ShipmentController {
+
 	ShipmentService shipmentService;
 
 	@PostMapping("/create")

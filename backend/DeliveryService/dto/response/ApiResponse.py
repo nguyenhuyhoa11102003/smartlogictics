@@ -10,7 +10,7 @@ T = TypeVar('T')
 
 class ApiResponse(BaseModel, Generic[T]):
     code: int = 200
-    success: bool = True
-    result: Optional[CoordinatesResponse] = None
+    isSuccess: bool = True
+    result: Optional[T]
     message: str
-    timestamp: date
+    timestamp: date=date.today()

@@ -18,7 +18,8 @@ public class WarehouseInfResponse {
 	String phoneNumber;
 	double capacity;
 	String status;
-	AddressInfResponse address;
+	AddressInfResponse addressDetail;
+	String address;
 	LocalDateTime createdAt;
 	LocalDateTime updatedAt;
 }

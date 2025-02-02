@@ -34,13 +34,13 @@ public class ShipmentSegment extends AbstractMappedEntity implements java.io.Ser
 	@Column(name = "to_warehouse_id", nullable = false)
 	Long toWarehouseId;
 
-	@Column(name = "start_time", nullable = false)
+	@Column(name = "departure_time", nullable = false)
 	LocalDateTime departureTime;
 
-	@Column(name = "end_time", nullable = false)
+	@Column(name = "arrival_time", nullable = false)
 	LocalDateTime arrivalTime;
 
-	@Column(name = "planned_stopover_duration", nullable = false)
+	@Column(name = "stopover_time", nullable = false)
 	float stopoverDuration;
 
 	@Enumerated(EnumType.STRING)
@@ -55,12 +55,15 @@ public class ShipmentSegment extends AbstractMappedEntity implements java.io.Ser
 	@Column(name = "notes", columnDefinition = "TEXT")
 	String notes;
 
-	@Column(name = "summary_duration")
+	@Column(name = "summary_duration", nullable = false)
 	float summaryDuration;
 
-	@Column(name = "summary_length")
+	@Column(name = "summary_length", nullable = false)
 	float summaryLength;
 
-	@Column(name = "summary_base_duration")
+	@Column(name = "summary_base_duration", nullable = false)
 	float summaryBaseDuration;
+
+	@Column(name = "isHoliday", nullable = false)
+	boolean isHoliday = Boolean.FALSE;
 }

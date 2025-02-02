@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -21,7 +22,7 @@ public class CreateShipmentRequest {
 	Long fromWarehouseId;
 	Long toWarehouseId;
 	ShipmentStatus shipmentStatus;
-	String departureTime;
+	LocalDateTime departureTime;
 	List<String> orders;
 	List<CreateShipmentSegmentRequest> shipmentSegmentRequests;
 }

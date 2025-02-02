@@ -32,7 +32,6 @@ public class OrdersController {
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ApiResponse<OrderInfResponse> createOrder(@RequestBody @Valid CreateOrderRequest requestDTO) {
-
 		return ApiResponse.<OrderInfResponse>builder()
 				.code(HttpStatus.CREATED.value())
 				.message("Create sender successfully")

@@ -40,7 +40,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Transactional
 public class ShipmentServiceImpl implements ShipmentService {
-
 	ShipmentRepository shipmentRepository;
 	OrderServiceFeignClient orderServiceFeignClient;
 	WarehouseServiceFeignClient warehouseServiceFeignClient;
@@ -50,7 +49,6 @@ public class ShipmentServiceImpl implements ShipmentService {
 	public void addOrdersToShipment(Long shipmentId, List<String> orderIds) {
 		Shipment shipmentEntity = shipmentRepository
 				.findById(shipmentId).orElseThrow(() -> new RuntimeException("Shipment not found"));
-
 		for (String orderId : orderIds) {
 			ApiResponse<OrderInfResponse> orderResponse = orderServiceFeignClient.getOrderById(orderId);
 			if (orderResponse != null && orderResponse.getResult() != null) {
@@ -62,80 +60,44 @@ public class ShipmentServiceImpl implements ShipmentService {
 		shipmentRepository.save(shipmentEntity);
 	}
 
+//	@Transactional
 	@Override
 	public ShipmentInfResponse createShipment(CreateShipmentRequest requestDTO) {
-
 		List<CreateShipmentSegmentRequest> createShipmentSegmentRequests = requestDTO.getShipmentSegmentRequests();
+		// Create shipment entity
+		Shipment shipment = createShipmentEntity(requestDTO);
+		log.info(" {}: func:{}", "ShipmentServiceImpl", "createShipment");
 
-
-		List<Long> intermediateWarehouseIds = requestDTO.getShipmentSegmentRequests().stream()
-				.map(CreateShipmentSegmentRequest::getDestinationWarehouseId)
-				.toList();
-
-		Shipment shipment = Shipment.builder()
-				.trackingNumber(requestDTO.getTrackingNumber())
-				.shipper(requestDTO.getShipper())
-				.shipmentMethod(requestDTO.getShipmentMethod())
-				.fromWarehouseId(requestDTO.getFromWarehouseId())
-				.intermediateWarehouseIds(intermediateWarehouseIds)
-				.toWarehouseId(requestDTO.getToWarehouseId())
-				.shipmentStatus(requestDTO.getShipmentStatus())
-				.build();
-		try {
-			shipment.setDepartureTime(ZonedDateTime.parse(requestDTO.getDepartureTime()).toLocalDateTime());
-		} catch (DateTimeParseException e) {
-			throw new RuntimeException("Invalid date format in request", e);
-		}
-		shipment.setOrders(requestDTO.getOrders());
-		shipment.setShipmentSegments(new ArrayList<>());
-		// shipmentRepository.save(shipment);
-
+		// logic for creating shipment segments
 		List<Long> warehouseIds = new ArrayList<>();
-		warehouseIds.add(requestDTO.getFromWarehouseId());
-		warehouseIds.addAll(intermediateWarehouseIds);
-		warehouseIds.add(requestDTO.getToWarehouseId());
+		warehouseIds.add(requestDTO.getFromWarehouseId());  // diem dau
+		warehouseIds.addAll(shipment.getIntermediateWarehouseIds()); // diem giua
+		warehouseIds.add(requestDTO.getToWarehouseId()); // diem cuoi
 
-		// Validate shipment segments
-		if (createShipmentSegmentRequests.size() != warehouseIds.size() - 1) {
-			throw new RuntimeException("Size of shipment segments and warehouseIds do not match");
-		}
+		//  Call warehouse service to get warehouse information
 		ApiResponse<List<WarehouseInfResponse>> response = warehouseServiceFeignClient
 				.getWarehousesByIds(warehouseIds);
-
 		if (!response.isSuccess()) {
 			throw new RuntimeException("Error when calling warehouse service");
-		} else if (response.getResult().size() != warehouseIds.size()) {
-			throw new RuntimeException("Size of warehouseIds and warehouseInfResponses do not match");
 		}
 
+		//  Create shipment segments
 		List<WarehouseInfResponse> warehouseInfResponses = response.getResult();
 		LocalDateTime startTime = shipment.getDepartureTime();
-		LocalDateTime arrivalTime = shipment.getArrivalTime();
-
+		LocalDateTime arrivalTime = null;
 		for (int i = 0; i < createShipmentSegmentRequests.size(); i++) {
 			WarehouseInfResponse fromWarehouse = warehouseInfResponses.get(i);
 			WarehouseInfResponse toWarehouse = warehouseInfResponses.get(i + 1);
-
 			CreateShipmentSegmentRequest segmentRequest = createShipmentSegmentRequests.get(i);
 
-			ApiResponse<List<Route>> route = deliveryServiceFeignClient.getRoutes(
-					fromWarehouse.getAddress().getLatitude() + "," + fromWarehouse.getAddress().getLongitude(),
-					toWarehouse.getAddress().getLatitude() + "," + toWarehouse.getAddress().getLongitude(),
-					"summary",
-					"car");
-
-			if (!route.isSuccess()) {
-				throw new RuntimeException("Error when calling delivery service");
-			}
-			if (route.getResult().size() != 1) {
-				throw new RuntimeException("ShipmentService: Sorry I can't handle multiple routes for now");
-			}
-
+			// Get route
+			ApiResponse<List<Route>> route = getRoutes(fromWarehouse, toWarehouse);
 			float summaryDuration = route.getResult().get(0).getSections().get(0).getSummary().getDuration();
 			float summaryLength = route.getResult().get(0).getSections().get(0).getSummary().getLength();
 			float summaryBaseDuration = route.getResult().get(0).getSections().get(0).getSummary().getBaseDuration();
-			LocalDateTime endTime = startTime.plusSeconds((long) summaryDuration);
 
+			// Create shipment segment
+			LocalDateTime endTime = startTime.plusSeconds((long) summaryDuration);
 			ShipmentSegment shipmentSegment = ShipmentSegment.builder()
 					.shipment(shipment)
 					.fromWarehouseId(fromWarehouse.getId())
@@ -151,14 +113,54 @@ public class ShipmentServiceImpl implements ShipmentService {
 					.summaryBaseDuration(summaryBaseDuration)
 					.stopoverDuration(segmentRequest.getStopoverDuration())
 					.build();
+			shipment.getShipmentSegments().add(shipmentSegment);
 			startTime = endTime.plusMinutes((long) segmentRequest.getStopoverDuration());
 			arrivalTime = startTime;
-
-			shipment.getShipmentSegments().add(shipmentSegment);
 		}
 		shipment.setArrivalTime(arrivalTime);
-		Shipment createdShipment = this.shipmentRepository.saveAndFlush(shipment);
-		return getShipmentById(createdShipment.getId());
+		shipment.setCreateAt(ZonedDateTime.now().toInstant());
+		shipment.setUpdateAt(ZonedDateTime.now().toInstant());
+		Shipment savedShipment = shipmentRepository.save(shipment);
+		return getShipmentById(savedShipment.getId());
+	}
+
+	private Shipment createShipmentEntity(CreateShipmentRequest requestDTO) {
+		String message = "Create shipment entity successfully";
+		List<Long> intermediateWarehouseIds = requestDTO
+				.getShipmentSegmentRequests()
+				.stream()
+				.map(CreateShipmentSegmentRequest::getDestinationWarehouseId)
+				.toList();
+		Shipment shipment = Shipment.builder()
+				.trackingNumber(requestDTO.getTrackingNumber())
+				.shipper(requestDTO.getShipper())
+				.shipmentMethod(requestDTO.getShipmentMethod())
+				.fromWarehouseId(requestDTO.getFromWarehouseId())
+				.intermediateWarehouseIds(intermediateWarehouseIds)
+				.toWarehouseId(requestDTO.getToWarehouseId())
+				.shipmentStatus(requestDTO.getShipmentStatus())
+				.departureTime(requestDTO.getDepartureTime())
+				.orders(requestDTO.getOrders())
+				.shipmentSegments(new ArrayList<>())
+				.shipmentStatus(ShipmentStatus.PENDING)
+				.build();
+		log.info("{}: func:{}  , message:{}", "ShipmentServiceImpl", "createShipmentEntity", message);
+		return shipment;
+	}
+
+	private ApiResponse<List<Route>> getRoutes(
+			WarehouseInfResponse fromWarehouse,
+			WarehouseInfResponse toWarehouse) {
+		// call api for new route segment
+		ApiResponse<List<Route>> route = deliveryServiceFeignClient.getRoutes(
+				fromWarehouse.getAddressDetail().getLatitude() + "," + fromWarehouse.getAddressDetail().getLongitude(),
+				toWarehouse.getAddressDetail().getLatitude() + "," + toWarehouse.getAddressDetail().getLongitude(),
+				"summary",
+				"car");
+		if (!route.isSuccess()) {
+			throw new RuntimeException("Error when calling delivery service");
+		}
+		return route;
 	}
 
 	@Override

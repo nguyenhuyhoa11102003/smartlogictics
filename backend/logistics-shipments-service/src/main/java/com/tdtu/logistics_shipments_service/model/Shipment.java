@@ -46,7 +46,7 @@ public class Shipment extends AbstractMappedEntity implements java.io.Serializab
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "shipment_status", nullable = false)
-	ShipmentStatus shipmentStatus;
+	ShipmentStatus shipmentStatus =  ShipmentStatus.PENDING;
 
 	@Column(name = "departure_time", nullable = false)
 	LocalDateTime departureTime;
