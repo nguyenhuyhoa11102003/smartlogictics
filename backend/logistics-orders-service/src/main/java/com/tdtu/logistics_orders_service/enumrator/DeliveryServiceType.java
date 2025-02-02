@@ -1,7 +1,7 @@
 package com.tdtu.logistics_orders_service.enumrator;
 
 public enum DeliveryServiceType {
-    ECONOMY("TMĐT Tiết Kiệm", 5000),
+    ECONOMY("TMĐT Tiết Kiệm", 50000),
     EXPRESS("TMĐT Nhanh", 10000),
     URGENT_SCHEDULED("Hỏa tốc, hẹn giờ", 100000);
 

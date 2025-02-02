@@ -22,7 +22,6 @@ import java.util.List;
 @Entity
 @Table(name = "orders")
 public class Orders extends BaseEntity {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	String id; // UUID của đơn hàng
@@ -98,10 +97,10 @@ public class Orders extends BaseEntity {
 	@Column(name = "delivery_shipper_id")
 	String deliveryShipperId; // Shipper giao hàng
 
-// Chuyen collunm nay sang payment_metadata roi nha fen:
-// Sang entity payment_metadata la co
-//	@Column(name = "totalAmount")
-//	BigDecimal totalAmount; // Tổng giá trị đơn hàng
+	// Chuyen collunm nay sang payment_metadata roi nha fen:
+	// Sang entity payment_metadata la co
+	//	@Column(name = "totalAmount")
+	//	BigDecimal totalAmount; // Tổng giá trị đơn hàng
 
 	@ElementCollection
 	@Enumerated(EnumType.STRING)

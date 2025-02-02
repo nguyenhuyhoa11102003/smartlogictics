@@ -18,31 +18,35 @@ import java.time.LocalDateTime;
 @Table(name = "shipping_metadata")
 public class ShippingMetadata {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id; // UUID của dịch vụ vận chuyển
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	Long id; // UUID của dịch vụ vận chuyển
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "shipping_method")
-    ShippingMethod shippingMethod; // Phương thức vận chuyển
+	@Enumerated(EnumType.STRING)
+	@Column(name = "shipping_method")
+	ShippingMethod shippingMethod; // Phương thức vận chuyển
 
-    // Chuyen sang day roi nha'
-    @Column(name = "delivered_pickup_date")
-    LocalDateTime deliveredDate;  // Ngày pickup
+	// Chuyen sang day roi nha'
+	@Column(name = "delivered_pickup_date")
+	LocalDateTime deliveredDate;  // Ngày pickup
 
-    @Column(name = "delivery_status")
-    String deliveryStatus;  // Trạng thái giao hàng (DELIVERED, FAILED)
+	@Column(name = "delivery_status")
+	String deliveryStatus;  // Trạng thái giao hàng (DELIVERED, FAILED)
 
-    @Column(name = "delivery_remarks")
-    String deliveryRemarks;  // Ghi chú giao hàng
-    // Chuyen sang day roi nha'
+	@Column(name = "delivery_remarks")
+	String deliveryRemarks;  // Ghi chú giao hàng
+	// Chuyen sang day roi nha'
 
-    @Column(name = "delivery_estimate_time")
-    LocalDateTime deliveryEstimateTime; // Thời gian giao hàng du kien
+	@Column(name = "delivery_estimate_time")
+	LocalDateTime deliveryEstimateTime; // Thời gian giao hàng du kien
 
-    @Column(name = "desired_delivery_time")
-    LocalDateTime desiredDeliveryTime; // Thời gian giao hàng mong muốn của khách hàng
+	@Column(name = "desired_delivery_time")
+	LocalDateTime desiredDeliveryTime; // Thời gian giao hàng mong muốn của khách hàng
 
-    @Column(name = "delivery_id")
-    String deliveryId; // Liên kết đến thông tin giao hàng
+	@Column(name = "delivery_id")
+	String deliveryId; // Liên kết đến thông tin giao hàng
+
+	@Column(name = "shipment_id")
+	Long shipmentId;
+
 }

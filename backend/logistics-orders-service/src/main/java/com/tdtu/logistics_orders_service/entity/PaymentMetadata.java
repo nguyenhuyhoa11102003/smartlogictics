@@ -1,5 +1,6 @@
 package com.tdtu.logistics_orders_service.entity;
 
+import com.tdtu.logistics_orders_service.enumrator.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -39,4 +40,8 @@ public class PaymentMetadata {
 
     @Column(name = "payment_code")
     String paymentCode; // Lien ket voi Payment-Service
+
+    @Column(name = "payment_status")
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus = PaymentStatus.UNPAID; // Trạng thái thanh toán
 }
