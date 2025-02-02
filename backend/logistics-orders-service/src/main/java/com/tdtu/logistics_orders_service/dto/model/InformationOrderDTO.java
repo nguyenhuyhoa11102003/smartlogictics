@@ -3,7 +3,9 @@ package com.tdtu.logistics_orders_service.dto.model;
 import com.tdtu.common.orders_service.enums.AddOnService;
 import com.tdtu.common.orders_service.enums.ShippingMethod;
 import com.tdtu.logistics_orders_service.enumrator.DeliveryServiceType;
+import com.tdtu.logistics_orders_service.enumrator.PaymentType;
 import com.tdtu.logistics_orders_service.enumrator.ReceivingMethod;
+import com.tdtu.logistics_orders_service.enumrator.ShippingZone;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -65,6 +67,7 @@ public class InformationOrderDTO {
 
     // Thông tin vận chuyển
     private DeliveryServiceType serviceCode; // Mã dịch vụ vận chuyển   (VD: NHANH - HOA TOC - CHUYEN PHAT)
+    private ShippingZone shippingZone; // Khu vực vận chuyển (VD: NOI_TINH - CAN_TINH - LIEN_TINH)
 
     private String vehicle; // Loại phương tiện vận chuyển (VD: BO - Bộ, BI - Bưu điện)
 
@@ -104,4 +107,6 @@ public class InformationOrderDTO {
 
     // Thông tin khác: chua phat trien duoc goods-service => de tam data o day:
     private String saleOrderCode; // Mã đơn hàng bán goodId
+
+    PaymentType paymentType; // Loại thanh toán (PREPAID, POSTPAID)
 }

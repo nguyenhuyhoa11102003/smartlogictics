@@ -28,6 +28,7 @@ public class ShipmentController {
 
 	ShipmentService shipmentService;
 
+	// Post: Api to create a shipment
 	@PostMapping("/create")
 	public ApiResponse<ShipmentInfResponse> createShipment(@RequestBody CreateShipmentRequest request) {
 		ShipmentInfResponse response = shipmentService.createShipment(request);
@@ -38,6 +39,7 @@ public class ShipmentController {
 				.build();
 	}
 
+	// Post: Api to add orders to shipment
 	@PostMapping("/add-orders")
 	public ApiResponse<?> addOrdersToShipment(@RequestBody AddOrdersToShipmentRequest request) {
 		shipmentService.addOrdersToShipment(request.getShipmentId(), request.getOrderIds());

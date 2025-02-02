@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "shipping_metadata")
 public class ShippingMetadata {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long id; // UUID của dịch vụ vận chuyển
@@ -48,5 +47,4 @@ public class ShippingMetadata {
 
 	@Column(name = "shipment_id")
 	Long shipmentId;
-
 }
