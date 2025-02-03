@@ -1,4 +1,4 @@
-package com.tdtu.logistics_shipments_service.dto.response;
+package com.tdtu.logistics_orders_service.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @Data
 @AllArgsConstructor
-@NoArgsConstructor 
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ShipmentInfResponse {
 	Long id;
@@ -20,7 +20,8 @@ public class ShipmentInfResponse {
 	Long fromWarehouseId;
 	Long toWarehouseId;
 	List<Long> intermediateWarehouseIds;
-  	String departureTime;
+	String shipmentStartDate;
+	String departureTime;
 	String arrivalTime;
 	List<String> orders;
 	List<ShipmentSegmentInfResponse> shipmentSegments;
@@ -28,3 +29,4 @@ public class ShipmentInfResponse {
 	String updateAt;
 
 }
+

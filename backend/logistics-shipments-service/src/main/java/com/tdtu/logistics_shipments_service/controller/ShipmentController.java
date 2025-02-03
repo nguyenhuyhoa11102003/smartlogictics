@@ -54,7 +54,7 @@ public class ShipmentController {
 				.build();
 	}
 
-	@GetMapping("/{shipmentId}")
+	@GetMapping("/detail/{shipmentId}")
 	public ApiResponse<ShipmentInfResponse> getShipment(@PathVariable Long shipmentId) {
 		ShipmentInfResponse shipment = shipmentService.getShipmentById(shipmentId);
 		return ApiResponse.<ShipmentInfResponse>builder()

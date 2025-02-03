@@ -45,10 +45,17 @@ public class ShipmentServiceImpl implements ShipmentService {
 	WarehouseServiceFeignClient warehouseServiceFeignClient;
 	DeliveryServiceFeignClient deliveryServiceFeignClient;
 
+	// Add orders to shipment
 	@Override
 	public void addOrdersToShipment(Long shipmentId, List<String> orderIds) {
-		Shipment shipmentEntity = shipmentRepository
-				.findById(shipmentId).orElseThrow(() -> new RuntimeException("Shipment not found"));
+		if (orderIds == null || orderIds.isEmpty()) {
+			throw new RuntimeException("Danh sách đơn hàng trống");
+		}
+		if (shipmentId == null) {
+			throw new RuntimeException("ID lô hàng không được để trống");
+		}
+		Shipment shipmentEntity = getShipmentEntityById(shipmentId);
+		// Get info of orders
 		for (String orderId : orderIds) {
 			ApiResponse<OrderInfResponse> orderResponse = orderServiceFeignClient.getOrderById(orderId);
 			if (orderResponse != null && orderResponse.getResult() != null) {
@@ -60,7 +67,8 @@ public class ShipmentServiceImpl implements ShipmentService {
 		shipmentRepository.save(shipmentEntity);
 	}
 
-//	@Transactional
+	// Create shipment
+	@Transactional
 	@Override
 	public ShipmentInfResponse createShipment(CreateShipmentRequest requestDTO) {
 		List<CreateShipmentSegmentRequest> createShipmentSegmentRequests = requestDTO.getShipmentSegmentRequests();
@@ -75,8 +83,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 		warehouseIds.add(requestDTO.getToWarehouseId()); // diem cuoi
 
 		//  Call warehouse service to get warehouse information
-		ApiResponse<List<WarehouseInfResponse>> response = warehouseServiceFeignClient
-				.getWarehousesByIds(warehouseIds);
+		ApiResponse<List<WarehouseInfResponse>> response = warehouseServiceFeignClient.getWarehousesByIds(warehouseIds);
 		if (!response.isSuccess()) {
 			throw new RuntimeException("Error when calling warehouse service");
 		}
@@ -98,21 +105,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 
 			// Create shipment segment
 			LocalDateTime endTime = startTime.plusSeconds((long) summaryDuration);
-			ShipmentSegment shipmentSegment = ShipmentSegment.builder()
-					.shipment(shipment)
-					.fromWarehouseId(fromWarehouse.getId())
-					.toWarehouseId(toWarehouse.getId())
-					.departureTime(startTime)
-					.arrivalTime(endTime)
-					.weatherCondition(segmentRequest.getWeatherCondition())
-					.trafficCondition(segmentRequest.getTrafficCondition())
-					.segmentStatus(segmentRequest.getSegmentStatus())
-					.notes(segmentRequest.getNotes())
-					.summaryDuration(summaryDuration)
-					.summaryLength(summaryLength)
-					.summaryBaseDuration(summaryBaseDuration)
-					.stopoverDuration(segmentRequest.getStopoverDuration())
-					.build();
+			ShipmentSegment shipmentSegment = ShipmentSegment.builder().shipment(shipment).fromWarehouseId(fromWarehouse.getId()).toWarehouseId(toWarehouse.getId()).departureTime(startTime).arrivalTime(endTime).weatherCondition(segmentRequest.getWeatherCondition()).trafficCondition(segmentRequest.getTrafficCondition()).segmentStatus(segmentRequest.getSegmentStatus()).notes(segmentRequest.getNotes()).summaryDuration(summaryDuration).summaryLength(summaryLength).summaryBaseDuration(summaryBaseDuration).stopoverDuration(segmentRequest.getStopoverDuration()).build();
 			shipment.getShipmentSegments().add(shipmentSegment);
 			startTime = endTime.plusMinutes((long) segmentRequest.getStopoverDuration());
 			arrivalTime = startTime;
@@ -124,13 +117,10 @@ public class ShipmentServiceImpl implements ShipmentService {
 		return getShipmentById(savedShipment.getId());
 	}
 
+	// Create shipment entity
 	private Shipment createShipmentEntity(CreateShipmentRequest requestDTO) {
 		String message = "Create shipment entity successfully";
-		List<Long> intermediateWarehouseIds = requestDTO
-				.getShipmentSegmentRequests()
-				.stream()
-				.map(CreateShipmentSegmentRequest::getDestinationWarehouseId)
-				.toList();
+		List<Long> intermediateWarehouseIds = requestDTO.getShipmentSegmentRequests().stream().map(CreateShipmentSegmentRequest::getDestinationWarehouseId).toList();
 		Shipment shipment = Shipment.builder()
 				.trackingNumber(requestDTO.getTrackingNumber())
 				.shipper(requestDTO.getShipper())
@@ -142,36 +132,30 @@ public class ShipmentServiceImpl implements ShipmentService {
 				.departureTime(requestDTO.getDepartureTime())
 				.orders(requestDTO.getOrders())
 				.shipmentSegments(new ArrayList<>())
-				.shipmentStatus(ShipmentStatus.PENDING)
-				.build();
+				.shipmentStatus(ShipmentStatus.PENDING).build();
 		log.info("{}: func:{}  , message:{}", "ShipmentServiceImpl", "createShipmentEntity", message);
 		return shipment;
 	}
 
-	private ApiResponse<List<Route>> getRoutes(
-			WarehouseInfResponse fromWarehouse,
-			WarehouseInfResponse toWarehouse) {
+	// Call delivery service to get route
+	private ApiResponse<List<Route>> getRoutes(WarehouseInfResponse fromWarehouse, WarehouseInfResponse toWarehouse) {
 		// call api for new route segment
-		ApiResponse<List<Route>> route = deliveryServiceFeignClient.getRoutes(
-				fromWarehouse.getAddressDetail().getLatitude() + "," + fromWarehouse.getAddressDetail().getLongitude(),
-				toWarehouse.getAddressDetail().getLatitude() + "," + toWarehouse.getAddressDetail().getLongitude(),
-				"summary",
-				"car");
+		ApiResponse<List<Route>> route = deliveryServiceFeignClient.getRoutes(fromWarehouse.getAddressDetail().getLatitude() + "," + fromWarehouse.getAddressDetail().getLongitude(), toWarehouse.getAddressDetail().getLatitude() + "," + toWarehouse.getAddressDetail().getLongitude(), "summary", "car");
 		if (!route.isSuccess()) {
 			throw new RuntimeException("Error when calling delivery service");
 		}
 		return route;
 	}
 
+
 	@Override
 	public ShipmentInfResponse getShipmentById(Long id) {
-		Shipment shipment = shipmentRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Shipment not found"));
+		Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Shipment not found"));
 		ShipmentInfResponse response = new ShipmentInfResponse();
 		response.setId(shipment.getId());
 		response.setTrackingNumber(shipment.getTrackingNumber());
 		response.setShipper(shipment.getShipper());
-		response.setShipmentMethod(shipment.getShipmentMethod());
+		response.setShipmentMethod(shipment.getShipmentMethod().toString());
 		response.setFromWarehouseId(shipment.getFromWarehouseId());
 		response.setToWarehouseId(shipment.getToWarehouseId());
 		response.setIntermediateWarehouseIds(shipment.getIntermediateWarehouseIds());
@@ -214,4 +198,11 @@ public class ShipmentServiceImpl implements ShipmentService {
 	public void updateActualDeliveryTime(Long id, ActualDeliveryTimeRequest actualDeliveryTime) {
 
 	}
+
+
+	// Get shipment entity by id
+	private Shipment getShipmentEntityById(Long id) {
+		return shipmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Shipment not found"));
+	}
+
 }

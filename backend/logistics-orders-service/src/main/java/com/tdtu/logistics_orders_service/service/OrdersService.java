@@ -27,4 +27,8 @@ public interface OrdersService {
 	OrderInfResponse assignShipperPickUp(String orderId, String shipperId, PickupRequest pickupRequest);
 
 	OrderInfResponse assignShipperDelivery(String orderId, String shipperId, DeliveryRequest pickupRequest);
+
+	void updateShippingMetaData(String orderId, String shipmentId);
+
+
 }

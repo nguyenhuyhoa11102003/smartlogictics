@@ -1,5 +1,6 @@
 package com.tdtu.logistics_orders_service.service.implement;
 
+import com.google.api.Http;
 import com.tdtu.common.constant.KafkaTopic;
 import com.tdtu.common.dto.MailUpdateOrderStatus;
 import com.tdtu.common.orchestration.workflow.CreateReceiverWorkflow;
@@ -12,8 +13,10 @@ import com.tdtu.logistics_orders_service.dto.model.ShippingRequestDTO;
 import com.tdtu.logistics_orders_service.dto.request.CreateOrderRequest;
 import com.tdtu.logistics_orders_service.dto.request.DeliveryRequest;
 import com.tdtu.logistics_orders_service.dto.request.PickupRequest;
+import com.tdtu.logistics_orders_service.dto.response.ApiResponse;
 import com.tdtu.logistics_orders_service.dto.response.OrderInfResponse;
 import com.tdtu.logistics_orders_service.dto.response.PaginatedResponse;
+import com.tdtu.logistics_orders_service.dto.response.ShipmentInfResponse;
 import com.tdtu.logistics_orders_service.entity.Orders;
 import com.tdtu.logistics_orders_service.entity.PaymentMetadata;
 import com.tdtu.logistics_orders_service.entity.ShippingMetadata;
@@ -28,6 +31,7 @@ import com.tdtu.logistics_orders_service.repository.OrdersRepository;
 import com.tdtu.logistics_orders_service.repository.PaymentMetadataRepository;
 import com.tdtu.logistics_orders_service.repository.ShippingMetadataRepository;
 import com.tdtu.logistics_orders_service.service.*;
+import com.tdtu.logistics_orders_service.service.client.ShipmentServiceClient;
 import com.tdtu.logistics_orders_service.service.client.UserServiceClient;
 import com.tdtu.logistics_orders_service.utils.OrderStatusValidator;
 import com.tdtu.logistics_orders_service.utils.SecurityContextCustomer;
@@ -65,6 +69,7 @@ public class OrdersServiceImpl implements OrdersService {
 	final OrderMapper orderMapper;
 
 	final UserServiceClient userServiceClient;
+	final ShipmentServiceClient shipmentServiceClient;
 
 	final ShippingMetadataRepository shippingMetadataRepository;
 
@@ -111,7 +116,12 @@ public class OrdersServiceImpl implements OrdersService {
 			// 		FIXME: 2025-01-20 : Notification service
 
 			log.info("Logistic-Order-Service: Order-Service: Method-Create-order: Receiver created");
-			return orderMapper.toOrderInfResponse(ordersRepository.save(orderEntity));
+
+			// order created
+			OrderInfResponse orderInfResponse = orderMapper.toOrderInfResponse(ordersRepository.save(orderEntity));
+			// assgin shipment ship for ShipmentMetadata
+			shipmentServiceClient.addOrdersToShipment(requestDTO.getInformationOrder().getShipmentId(), List.of(orderInfResponse.getId()));
+			return orderInfResponse;
 		} else {
 
 			throw new AppException(ErrorCode.CREATE_ORDER_FAILED);
@@ -155,22 +165,11 @@ public class OrdersServiceImpl implements OrdersService {
 
 	private String createReceiver(String customerId, CreateOrderRequest requestDTO) {
 		try {
-			WorkflowOptions options = WorkflowOptions.newBuilder()
-					.setTaskQueue(WorkerHelper.WORKFLOW_CREATE_ORDER_TASK_QUEUE)
-					.build();
+			WorkflowOptions options = WorkflowOptions.newBuilder().setTaskQueue(WorkerHelper.WORKFLOW_CREATE_ORDER_TASK_QUEUE).build();
 
 			log.info("Logistic-Order-Service: Order-Service: Method-Create-receiver: {}", requestDTO);
 
-			CreateReceiverRequest request = CreateReceiverRequest.builder()
-					.fullName(requestDTO.getInformationOrder().getRecipientName())
-					.phoneNumber(requestDTO.getInformationOrder().getReceiverPhone())
-					.email(requestDTO.getInformationOrder().getReceiverEmail())
-					.province(requestDTO.getInformationOrder().getReceiverProvinceName())
-					.district(requestDTO.getInformationOrder().getReceiverDistrictName())
-					.ward(requestDTO.getInformationOrder().getReceiverWard())
-					.postalCode(requestDTO.getInformationOrder().getReceiverPostalCode())
-					.street(requestDTO.getInformationOrder().getReceiverStreet())
-					.build();
+			CreateReceiverRequest request = CreateReceiverRequest.builder().fullName(requestDTO.getInformationOrder().getRecipientName()).phoneNumber(requestDTO.getInformationOrder().getReceiverPhone()).email(requestDTO.getInformationOrder().getReceiverEmail()).province(requestDTO.getInformationOrder().getReceiverProvinceName()).district(requestDTO.getInformationOrder().getReceiverDistrictName()).ward(requestDTO.getInformationOrder().getReceiverWard()).postalCode(requestDTO.getInformationOrder().getReceiverPostalCode()).street(requestDTO.getInformationOrder().getReceiverStreet()).build();
 
 			CreateReceiverWorkflow receiverWorkflow = workflowClient.newWorkflowStub(CreateReceiverWorkflow.class, options);
 
@@ -189,44 +188,29 @@ public class OrdersServiceImpl implements OrdersService {
 
 		log.info("Logistic-Order-Service: Order-Service: Method-Create-Order: Request: {}, User: {}, Timestamp: {}", requestDTO, customerId, LocalDateTime.now());
 
-		return Orders.builder()
-				.customerId(customerId)
+		return Orders.builder().customerId(customerId)
 
-				.status(requestDTO.getOrderCreationStatus())
-				.shipmentCode(requestDTO.getInformationOrder().getShipmentId())
-				.note(requestDTO.getInformationOrder().getContentNote())
-				.orderCode(requestDTO.getInformationOrder().getSaleOrderCode()) // check lai cho nay
+				.status(requestDTO.getOrderCreationStatus()).shipmentCode(requestDTO.getInformationOrder().getShipmentId()).note(requestDTO.getInformationOrder().getContentNote()).orderCode(requestDTO.getInformationOrder().getSaleOrderCode()) // check lai cho nay
 				.moreRequire(requestDTO.getInformationOrder().getMoreRequire())
 
-				.senderId(requestDTO.getInformationOrder().getSenderId())
-				.senderName(requestDTO.getInformationOrder().getSenderName())
+				.senderId(requestDTO.getInformationOrder().getSenderId()).senderName(requestDTO.getInformationOrder().getSenderName())
 
-				.recipientName(requestDTO.getInformationOrder().getRecipientName())
-				.recipientId(receiverId)
+				.recipientName(requestDTO.getInformationOrder().getRecipientName()).recipientId(receiverId)
 
-				.branchCode(requestDTO.getInformationOrder().getBranchCode())
-				.serviceCode(requestDTO.getInformationOrder().getServiceCode())
-				.receivingMethod(requestDTO.getInformationOrder().getReceivingMethod())
+				.branchCode(requestDTO.getInformationOrder().getBranchCode()).serviceCode(requestDTO.getInformationOrder().getServiceCode()).receivingMethod(requestDTO.getInformationOrder().getReceivingMethod())
 
-				.vehicle(requestDTO.getInformationOrder().getVehicle())
-				.isBroken(requestDTO.getInformationOrder().isBroken())
-				.deliveryRequire(requestDTO.getInformationOrder().getDeliveryRequire())
+				.vehicle(requestDTO.getInformationOrder().getVehicle()).isBroken(requestDTO.getInformationOrder().isBroken()).deliveryRequire(requestDTO.getInformationOrder().getDeliveryRequire())
 
 				.deliveryInstruction(requestDTO.getInformationOrder().getDeliveryInstruction())
 
-				.weight(requestDTO.getInformationOrder().getWeight())
-				.width(requestDTO.getInformationOrder().getWidth())
-				.length(requestDTO.getInformationOrder().getLength())
-				.height(requestDTO.getInformationOrder().getHeight())
+				.weight(requestDTO.getInformationOrder().getWeight()).width(requestDTO.getInformationOrder().getWidth()).length(requestDTO.getInformationOrder().getLength()).height(requestDTO.getInformationOrder().getHeight())
 
 				//				.pickupShipperId(requestDTO.getInformationOrder().getPickupShipperId())
 				//				.deliveryShipperId(requestDTO.getInformationOrder().getDeliveryShipperId())
 
-				.shippingMetadata(shippingMetadata)
-				.paymentMetadata(paymentMetadata)
+				.shippingMetadata(shippingMetadata).paymentMetadata(paymentMetadata)
 
-				.addOnServices(requestDTO.getInformationOrder().getAddOnServices())
-				.build();
+				.addOnServices(requestDTO.getInformationOrder().getAddOnServices()).build();
 	}
 
 	private PaymentMetadata toPaymentMetadata(CreateOrderRequest requestDTO) {
@@ -268,29 +252,23 @@ public class OrdersServiceImpl implements OrdersService {
 
 	private ShippingMetadata toShippingMetadata(CreateOrderRequest requestDTO) {
 		log.debug("Logistic-Order-Service: Order-Service: Method-To-shipping-metadata: {}", requestDTO);
-		return ShippingMetadata.builder()
-				.shippingMethod(requestDTO.getInformationOrder().getShippingMethod())
+		return ShippingMetadata.builder().shippingMethod(requestDTO.getInformationOrder().getShippingMethod())
 				// Khong handle o day
-				// Tao method tinh di roi ghi vao day nha m goi sang service ben kia
 				//.deliveredDate(requestDTO.getInformationOrder().getDeliveryTime())
 				//.deliveryStatus(requestDTO.getInformationOrder().getDeliveryStatus())
 				//.deliveryEstimateTime(requestDTO.getInformationOrder().getDeliveryTime())
 				//.desiredDeliveryTime(requestDTO.getInformationOrder().getDeliveryTime())
-				.deliveryRemarks(requestDTO.getInformationOrder().getDeliveryInstruction())
-				.deliveryId(requestDTO.getInformationOrder().getShipmentId())
-				.build();
+				.deliveryRemarks(requestDTO.getInformationOrder().getDeliveryInstruction()).deliveryId(requestDTO.getInformationOrder().getShipmentId()).build();
 	}
 
 	@Transactional
 	@Override
 	public boolean updateOrderStatus(String branchCode, String orderId, OrderStatus orderStatus) {
 		log.info("Logistic-Order-Service: Order-Service: Method-Update-order-status: {}", orderId);
-		Orders orders = ordersRepository.findByOrderIdAndBranchCode(orderId, branchCode).orElseThrow(
-				() -> {
-					log.error("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order not found");
-					return new AppException(ErrorCode.ORDER_NOT_FOUND);
-				}
-		);
+		Orders orders = ordersRepository.findByOrderIdAndBranchCode(orderId, branchCode).orElseThrow(() -> {
+			log.error("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order not found");
+			return new AppException(ErrorCode.ORDER_NOT_FOUND);
+		});
 
 		log.error("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order status: {}", orders.getStatus());
 
@@ -300,18 +278,12 @@ public class OrdersServiceImpl implements OrdersService {
 
 			// Send message to notification service
 			CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
-			MailUpdateOrderStatus mailUpdateOrderStatus = MailUpdateOrderStatus.builder()
-					.to(customerInfResponse.getEmail())
-					.subject("Dear " + customerInfResponse.getFullName() + " Your order id:" + orders.getId() + " have bean status update: " + orderStatus)
-					.build();
+			MailUpdateOrderStatus mailUpdateOrderStatus = MailUpdateOrderStatus.builder().to(customerInfResponse.getEmail()).subject("Dear " + customerInfResponse.getFullName() + " Your order id:" + orders.getId() + " have bean status update: " + orderStatus).build();
 
 			kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
 
 			ReceiverInfResponse receiverInfResponse = userServiceClient.getReceiverById(orders.getRecipientId()).getResult();
-			MailUpdateOrderStatus mailUpdateOrderStatusReceiver = MailUpdateOrderStatus.builder()
-					.to(receiverInfResponse.getEmail())
-					.subject("Dear" + receiverInfResponse.getFullName() + "Your order have bean status update: " + orders.getOrderCode())
-					.build();
+			MailUpdateOrderStatus mailUpdateOrderStatusReceiver = MailUpdateOrderStatus.builder().to(receiverInfResponse.getEmail()).subject("Dear" + receiverInfResponse.getFullName() + "Your order have bean status update: " + orders.getOrderCode()).build();
 			kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatusReceiver);
 
 			log.info("Logistic-Order-Service: Order-Service: Method-Update-order-status: Order status updated have been sent to notification service");
@@ -326,14 +298,7 @@ public class OrdersServiceImpl implements OrdersService {
 	private BigDecimal calculateTotalCost(CreateOrderRequest requestDTO) {
 		log.debug("Logistic-Order-Service: Order-Service: Method-Calculate-total-cost: {}", requestDTO);
 
-		ShippingRequestDTO shippingRequestDTO = ShippingRequestDTO.builder()
-				.serviceType(requestDTO.getInformationOrder().getServiceCode())
-				.shippingZone(requestDTO.getInformationOrder().getShippingZone())
-				.weight(requestDTO.getInformationOrder().getWeight())
-				.width(requestDTO.getInformationOrder().getWidth())
-				.length(requestDTO.getInformationOrder().getLength())
-				.height(requestDTO.getInformationOrder().getHeight())
-				.build();
+		ShippingRequestDTO shippingRequestDTO = ShippingRequestDTO.builder().serviceType(requestDTO.getInformationOrder().getServiceCode()).shippingZone(requestDTO.getInformationOrder().getShippingZone()).weight(requestDTO.getInformationOrder().getWeight()).width(requestDTO.getInformationOrder().getWidth()).length(requestDTO.getInformationOrder().getLength()).height(requestDTO.getInformationOrder().getHeight()).build();
 
 		// Tính toán chi phí vận chuyển
 		BigDecimal shippingCost = shippingService.calculateShippingCost(shippingRequestDTO);
@@ -463,6 +428,25 @@ public class OrdersServiceImpl implements OrdersService {
 		return orderMapper.toOrderInfResponse(orderEntity);
 	}
 
+	@Override
+	public void updateShippingMetaData(String orderId, String shipmentId) {
+		Orders orderEntity = ordersRepository.findById(orderId).orElseThrow(() -> {
+			log.error("Logistic-Order-Service: Order-Service: Method-Update-shipping-metadata: Order not found");
+			return new AppException(ErrorCode.ORDER_NOT_FOUND);
+		});
+
+		ShippingMetadata shippingMetadata = orderEntity.getShippingMetadata();
+		shippingMetadata.setDeliveryId(shipmentId);
+		shippingMetadata.setShipmentId(Long.valueOf(orderEntity.getId()));
+
+		ApiResponse<ShipmentInfResponse> shipmentInfResponse = shipmentServiceClient.getShipmentDetail(shipmentId);
+		if (shipmentInfResponse.getCode() == 200) {
+			log.info("Logistic-Order-Service: Order-Service: Method-Update-shipping-metadata: Shipment detail fetched successfully");
+		}
+
+		shippingMetadataRepository.save(shippingMetadata);
+	}
+
 	private OrderInfResponse setSenderField(Orders orders, OrderInfResponse orderInfResponse) {
 		log.info("Logistic-Order-Service: Order-Service: Method-Set-sender-field: {}", orderInfResponse);
 
@@ -489,8 +473,6 @@ public class OrdersServiceImpl implements OrdersService {
 
 
 	private ShipperInfResponse assignShipper(String shipperId) {
-		return userServiceClient
-				.getShipperById(shipperId)
-				.getResult();
+		return userServiceClient.getShipperById(shipperId).getResult();
 	}
 }

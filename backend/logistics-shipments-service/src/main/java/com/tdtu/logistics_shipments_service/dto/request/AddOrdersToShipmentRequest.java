@@ -11,5 +11,4 @@ import java.util.List;
 public class AddOrdersToShipmentRequest {
 	Long shipmentId;
 	List<String> orderIds;
-
 }
