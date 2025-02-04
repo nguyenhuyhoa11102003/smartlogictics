@@ -1,200 +1,120 @@
-import { useEffect, useState } from 'react';
-import { FieldErrorsImpl, UseFormRegister, UseFormSetValue } from 'react-hook-form';
-import { Input } from '../../../common/items/Input';
-import { OptionSelect } from '../../../common/items/OptionSelect';
-import { Address } from '../../../modules/address/models/AddressModel';
-import { Country } from '../../country/models/Country';
-import { District } from '../../district/models/District';
-import { StateOrProvince } from '../../stateAndProvince/models/StateOrProvince';
-import { useRouter } from 'next/router';
-import { getCountries } from '../../country/services/CountryService';
-import { getStatesOrProvinces } from '../../stateAndProvince/services/StatesOrProvicesService';
-import { getDistricts } from '../../district/services/DistrictService';
+import React, { useState } from "react";
+import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-type AddressFormProps = {
-  register: UseFormRegister<Address>;
-  setValue: UseFormSetValue<Address>;
-  errors: FieldErrorsImpl<Address>;
-  address: Address | undefined;
-  isDisplay?: boolean | true;
-};
-const AddressForm = ({ register, errors, address, isDisplay, setValue }: AddressFormProps) => {
-  const router = useRouter();
-  const { id } = router.query;
+interface Address {
+  senderName: string;
+  senderPhone: string;
+  senderMail: string;
+  senderAddress: string;
+  senderProvinceCode: string;
+  senderProvinceName: string;
+  senderDistrictCode: string;
+  senderDistrictName: string;
+  senderCommuneCode: string;
+  senderCommuneName: string;
+  senderPostalCode: string;
+}
 
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [statesOrProvinces, setStatesOrProvinces] = useState<StateOrProvince[]>([]);
-  const [districts, setDistricts] = useState<District[]>([]);
+export default function AddressForm({ accessToken }: { accessToken: string }) {
+  const [formData, setFormData] = useState<Address>({
+    senderName: "",
+    senderPhone: "",
+    senderMail: "",
+    senderAddress: "",
+    senderProvinceCode: "",
+    senderProvinceName: "",
+    senderDistrictCode: "",
+    senderDistrictName: "",
+    senderCommuneCode: "",
+    senderCommuneName: "",
+    senderPostalCode: "",
+  });
 
-  useEffect(() => {
-    getCountries().then((data) => {
-      setCountries(data);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (address) {
-      getStatesOrProvinces(address.countryId).then((data) => {
-        setStatesOrProvinces(data);
-      });
-      getDistricts(address.stateOrProvinceId).then((data) => {
-        setDistricts(data);
-      });
-    }
-  }, [id]);
-
-  const onCountryChange = async (event: any) => {
-    setValue('countryName', event.target.selectedOptions[0].text);
-    getStatesOrProvinces(event.target.value).then((data) => {
-      setStatesOrProvinces(data);
-      getDistricts(event.target.value).then((data) => {
-        if (data) {
-          setDistricts(data);
-        } else {
-          setDistricts([]);
-        }
-      });
-    });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const onStateOrProvinceChange = async (event: any) => {
-    setValue('stateOrProvinceName', event.target.selectedOptions[0].text);
-    getDistricts(event.target.value).then((data) => {
-      setDistricts(data);
-    });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("https://your-api.com/api/addresses", formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Địa chỉ đã lưu:", response.data);
+    } catch (error) {
+      console.error("Lỗi khi lưu địa chỉ:", error);
+    }
   };
 
   return (
-    <>
-      {' '}
-      <div className={`shipping_address_new ${isDisplay ? `` : `d-none`}`}>
-        <div className="row">
-          <div className="col-lg-6">
-            <div className="checkout__input">
-              <Input
-                labelText="Contact name"
-                register={register}
-                field="contactName"
-                registerOptions={{
-                  required: { value: true, message: 'This feild is required' },
-                }}
-                defaultValue={address?.contactName}
-              />
-            </div>
-          </div>
-          <div className="col-lg-6">
-            <div className="checkout__input">
-              <Input
-                labelText="Phone number"
-                register={register}
-                field="phone"
-                registerOptions={{
-                  required: { value: true, message: 'This feild is required' },
-                }}
-                defaultValue={address?.phone}
-              />
-            </div>
-          </div>
+    <div className="container mt-4">
+      <h2 className="mb-3">Nhập địa chỉ</h2>
+      <form onSubmit={handleSubmit} className="row g-3">
+        <div className="col-md-6">
+          <label className="form-label">Họ và tên</label>
+          <input type="text" name="senderName" className="form-control" value={formData.senderName} onChange={handleChange} required />
         </div>
-        <div className="row">
-          <div className="col-lg-4">
-            <div className="checkout__input">
-              <OptionSelect
-                labelText="Country"
-                field="countryId"
-                placeholder="Select country"
-                options={countries}
-                register={register}
-                registerOptions={{
-                  required: { value: true, message: 'Please select country' },
-                  onChange: onCountryChange,
-                }}
-                error={errors.countryId?.message}
-                defaultValue={address?.countryId}
-              />
-            </div>
-          </div>
-          <div className="col-lg-8">
-            <div className="checkout__input">
-              <div className="mb-3">
-                <OptionSelect
-                  labelText="State Or Province"
-                  register={register}
-                  field="stateOrProvinceId"
-                  options={statesOrProvinces}
-                  placeholder="Select state or province"
-                  defaultValue={address?.stateOrProvinceId}
-                  registerOptions={{
-                    required: { value: true, message: 'Please select state or province' },
-                    onChange: onStateOrProvinceChange,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-lg-6">
-            <div className="checkout__input">
-              <Input
-                labelText="City"
-                register={register}
-                field="city"
-                placeholder="Please skip this field if you are not in a city"
-                defaultValue={address?.city}
-              />
-            </div>
-          </div>
-          <div className="col-lg-6">
-            <div className="checkout__input">
-              <OptionSelect
-                labelText="District"
-                register={register}
-                field="districtId"
-                options={districts}
-                placeholder="Select district"
-                defaultValue={address?.districtId}
-                registerOptions={{
-                  required: { value: true, message: 'Please select district' },
-                  onChange: (event: any) => {
-                    setValue('districtName', event.target.selectedOptions[0].text);
-                  },
-                }}
-              />
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-lg-10">
-            <div className="checkout__input">
-              <Input
-                labelText="Address"
-                register={register}
-                field="addressLine1"
-                registerOptions={{
-                  required: { value: true, message: 'This feild is required' },
-                }}
-                defaultValue={address?.addressLine1}
-              />
-            </div>
-          </div>
-          <div className="col-lg-2">
-            <div className="checkout__input">
-              <Input
-                labelText="Zip code"
-                register={register}
-                field="zipCode"
-                registerOptions={{
-                  required: { value: true, message: 'This feild is required' },
-                }}
-                defaultValue={address?.zipCode}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
 
-export default AddressForm;
+        <div className="col-md-6">
+          <label className="form-label">Số điện thoại</label>
+          <input type="text" name="senderPhone" className="form-control" value={formData.senderPhone} onChange={handleChange} required />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Email</label>
+          <input type="email" name="senderMail" className="form-control" value={formData.senderMail} onChange={handleChange} required />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Địa chỉ</label>
+          <input type="text" name="senderAddress" className="form-control" value={formData.senderAddress} onChange={handleChange} required />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Mã tỉnh</label>
+          <input type="text" name="senderProvinceCode" className="form-control" value={formData.senderProvinceCode} onChange={handleChange} required />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Tên tỉnh</label>
+          <input type="text" name="senderProvinceName" className="form-control" value={formData.senderProvinceName} onChange={handleChange} required />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Mã quận</label>
+          <input type="text" name="senderDistrictCode" className="form-control" value={formData.senderDistrictCode} onChange={handleChange} required />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Tên quận</label>
+          <input type="text" name="senderDistrictName" className="form-control" value={formData.senderDistrictName} onChange={handleChange} required />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Mã phường</label>
+          <input type="text" name="senderCommuneCode" className="form-control" value={formData.senderCommuneCode} onChange={handleChange} required />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Tên phường</label>
+          <input type="text" name="senderCommuneName" className="form-control" value={formData.senderCommuneName} onChange={handleChange} required />
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label">Mã bưu chính</label>
+          <input type="text" name="senderPostalCode" className="form-control" value={formData.senderPostalCode} onChange={handleChange} required />
+        </div>
+
+        <div className="col-12">
+          <button type="submit" className="btn btn-primary w-100">Lưu địa chỉ</button>
+        </div>
+      </form>
+    </div>
+  );
+}

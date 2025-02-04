@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -40,6 +41,7 @@ public class ShipmentController {
 	}
 
 	// Post: Api to add orders to shipment
+	@Transactional
 	@PostMapping("/add-orders")
 	public ApiResponse<?> addOrdersToShipment(@RequestBody AddOrdersToShipmentRequest request) {
 		shipmentService.addOrdersToShipment(request.getShipmentId(), request.getOrderIds());

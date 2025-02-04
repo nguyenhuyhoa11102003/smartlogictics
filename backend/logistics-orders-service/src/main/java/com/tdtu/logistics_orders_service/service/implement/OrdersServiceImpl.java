@@ -442,10 +442,15 @@ public class OrdersServiceImpl implements OrdersService {
 		ApiResponse<ShipmentInfResponse> shipmentInfResponse = shipmentServiceClient.getShipmentDetail(shipmentId);
 		if (shipmentInfResponse.getCode() == 200) {
 			log.info("Logistic-Order-Service: Order-Service: Method-Update-shipping-metadata: Shipment detail fetched successfully");
-		}
 
+			ShipmentInfResponse shipmentInfResponseData = shipmentInfResponse.getResult();
+			shippingMetadata.setDeliveredDate(LocalDateTime.parse(shipmentInfResponseData.getShipmentStartDate()));
+			shippingMetadata.setDeliveryEstimateTime(LocalDateTime.parse(shipmentInfResponseData.getShipmentStartDate()));
+			shippingMetadata.setShipmentId(shipmentInfResponseData.getId());
+		}
 		shippingMetadataRepository.save(shippingMetadata);
 	}
+
 
 	private OrderInfResponse setSenderField(Orders orders, OrderInfResponse orderInfResponse) {
 		log.info("Logistic-Order-Service: Order-Service: Method-Set-sender-field: {}", orderInfResponse);

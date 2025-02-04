@@ -1,16 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { Label } from "@/components/ui/label";
 import { Checkbox } from '@/components/ui/checkbox';
 import { PickupData } from '@/modules/order/models/PickUpData';
 import { Warehouse } from '@/modules/warehouse/models/Warehouse';
 import { getAllWarehouses } from '@/modules/warehouse/services/WarehouseService';
-import { error } from 'console';
+import { Button } from 'react-bootstrap';
+import { useAuth } from '@/context/app.context';
+import { AddressListProps } from '@/modules/address/components/AddressList';
+import axios from 'axios';
 
 interface PickupFormProps {
     onPickupDataChange: (data: PickupData) => void;
 }
 
 export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
+    const { accessToken, setAccessToken, clearAccessToken } = useAuth();
     const [pickupData, setPickupData] = useState<PickupData>({
         sender: '',
         pickupLocation: 'Nhận tại nhà',
@@ -29,22 +33,64 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
     const [selectedSender, setSelectedSender] = useState<string>('3d04b569-2c6a-41f8-afc5-d443e94ba647');
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
 
+    
+    const [addresses, setAddresses] = useState<AddressListProps[]>([]);
 
-    const accounts = [
-        {
-            id: 1,
-            addressLine: "266/58, Tôn Đản, Quận 1",
-            city: "Hồ Chí Minh",
-            country: "Việt Nam",
-        },
-        {
-            id: 2,
-            addressLine: "123 Đường ABC, Quận 2",
-            city: "Hồ Chí Minh",
-            country: "Việt Nam",
+    const fetchAddresses = async () => {
+        const response = await axios.get(`http://localhost:8082/users/api/sender`, {
+        });
+        console.info(`response:${JSON.stringify(response.data)}`);
+        if (response.status === 200) {
+          const senders = response.data._embedded.sender;
+          console.info(`senders:${JSON.stringify(senders)}`);
+    
+          const updatedAddresses = [];
+          for (const sender of senders) {
+            console.log('fullname:', sender.fullName);
+            console.log('phone:', sender.phoneNumber);
+            console.log('email:', sender.email);
+            console.log('address:', sender._links.address.href);
+            const addressResponse = await axios.get(sender._links.address.href);
+            if (addressResponse.status === 200) {
+              console.log('address details:', addressResponse.data);
+              updatedAddresses.push({
+                senderName: sender.fullName,
+                senderPhone: sender.phoneNumber,
+                senderMail: sender.email,
+                senderAddress: addressResponse.data.street,
+                senderProvinceCode: addressResponse.data.provinceCode,
+                senderProvinceName: addressResponse.data.province,
+                senderDistrictCode: addressResponse.data.districtCode,
+                senderDistrictName: addressResponse.data.district,
+                senderCommuneCode: addressResponse.data.wardCode,
+                senderCommuneName: addressResponse.data.ward,
+                senderPostalCode: addressResponse.data.postalCode,
+              });
+            } else {
+              console.error('Failed to fetch address:', addressResponse.status);
+            }};
+            console.info(`updatedAddresses:${JSON.stringify(updatedAddresses)}`);
+            setAddresses(updatedAddresses);
         }
-    ];
+      }
+      useEffect(() => {
+        fetchAddresses();
+      }, []);
 
+    // const accounts = [
+    //     {
+    //         id: 1,
+    //         addressLine: "266/58, Tôn Đản, Quận 1",
+    //         city: "Hồ Chí Minh",
+    //         country: "Việt Nam",
+    //     },
+    //     {
+    //         id: 2,
+    //         addressLine: "123 Đường ABC, Quận 2",
+    //         city: "Hồ Chí Minh",
+    //         country: "Việt Nam",
+    //     }
+    // ];
 
     useEffect(() => {
         const fetchWarehouses = async () => {
@@ -137,6 +183,12 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
                     >
                         Gửi tại bưu cục
                     </label>
+                      {/* Nút thêm địa chỉ mới */}
+
+                    <Button variant="outline" onClick={() => {}}>
+                        + Thêm địa chỉ mới
+                    </Button>
+
                 </div>
             </div>
             <form>
@@ -151,8 +203,8 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
                         }
                     >
                         <option value="">Chọn người gửi...</option>
-                        {accounts.map((acount) => (
-                            <option key={acount.id} value={acount.id}>{acount.addressLine + "," + acount.city} </option>
+                        {addresses.map((acount) => (
+                            <option key={acount.id} value={acount.id}>{acount.senderName + "," + acount.senderAddress} </option>
                         ))}
                     </select>
                 </div>
@@ -214,6 +266,7 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
                     </select>
                 </div>)}
             </form>
+            
         </div>
     );
 }

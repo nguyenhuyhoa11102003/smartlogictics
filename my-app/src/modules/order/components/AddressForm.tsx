@@ -101,7 +101,6 @@ export default function AddressForm({ onAddressChange }: AddressFormProps) {
 
     const [addressDetail, setAddressDetail] = useState("");
 
-
     return (
         <div className="">
             <h2 className="font-bold text-lg mb-4">Địa chỉ</h2>

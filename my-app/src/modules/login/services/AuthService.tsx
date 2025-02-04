@@ -7,7 +7,7 @@ export const URL_REGISTER = 'register'
 export const URL_LOGOUT = 'logout'
 export const URL_REFRESH_TOKEN = 'refresh-access-token'
 
-const URL_INDENTITY_SERVICE = "http://localhost:8085/identity/api/v1/auth/"
+const URL_INDENTITY_SERVICE = "http://localhost:8085/identity/auth"
 
 
 const authApi = {

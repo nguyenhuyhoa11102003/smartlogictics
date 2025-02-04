@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Register() {
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-100">
@@ -63,9 +65,9 @@ export default function Register() {
                 </form>
                 <p className="text-sm text-center text-gray-600">
                     Đã có tài khoản?{' '}
-                    <a href="/login" className="text-blue-500 hover:underline">
+                    <Link href="/login" className="text-blue-500 hover:underline">
                         Đăng nhập
-                    </a>
+                    </Link>
                 </p>
             </div>
         </div>

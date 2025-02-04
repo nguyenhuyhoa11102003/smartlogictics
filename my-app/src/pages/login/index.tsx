@@ -45,7 +45,7 @@ export default function Login() {
             //   setIsAuthenticated(true);
             alert('Login Successful! Please wait 3s move to Dashboash Page.')
             setTimeout(() => {
-                router.push('/dashboard');
+                router.push('/admin');
             }, 3000);
         },
         onError: (error) => {

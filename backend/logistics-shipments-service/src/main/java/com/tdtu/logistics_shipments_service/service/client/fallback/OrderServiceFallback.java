@@ -11,4 +11,9 @@ public class OrderServiceFallback implements OrderServiceFeignClient {
 	public ApiResponse<OrderInfResponse> getOrderById(String orderId) {
 		return null;
 	}
+
+	@Override
+	public ApiResponse<Void> updateOrderStatus(String orderId, String shipmentId) {
+		return null;
+	}
 }

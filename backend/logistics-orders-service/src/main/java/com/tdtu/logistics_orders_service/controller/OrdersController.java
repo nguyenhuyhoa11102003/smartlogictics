@@ -135,9 +135,10 @@ public class OrdersController {
 				.build();
 	}
 
-	@PutMapping(value = "/{orderId}/update-shipping-meta-data/{shipmentId}",
-			produces = MediaType.APPLICATION_JSON_VALUE)
+	@PutMapping(value = "/{orderId}/update-shipping-meta-data/{shipmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ApiResponse<OrderInfResponse> updateShippingMetaData(String orderId, String shipmentId) {
+		//		ordersService.updateShippingMetaData(orderId, shipmentId);
+		log.info("Update shipping meta data successfully");
 		return ApiResponse.<OrderInfResponse>builder()
 				.code(HttpStatus.OK.value())
 				.message("Update shipping meta data successfully")

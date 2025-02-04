@@ -11,5 +11,4 @@ public interface UserRegistrationWorkflow {
     @WorkflowMethod
     CustomerInfResponse processRegistryAccount(CustomerRegisterAccountRequest request);
 
-
 }

@@ -40,114 +40,113 @@ import java.util.Set;
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    AccountRepository accountRepository;
+	AccountRepository accountRepository;
 
-    RoleRepository roleRepository;
+	RoleRepository roleRepository;
 
-    AccountMapper accountMapper;
+	AccountMapper accountMapper;
 
-    PasswordEncoder passwordEncoder;
+	PasswordEncoder passwordEncoder;
 
-    WorkflowClient workflowClient;
+	WorkflowClient workflowClient;
 
-    @Transactional
-    @Override
-    public String createAccount(CustomerRegisterAccountRequest request) {
-        try {
-            Account account = accountMapper.toAccount(request);
-            account.setPassword(passwordEncoder.encode(request.getPassword()));
+	@Transactional
+	@Override
+	public String createAccount(CustomerRegisterAccountRequest request) {
+		try {
+			Account account = accountMapper.toAccount(request);
+			account.setPassword(passwordEncoder.encode(request.getPassword()));
 
-            Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER_ROLE)
-                    .orElseGet(() -> roleRepository.save(Role.builder()
-                            .name(PredefinedRole.CUSTOMER_ROLE)
-                            .description("Customer role")
-                            .build()));
+			Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER_ROLE)
+					.orElseGet(() -> roleRepository.save(Role.builder()
+							.name(PredefinedRole.CUSTOMER_ROLE)
+							.description("Customer role")
+							.build()));
 
-            Set<Role> roles = new HashSet<>();
-            roles.add(customerRole);
-            account.setRoles(roles);
+			Set<Role> roles = new HashSet<>();
+			roles.add(customerRole);
+			account.setRoles(roles);
 
-            // Chỉ gọi một lần và lưu kết quả
-            CustomerInfResponse customerInfResponse = createCustomer(request);
+			// Chỉ gọi một lần và lưu kết quả
+			CustomerInfResponse customerInfResponse = createCustomer(request);
 
-            account.setUserProfileId(customerInfResponse.getId());
-            account = accountRepository.save(account);
-            log.info("Created account by username {}", account.getUsername());
+			account.setUserProfileId(customerInfResponse.getId());
+			account = accountRepository.save(account);
+			log.info("Created account by username {}", account.getUsername());
 
-            return account.getId();
+			return account.getId();
 
-        } catch (DataIntegrityViolationException e) {
-            log.warn("Errors: Create new account-profile by cause: {}, Throw by: {}", e.getCause(), e.getClass());
-            throw new AppException(ErrorCode.USER_EXISTED);
-        } catch (NullPointerException e) {
-            log.error("Errors: Create new account-profile by cause: {}, Throw by: {}", e.getCause(), e.getClass());
-            throw new AppException(ErrorCode.PROFILE_NOT_EXISTED);
-        }
-    }
+		} catch (DataIntegrityViolationException e) {
+			log.warn("Errors: Create new account-profile by cause: {}, Throw by: {}", e.getCause(), e.getClass());
+			throw new AppException(ErrorCode.USER_EXISTED);
+		} catch (NullPointerException e) {
+			log.error("Errors: Create new account-profile by cause: {}, Throw by: {}", e.getCause(), e.getClass());
+			throw new AppException(ErrorCode.PROFILE_NOT_EXISTED);
+		}
+	}
 
-    private CustomerInfResponse createCustomer(CustomerRegisterAccountRequest request) {
-        try {
-            WorkflowOptions options = WorkflowOptions.newBuilder()
-                    .setTaskQueue(WorkerHelper.WORKFLOW_CREATE_ACCOUNT_TASK_QUEUE)
-                    .build();
+	private CustomerInfResponse createCustomer(CustomerRegisterAccountRequest request) {
+		try {
+			WorkflowOptions options = WorkflowOptions.newBuilder()
+					.setTaskQueue(WorkerHelper.WORKFLOW_CREATE_ACCOUNT_TASK_QUEUE)
+					.build();
 
-            log.info("Create new user profile by username {}", request.getUsername());
+			log.info("Create new user profile by username {}", request.getUsername());
 
-            UserRegistrationWorkflow workflow = workflowClient.newWorkflowStub(UserRegistrationWorkflow.class, options);
+			UserRegistrationWorkflow workflow = workflowClient.newWorkflowStub(UserRegistrationWorkflow.class, options);
 
-            CustomerInfResponse response = workflow.processRegistryAccount(request);
+			CustomerInfResponse response = workflow.processRegistryAccount(request);
 
-            log.debug("Created new user profile by username {}", request.getUsername());
+			log.debug("Created new user profile by username {}", request.getUsername());
 
-            return response;
-        } catch (WorkflowException exception) {
-            log.error("Workflow failed for request: {}", request, exception);
-            throw new AppException(ErrorCode.WORKFLOW_FAILED);
-        }
-    }
+			return response;
+		} catch (WorkflowException exception) {
+			log.error("Workflow failed for request: {}", request, exception);
+			throw new AppException(ErrorCode.WORKFLOW_FAILED);
+		}
+	}
 
-    @Override
-    public UserInfResponseDTO getUserInfo() {
+	@Override
+	public UserInfResponseDTO getUserInfo() {
 
-        var context = SecurityContextHolder.getContext().getAuthentication();
-        var auth = context.getName();
+		var context = SecurityContextHolder.getContext().getAuthentication();
+		var auth = context.getName();
 
-        Account account = accountRepository.findByUsername(auth)
-                .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
+		Account account = accountRepository.findByUsername(auth)
+				.orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        String roleName = account.getRoles().stream()
-                .findFirst()
-                .map(Role::getName) // Lấy tên role nếu tồn tại
-                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED)); // Ném lỗi nếu không tìm thấy role
+		String roleName = account.getRoles().stream()
+				.findFirst()
+				.map(Role::getName) // Lấy tên role nếu tồn tại
+				.orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED)); // Ném lỗi nếu không tìm thấy role
 
-        return UserInfResponseDTO.builder()
-                .accountId(account.getId())
-                .profileId(account.getUserProfileId())
-                .email(account.getUsername())
-                .role(roleName)
-                .build();
-    }
+		return UserInfResponseDTO.builder()
+				.accountId(account.getId())
+				.profileId(account.getUserProfileId())
+				.email(account.getUsername())
+				.role(roleName)
+				.build();
+	}
 
-    @Transactional
-    @Override
-    public AccountInfResponseDTO updatePassword(String accountId, ChangesPasswordRequest request) {
+	@Transactional
+	@Override
+	public AccountInfResponseDTO updatePassword(String accountId, ChangesPasswordRequest request) {
 
 
+		return null;
+	}
 
-        return null;
-    }
+	@Override
+	public boolean deleteAccount(String accountId) {
+		log.debug("Delete account by id {}", accountId);
 
-    @Override
-    public boolean deleteAccount(String accountId) {
-        log.debug("Delete account by id {}", accountId);
+		Account account = accountRepository.findById(accountId)
+				.orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
+		accountRepository.delete(account);
 
-        accountRepository.delete(account);
+		log.info("Deleted account by id {}", accountId);
 
-        log.info("Deleted account by id {}", accountId);
-
-        return true;
-    }
+		return true;
+	}
 }

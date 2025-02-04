@@ -25,6 +25,7 @@ import { EDeliveryServiceType } from "@/modules/order/models/EDeliveryServiceTyp
 import { CreateReceiverRequest } from "@/modules/order/models/CreateReceiverRequest";
 import { sendReceiverData } from "@/modules/order/services/ReceiverService";
 import { ReceiverInfResponse } from "@/modules/order/models/ReceiverInfResponse";
+import { useAuth } from "@/context/app.context";
 interface CODData {
     codAmount: number;
 }
@@ -34,6 +35,7 @@ interface ResponseData {
     data: FormData;
 }
 export default function OrderForm() {
+    const { accessToken, setAccessToken, clearAccessToken } = useAuth();
     const [pickupData, setPickupData] = useState<PickupData>({
         sender: '3d04b569-2c6a-41f8-afc5-d443e94ba647',
         pickupLocation: 'Nhận tại nhà',

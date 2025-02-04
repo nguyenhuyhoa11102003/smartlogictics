@@ -4,9 +4,7 @@ import com.tdtu.logistics_shipments_service.dto.request.ActualDeliveryTimeReques
 import com.tdtu.logistics_shipments_service.dto.request.CreateShipmentRequest;
 import com.tdtu.logistics_shipments_service.dto.request.CreateShipmentSegmentRequest;
 import com.tdtu.logistics_shipments_service.dto.request.ShipmentStatusUpdateRequest;
-import com.tdtu.logistics_shipments_service.dto.response.OrderInfResponse;
-import com.tdtu.logistics_shipments_service.dto.response.ShipmentInfResponse;
-import com.tdtu.logistics_shipments_service.dto.response.WarehouseInfResponse;
+import com.tdtu.logistics_shipments_service.dto.response.*;
 import com.tdtu.logistics_shipments_service.dto.response.delivery.Route;
 import com.tdtu.logistics_shipments_service.enumrator.SegmentStatus;
 import com.tdtu.logistics_shipments_service.enumrator.ShipmentStatus;
@@ -18,7 +16,6 @@ import com.tdtu.logistics_shipments_service.repository.ShipmentRepository;
 import com.tdtu.logistics_shipments_service.service.ShipmentService;
 import com.tdtu.logistics_shipments_service.service.client.DeliveryServiceFeignClient;
 import com.tdtu.logistics_shipments_service.service.client.OrderServiceFeignClient;
-import com.tdtu.logistics_shipments_service.dto.response.ApiResponse;
 import com.tdtu.logistics_shipments_service.service.client.WarehouseServiceFeignClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -121,18 +118,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 	private Shipment createShipmentEntity(CreateShipmentRequest requestDTO) {
 		String message = "Create shipment entity successfully";
 		List<Long> intermediateWarehouseIds = requestDTO.getShipmentSegmentRequests().stream().map(CreateShipmentSegmentRequest::getDestinationWarehouseId).toList();
-		Shipment shipment = Shipment.builder()
-				.trackingNumber(requestDTO.getTrackingNumber())
-				.shipper(requestDTO.getShipper())
-				.shipmentMethod(requestDTO.getShipmentMethod())
-				.fromWarehouseId(requestDTO.getFromWarehouseId())
-				.intermediateWarehouseIds(intermediateWarehouseIds)
-				.toWarehouseId(requestDTO.getToWarehouseId())
-				.shipmentStatus(requestDTO.getShipmentStatus())
-				.departureTime(requestDTO.getDepartureTime())
-				.orders(requestDTO.getOrders())
-				.shipmentSegments(new ArrayList<>())
-				.shipmentStatus(ShipmentStatus.PENDING).build();
+		Shipment shipment = Shipment.builder().trackingNumber(requestDTO.getTrackingNumber()).shipper(requestDTO.getShipper()).shipmentMethod(requestDTO.getShipmentMethod()).fromWarehouseId(requestDTO.getFromWarehouseId()).intermediateWarehouseIds(intermediateWarehouseIds).toWarehouseId(requestDTO.getToWarehouseId()).shipmentStatus(requestDTO.getShipmentStatus()).departureTime(requestDTO.getDepartureTime()).orders(requestDTO.getOrders()).shipmentSegments(new ArrayList<>()).shipmentStatus(ShipmentStatus.PENDING).build();
 		log.info("{}: func:{}  , message:{}", "ShipmentServiceImpl", "createShipmentEntity", message);
 		return shipment;
 	}
@@ -151,6 +137,14 @@ public class ShipmentServiceImpl implements ShipmentService {
 	@Override
 	public ShipmentInfResponse getShipmentById(Long id) {
 		Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Shipment not found"));
+		ShipmentInfResponse response = mapShipmentToResponse(shipment);
+		List<ShipmentSegmentInfResponse> shipmentSegmentInfResponses = mapShipmentSegmentsToResponse(shipment.getShipmentSegments());
+		response.setShipmentSegments(shipmentSegmentInfResponses);
+		return response;
+	}
+
+	// map shipment to response
+	private ShipmentInfResponse mapShipmentToResponse(Shipment shipment) {
 		ShipmentInfResponse response = new ShipmentInfResponse();
 		response.setId(shipment.getId());
 		response.setTrackingNumber(shipment.getTrackingNumber());
@@ -163,11 +157,37 @@ public class ShipmentServiceImpl implements ShipmentService {
 		response.setDepartureTime(shipment.getDepartureTime().toString());
 		response.setArrivalTime(shipment.getArrivalTime().toString());
 		response.setOrders(shipment.getOrders());
-		response.setShipmentSegments(new ArrayList<>());
 		response.setCreateAt(shipment.getCreateAt().toString());
 		response.setUpdateAt(shipment.getUpdateAt().toString());
 		return response;
 	}
+
+
+	// map shipment segments to response
+	private List<ShipmentSegmentInfResponse> mapShipmentSegmentsToResponse(List<ShipmentSegment> shipmentSegments) {
+		List<ShipmentSegmentInfResponse> shipmentSegmentInfResponses = new ArrayList<>();
+		shipmentSegments.forEach(t -> {
+			ShipmentSegmentInfResponse shipmentInfResponse = new ShipmentSegmentInfResponse();
+			shipmentInfResponse.setId(t.getId());
+			shipmentInfResponse.setFromWarehouseId(t.getFromWarehouseId());
+			shipmentInfResponse.setToWarehouseId(t.getToWarehouseId());
+			shipmentInfResponse.setDepartureTime(t.getDepartureTime());
+			shipmentInfResponse.setArrivalTime(t.getArrivalTime());
+			shipmentInfResponse.setStopoverDuration(t.getStopoverDuration());
+			shipmentInfResponse.setWeatherCondition(t.getWeatherCondition());
+			shipmentInfResponse.setTrafficCondition(t.getTrafficCondition());
+			shipmentInfResponse.setSegmentStatus(t.getSegmentStatus());
+			shipmentInfResponse.setNotes(t.getNotes());
+			shipmentInfResponse.setSummaryDuration(t.getSummaryDuration());
+			shipmentInfResponse.setSummaryLength(t.getSummaryLength());
+			shipmentInfResponse.setSummaryBaseDuration(t.getSummaryBaseDuration());
+			shipmentInfResponse.setHoliday(t.isHoliday());
+
+			shipmentSegmentInfResponses.add(shipmentInfResponse);
+		});
+		return shipmentSegmentInfResponses;
+	}
+
 
 	@Override
 	public ShipmentInfResponse updateShipmentStatus(Long id, ShipmentStatusUpdateRequest requestDTO) {
