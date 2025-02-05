@@ -202,10 +202,10 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
                             (e) => setSelectedSender(e.target.value)
                         }
                     >
-                        <option value="">Chọn người gửi...</option>
-                        {addresses.map((acount) => (
-                            <option key={acount.id} value={acount.id}>{acount.senderName + "," + acount.senderAddress} </option>
-                        ))}
+                        {/* <option value="">Chọn người gửi...</option> */}
+                        {/* {addresses.map((acount) => (
+                            <option key={} value={acount.id}>{acount.senderName + "," + acount.senderAddress} </option>
+                        ))} */}
                     </select>
                 </div>
 
