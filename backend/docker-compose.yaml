@@ -110,15 +110,51 @@ services:
     networks:
       - yas-network
 
-  temporal-web:
-    container_name: temporal-web
-    image: temporalio/web:latest
+#  temporal-web:
+#    container_name: temporal-web
+#    image: temporalio/web:latest
+#    ports:
+#      - "8088:8088"
+#    environment:
+#      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+#      - TEMPORAL_PERMIT_WRITE_API=true
+#    depends_on:
+#      - temporal
+#    networks:
+#      - yas-network
+
+  logistics-warehouse-service:
+    build:
+      context: ./logistics-warehouse-service
+      dockerfile: Dockerfile
+    container_name: logistics-warehouse-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      - kafka
+      - redis-cache
+      - vault
+      - postgres
+      - temporal
+    networks:
+      - yas-network
+
+  logistics-inventory-service:
+    build:
+      context: ./logistics-inventory-service
+      dockerfile: Dockerfile
+    container_name: logistics-inventory-service
     ports:
       - "8088:8088"
     environment:
-      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
-      - TEMPORAL_PERMIT_WRITE_API=true
+      - SPRING_PROFILES_ACTIVE=dev
     depends_on:
+      - kafka
+      - redis-cache
+      - vault
+      - postgres
       - temporal
     networks:
       - yas-network

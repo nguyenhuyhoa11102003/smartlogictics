@@ -1,7 +1,10 @@
 package com.tdtu.logistics_orders_service.enumrator;
 
+import lombok.Getter;
+
+@Getter
 public enum DeliveryServiceType {
-    ECONOMY("TMĐT Tiết Kiệm", 50000),
+    ECONOMY("TMĐT Tiết Kiệm", 5000),
     EXPRESS("TMĐT Nhanh", 10000),
     URGENT_SCHEDULED("Hỏa tốc, hẹn giờ", 100000);
 
@@ -13,11 +16,4 @@ public enum DeliveryServiceType {
         this.price = price;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public int getPrice() {
-        return price;
-    }
 }

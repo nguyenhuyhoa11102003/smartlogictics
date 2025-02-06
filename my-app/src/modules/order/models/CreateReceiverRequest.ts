@@ -16,4 +16,11 @@ export interface CreateReceiverRequest {
     street: string; // Đường.
 
     postalCode: string; // Mã bưu chính.
+    
+    provinceCode?: string;
+
+    districtCode?: string;
+    
+    communeCode?: string;
+
 }

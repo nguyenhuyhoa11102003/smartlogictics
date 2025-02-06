@@ -61,9 +61,9 @@ public class InformationOrderDTO {
     private String deliveryTime; // Thời gian giao hàng dự kiến (VD: N - Ngày thường)
 
     // Thông tin chi nhánh
-    private String branchCode ; // Mã chi nhánh wareHouseId
-//    private String orgCodeCollect; // Mã tổ chức thu gom (có thể null)
-//    private Integer orgCodeAccept; // Mã tổ chức nhận hàng
+    private String branchCode; // Mã chi nhánh wareHouseId
+    //    private String orgCodeCollect; // Mã tổ chức thu gom (có thể null)
+    //    private Integer orgCodeAccept; // Mã tổ chức nhận hàng
 
     // Thông tin vận chuyển
     private DeliveryServiceType serviceCode; // Mã dịch vụ vận chuyển   (VD: NHANH - HOA TOC - CHUYEN PHAT)
@@ -109,4 +109,6 @@ public class InformationOrderDTO {
     private String saleOrderCode; // Mã đơn hàng bán goodId
 
     PaymentType paymentType; // Loại thanh toán (PREPAID, POSTPAID)
+
+
 }

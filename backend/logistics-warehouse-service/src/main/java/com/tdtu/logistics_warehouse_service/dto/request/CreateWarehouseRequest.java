@@ -29,4 +29,9 @@ public class CreateWarehouseRequest {
 
 	@NotNull(message = "Warehouse address cannot be null")
 	CreateAddressRequest address;
+
+	double volumeCapacity;
+	double weightCapacity;
+
+
 }

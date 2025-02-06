@@ -1,5 +1,8 @@
 package com.tdtu.logistics_orders_service.enumrator;
 
+import lombok.Getter;
+
+@Getter
 public enum OrderStatus {
     RECEIVED("Đã tiếp nhận", "The order has been received.", StatusCategory.WAITING_FOR_PICKUP),
     PICKING("Đang lấy hàng", "The order is being picked up.", StatusCategory.WAITING_FOR_PICKUP),
@@ -28,15 +31,4 @@ public enum OrderStatus {
         this.category = category;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public StatusCategory getCategory() {
-        return category;
-    }
 }

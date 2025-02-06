@@ -16,11 +16,11 @@ import java.util.Optional;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 	Page<Category> findAll(Pageable pageable);
 
-	Page<Category> findByCategoryTitleContaining(String categoryTitle, Pageable pageable);
+//	Page<Category> findByCategoryTitleContaining(String categoryTitle, Pageable pageable);
 
 //	@Query("select e from Category e where e.categoryTitle = ?1 and (?2 is null or e.categoryId != ?2)")
 //	Category findExistedName(String name, Integer id);
 
-	Optional<Category> findBySlug(String slug);
+//	Optional<Category> findBySlug(String slug);
 
 }

@@ -25,4 +25,12 @@ public class CreateReceiverRequest {
     String street; // Đường.
 
     String postalCode; // Mã bưu chính.
+
+    String provinceCode; // Mã tỉnh/thành phố của người gửi
+
+    String districtCode; // Mã quận/huyện của người gửi
+
+    String communeCode; // Mã xã/phường của người gửi
+
+
 }

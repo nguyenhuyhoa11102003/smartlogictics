@@ -13,17 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, String> {
-	Optional<Product> findBySlugAndIsPublishedTrue(String slug);
 
-	//	@Query(value = "select p from Product p where LOWER(p.productTitle) LIKE %:productName% " +
-	//			"and (p.brand.name in :brandName or (:brandName is NULL  or :brandName = '')) " +
-	//			"and p.isVisibleIndividually = TRUE " +
-	//			"and p.isPublished = TRUE " +
-	//			"order by p.updateAt desc"
-	//	)
-	//	Page<Product> getProductsWithFilter(@Param("productName") String productName, @Param("brandName") String brandName, org.springframework.data.domain.Pageable pageable);
-
-	List<Product> findAllByProductIdIn(List<String> productIds);
+//	List<Product> findAllByProductIdIn(List<String> productIds);
 
 	//	List<Product> findAllByBrandAndIsPublishedTrue(Brand brand);
 
@@ -51,10 +42,6 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 	//	List<Product> findProductForWarehouse(@Param("name") String name, @Param("sku") String sku,
 	//	                                      @Param("productIds") List<Long> productIds,
 	//	                                      @Param("selection") String selection);
-
-
-	boolean existsBySku(String sku);
-	boolean existsByCategory(Long categoryId);
 
 	Optional<Product> findById(Long id);
 

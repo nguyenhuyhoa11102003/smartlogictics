@@ -24,10 +24,20 @@ public class WarehouseInfResponse {
 
 	double capacity;
 
+	double capacityUsed;
+
 	WarehouseStatus status;
 
 	AddressInfResponse addressDetail;
 	String address;
+
+	double  volumeCapacity;
+
+	double weightCapacity;
+
+	double volumeUsed;
+
+	double weightUsed;
 
 	LocalDateTime createdAt;
 
@@ -39,12 +49,16 @@ public class WarehouseInfResponse {
 				.name(warehouse.getName())
 				.phoneNumber(warehouse.getPhoneNumber())
 				.capacity(warehouse.getCapacity())
+				.capacityUsed(warehouse.getCapacityUsed())
 				.status(warehouse.getStatus())
 				.addressDetail(AddressInfResponse.toAddressInfResponse(warehouse.getAddress()))
 				.address(warehouse.getAddress().getAddressDetail())
 				.createdAt(LocalDateTime.ofInstant(warehouse.getCreateAt(), ZoneId.systemDefault()))
 				.updatedAt(LocalDateTime.now())
+				.volumeCapacity(warehouse.getVolumeCapacity())
+				.weightCapacity(warehouse.getWeightCapacity())
+				.volumeUsed(warehouse.getVolumeUsed())
+				.weightUsed(warehouse.getWeightUsed())
 				.build();
-
 	}
 }

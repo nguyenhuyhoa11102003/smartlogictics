@@ -2,7 +2,6 @@ package com.tdtu.logistics_warehouse_service.service.implement;
 
 import com.tdtu.logistics_warehouse_service.dto.request.CreateWarehouseRequest;
 import com.tdtu.logistics_warehouse_service.dto.request.UpdateWarehouseRequest;
-import com.tdtu.logistics_warehouse_service.dto.response.ApiResponse;
 import com.tdtu.logistics_warehouse_service.dto.response.CoordinatesResponse;
 import com.tdtu.logistics_warehouse_service.dto.response.WarehouseInfResponse;
 import com.tdtu.logistics_warehouse_service.exception.wrapper.NotFoundException;
@@ -18,12 +17,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,8 +59,14 @@ public class WarehouseServiceImpl implements WarehouseService {
 				.name(createWarehouseRequest.getName())
 				.phoneNumber(createWarehouseRequest.getPhoneNumber())
 				.capacity(createWarehouseRequest.getCapacity())
-				.status(createWarehouseRequest.getStatus())
+				.status(WarehouseStatus.ACTIVE)
+				.capacity(createWarehouseRequest.getCapacity())
+				.volumeCapacity(createWarehouseRequest.getVolumeCapacity())
+				.weightCapacity(createWarehouseRequest.getWeightCapacity())
 				.address(address)
+				.capacityUsed(0)
+				.volumeUsed(0)
+				.weightUsed(0)
 				.build();
 
 		Warehouse createdWarehouse = warehouseRepository.saveAndFlush(warehouse);
@@ -139,7 +141,30 @@ public class WarehouseServiceImpl implements WarehouseService {
 		warehouses.getContent().forEach(warehouse -> {
 			warehouseInfResponses.add(WarehouseInfResponse.toWarehouseInfResponse(warehouse));
 		});
+		log.info("Returning {} warehouses.", warehouseInfResponses.size());
+
 		return warehouseInfResponses;
+	}
+
+	@Override
+	public WarehouseInfResponse updateWarehouseCapacity(Long id, double volumeCapacity, double weightCapacity) {
+
+		Warehouse existingWarehouse = warehouseRepository.findById(id).orElseThrow(() -> new NotFoundException("Warehouse not found"));
+
+		if (volumeCapacity > existingWarehouse.getVolumeCapacity() || weightCapacity > existingWarehouse.getWeightCapacity()) {
+			throw new NotFoundException("Volume or weight capacity is greater than the warehouse's capacity");
+		}
+
+		existingWarehouse.setVolumeUsed(volumeCapacity);
+		existingWarehouse.setWeightUsed(weightCapacity);
+
+		if (volumeCapacity == existingWarehouse.getVolumeCapacity() || weightCapacity == existingWarehouse.getWeightCapacity()) {
+			existingWarehouse.setStatus(WarehouseStatus.FULL);
+		} else {
+			existingWarehouse.setStatus(WarehouseStatus.ACTIVE);
+		}
+
+		return WarehouseInfResponse.toWarehouseInfResponse(warehouseRepository.save(existingWarehouse));
 	}
 
 	private String handleAddressDetail(String province, String ward, String commune, String street, String postalCode) {

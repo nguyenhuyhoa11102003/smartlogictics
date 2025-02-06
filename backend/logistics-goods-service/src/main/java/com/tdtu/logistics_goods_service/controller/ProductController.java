@@ -5,9 +5,6 @@ import com.tdtu.logistics_goods_service.dto.req.ProductRequest;
 import com.tdtu.logistics_goods_service.dto.res.ProductResponse;
 import com.tdtu.logistics_goods_service.model.Product;
 import com.tdtu.logistics_goods_service.service.ProductService;
-import com.tdtu.logistics_goods_service.viewmodel.error.ErrorVm;
-import com.tdtu.logistics_goods_service.viewmodel.product.ProductGetDetailVm;
-import com.tdtu.logistics_goods_service.viewmodel.product.ProductPostVm;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,7 +33,7 @@ public class ProductController {
 
 	@PostMapping
 	public ResponseEntity<ProductResponse> createProduct(
-			@RequestBody @Valid ProductRequest productRequest) {
+			@RequestBody @Valid ProductRequest productRequest) throws Exception {
 		ProductResponse productResponse = productService.createProduct(productRequest);
 		return new ResponseEntity<>(productResponse, HttpStatus.CREATED);
 	}

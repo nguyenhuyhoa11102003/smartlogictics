@@ -21,12 +21,12 @@ public record ProductResponse(
 		return new ProductResponse(
 				product.getId(),
 				product.getName(),
-				product.getSku(),
-				product.getWeight(),
-				product.getDimensions(),
-				product.getPackagingType(),
-				product.getStatus(),
-				product.getStorageLocation(),
+				"",
+				BigDecimal.ZERO,
+				product.getWarehouseId(),
+				"",
+				"",
+				"",
 				product.getCategory() != null ? product.getCategory().getId() : null
 		);
 	}

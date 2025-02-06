@@ -48,6 +48,4 @@ public class Category extends AbstractMappedEntity implements Serializable {
 		// see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
 		return getClass().hashCode();
 	}
-
-
 }

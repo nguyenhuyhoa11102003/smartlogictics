@@ -8,7 +8,9 @@ import lombok.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,34 +21,36 @@ import java.util.List;
 @Table(name = "products")
 public class Product extends AbstractMappedEntity implements Serializable {
 	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	@Column(name = "id", unique = true, nullable = false, updatable = false)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
 	private Long id;
 
 	@Column(name = "name", nullable = false)
 	private String name;
 
-	@Column(name = "sku", unique = true, nullable = false)
-	private String sku;  // Mã hàng hóa
+	@Column(name = "price")
+	private double price;  // Giá sản phẩm
 
 	@Column(name = "weight", precision = 10, scale = 2)
 	private BigDecimal weight;  // Trọng lượng (kg)
 
-	@Column(name = "dimensions")
-	private String dimensions;  // Kích thước (dài x rộng x cao, ví dụ: 30x20x15 cm)
-
 	@Column(name = "packaging_type")
 	private String packagingType;  // Loại bao bì (hộp, kiện, pallet)
 
-	@Column(name = "status")
-	private String status;  // Trạng thái (đang vận chuyển, trong kho)
-
 	@Column(name = "storage_location")
-	private String storageLocation;  // Vị trí lưu trữ trong kho
+	private String warehouseId;  // Vị trí lưu trữ trong kho
 
 	@ManyToOne
-	@JoinColumn(name = "category_id")
+	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;  // Danh mục hàng hóa
+
+	//	@ManyToMany
+//	@JoinTable(
+//			name = "product_attribute_mapping",
+//			joinColumns = @JoinColumn(name = "product_id"),
+//			inverseJoinColumns = @JoinColumn(name = "attribute_id")
+//	)
+//	private Set<ProductAttribute> attributes = new HashSet<>();
 
 	@Override
 	public boolean equals(Object o) {

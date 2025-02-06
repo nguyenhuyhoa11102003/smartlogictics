@@ -61,6 +61,9 @@ public class ReceiverServiceImpl implements ReceiverService {
                     .ward(createReceiverRequest.getWard())
                     .street(createReceiverRequest.getStreet())
                     .postalCode(createReceiverRequest.getPostalCode())
+                    .provinceCode(createReceiverRequest.getProvinceCode())
+                    .districtCode(createReceiverRequest.getDistrictCode())
+                    .wardCode(createReceiverRequest.getCommuneCode())
                     .build();
 
             addressRepository.save(address);

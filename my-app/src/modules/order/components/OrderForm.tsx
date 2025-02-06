@@ -56,7 +56,62 @@ export default function OrderForm() {
     });
 
     async function add(data: Order): Promise<ResponseData> {
-        console.log('CreateOrderRequest :', data)
+         
+        console.info(JSON.stringify(data))
+
+        const payload = {
+            "orderCreationStatus": "RECEIVED",
+            "customerCode": "string",
+            "informationOrder": {
+              "senderId": "string",
+              "senderName": "string",
+              "recipientName": "string",
+              "receiverPhone": "string",
+              "receiverAddress": "string",
+              "receiverProvinceCode": "string",
+              "receiverProvinceName": "string",
+              "receiverDistrictCode": "string",
+              "receiverDistrictName": "string",
+              "receiverWard": "string",
+              "receiverWardCode": "string",
+              "receiverStreet": "string",
+              "receiverPostalCode": "string",
+              "receiverEmail": "string",
+              "codAmount": 0,
+              "shippingMethod": "ROAD",
+              "addOnServices": [
+                "AIR_CARGO"
+              ],
+              "deliveryTime": "string",
+              "branchCode": "string",
+              "serviceCode": "ECONOMY",
+              "shippingZone": "NOI_TINH",
+              "vehicle": "string",
+              "receivingMethod": "CUSTOMER_ADDRESS",
+              "deliveryRequire": "string",
+              "deliveryInstruction": "string",
+              "moreRequire": "string",
+              "contentNote": "string",
+              "weight": 1,
+              "width": 0,
+              "length": 0,
+              "height": 0,
+              "shipmentId": "string",
+              "saleOrderCode": "string",
+              "paymentType": "PREPAID",
+              "broken": true
+            }
+        }
+
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve({
+                    message: 'Success',
+                    data: new FormData()
+                })
+            }, 1000)
+        });
+
         const response = await fetch('http://localhost:8086/orders/orders/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

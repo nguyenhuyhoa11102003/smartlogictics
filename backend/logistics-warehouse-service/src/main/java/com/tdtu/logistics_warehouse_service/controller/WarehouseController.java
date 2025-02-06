@@ -26,92 +26,61 @@ import java.util.List;
 public class WarehouseController {
 	WarehouseService warehouseService;
 
-	@PostMapping(
-			value = "/create",
-			consumes = "application/json",
-			produces = "application/json")
-	public ApiResponse<WarehouseInfResponse> createWarehouse(
-			@Valid @RequestBody CreateWarehouseRequest createWarehouseRequest) {
+	@PostMapping(value = "/create", consumes = "application/json", produces = "application/json")
+	public ApiResponse<WarehouseInfResponse> createWarehouse(@Valid @RequestBody CreateWarehouseRequest createWarehouseRequest) {
 		WarehouseInfResponse response = warehouseService.createWarehouse(createWarehouseRequest);
 
-		return ApiResponse.<WarehouseInfResponse>builder()
-				.code(HttpStatus.CREATED.value())
-				.result(response)
-				.message("Create warehouse successfully")
-				.build();
+		return ApiResponse.<WarehouseInfResponse>builder().code(HttpStatus.CREATED.value()).result(response).message("Create warehouse successfully").build();
 	}
 
 
-	@GetMapping(
-			value = "/all",
-			produces = "application/json")
-	public ApiResponse<?> getAllWarehouses(
-			@RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-			@RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+	@GetMapping(value = "/all", produces = "application/json")
+	public ApiResponse<?> getAllWarehouses(@RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+	                                       @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
 		List<WarehouseInfResponse> result = warehouseService.getAllWarehouses(pageNo, pageSize);
-		log.info(result.size() + "");
-		return ApiResponse.<List<WarehouseInfResponse>>builder()
-				.code(HttpStatus.OK.value())
-				.result(result)
-				.message("Get all warehouse successfully")
-				.build();
+		log.info("{}", result.size());
+		return ApiResponse.<List<WarehouseInfResponse>>builder().code(HttpStatus.OK.value()).result(result).message("Get all warehouse successfully").build();
 	}
 
-	@GetMapping(
-			value = "/get-ids",
-			produces = "application/json")
+	@GetMapping(value = "/get-ids", produces = "application/json")
 	public ApiResponse<?> getWareHouseByIds(@RequestParam List<Long> ids) {
 		List<WarehouseInfResponse> result = warehouseService.getWareHouseByIds(ids);
-		log.info(result.size() + "");
-		return ApiResponse.<List<WarehouseInfResponse>>builder()
-				.code(HttpStatus.OK.value())
-				.result(result)
-				.message("Warehouses fetched successfully")
-				.build();
+		return ApiResponse.<List<WarehouseInfResponse>>builder().code(HttpStatus.OK.value()).result(result).message("Warehouses fetched successfully").build();
 	}
 
 
-	@PutMapping(
-			value = "/update/{id}",
-			consumes = "application/json",
-			produces = "application/json")
-	public ApiResponse<WarehouseInfResponse> updateWarehouse(
-			@PathVariable(name = "id") Long id,
-			@Valid @RequestBody UpdateWarehouseRequest updateWarehouseRequest) throws Exception {
+	@PutMapping(value = "/update/{id}", consumes = "application/json", produces = "application/json")
+	public ApiResponse<WarehouseInfResponse> updateWarehouse(@PathVariable(name = "id") Long id,
+	                                                         @Valid @RequestBody UpdateWarehouseRequest updateWarehouseRequest) throws Exception {
 		try {
 			WarehouseInfResponse result = warehouseService.updateWarehouse(updateWarehouseRequest, id);
-			return ApiResponse.<WarehouseInfResponse>builder()
-					.code(HttpStatus.CREATED.value())
-					.result(result)
-					.message("Update warehouse successfully")
-					.build();
+			return ApiResponse.<WarehouseInfResponse>builder().code(HttpStatus.CREATED.value()).result(result).message("Update warehouse successfully").build();
 		} catch (Exception e) {
 			log.error("Warehouse not found");
 			throw new Exception("Warehouse not found");
 		}
 	}
 
-	@GetMapping(
-			value = "/{id}",
-			produces = "application/json")
+	@GetMapping(value = "/{id}", produces = "application/json")
 	public ApiResponse<WarehouseInfResponse> getWarehouseById(@PathVariable(name = "id") Long id) {
 		WarehouseInfResponse result = warehouseService.getWareHouseById(id).orElseThrow(() -> new NotFoundException("Warehouse not found"));
-		return ApiResponse.<WarehouseInfResponse>builder()
-				.code(HttpStatus.OK.value())
-				.result(result)
-				.message("Get warehouse successfully")
-				.build();
+		return ApiResponse.<WarehouseInfResponse>builder().code(HttpStatus.OK.value()).result(result).message("Get warehouse successfully").build();
 	}
 
-	@DeleteMapping(
-			value = "/{id}",
-			produces = "application/json")
+	@DeleteMapping(value = "/{id}", produces = "application/json")
 	public ApiResponse<WarehouseInfResponse> deleteWarehouse(@PathVariable(name = "id") Long id) {
 		WarehouseInfResponse result = warehouseService.deleteWarehouse(id);
-		return ApiResponse.<WarehouseInfResponse>builder()
-				.code(HttpStatus.OK.value())
-				.result(result)
-				.message("Delete warehouse successfully")
-				.build();
+		return ApiResponse.<WarehouseInfResponse>builder().code(HttpStatus.OK.value()).result(result).message("Delete warehouse successfully").build();
 	}
+
+	@PostMapping("/{id}/update-capacity")
+	public ApiResponse<WarehouseInfResponse> updateCapacity(@PathVariable Long id,
+	                                                        @RequestParam double volume,
+	                                                        @RequestParam double weight) {
+
+		WarehouseInfResponse updatedWarehouse = warehouseService.updateWarehouseCapacity(id, volume, weight);
+		return ApiResponse.<WarehouseInfResponse>builder().code(HttpStatus.OK.value()).result(updatedWarehouse).message("Update warehouse capacity successfully").build();
+	}
+
+
 }

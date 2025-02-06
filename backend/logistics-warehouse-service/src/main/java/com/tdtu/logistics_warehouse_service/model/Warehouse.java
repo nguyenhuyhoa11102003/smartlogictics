@@ -1,17 +1,12 @@
 package com.tdtu.logistics_warehouse_service.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tdtu.logistics_warehouse_service.enumarators.WarehouseStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.boot.context.properties.bind.DefaultValue;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 
 @NoArgsConstructor
@@ -43,6 +38,15 @@ public class Warehouse extends AbstractMappedEntity implements Serializable {
 	@JoinColumn(name = "address_id", referencedColumnName = "id")
 	Address address;
 
-	Integer capacityUsed;
+	double capacityUsed;
+
 	double capacity;
+
+	double volumeCapacity;
+
+	double weightCapacity;
+
+	double volumeUsed;
+
+	double weightUsed;
 }

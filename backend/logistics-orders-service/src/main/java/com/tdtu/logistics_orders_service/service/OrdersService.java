@@ -11,7 +11,6 @@ import java.util.List;
 
 public interface OrdersService {
 
-
 	OrderInfResponse createOrder(CreateOrderRequest requestDTO);
 
 	void createMultipleOrders(List<CreateOrderRequest> requestList);

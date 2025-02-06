@@ -21,8 +21,8 @@ public interface WarehouseService {
 
 	WarehouseInfResponse deleteWarehouse(Long id);
 
-
 	List<WarehouseInfResponse> getAllWarehouses(int pageNo, int pageSize);
 
+	WarehouseInfResponse updateWarehouseCapacity(Long id, double volumeCapacity, double weightCapacity);
 
 }

@@ -5,6 +5,9 @@ import { RecipientData } from "@/modules/order/models/RecipientData";
 import React, { FormEvent, useEffect, useState } from "react";
 import { Address } from "@/modules/address/models/AddressModel";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
+import { sendReceiverData } from "@/modules/customer/services/ReceiverService";
+import { CreateReceiverRequest } from "../models/CreateReceiverRequest";
 
 
 interface RecipientFormProps {
@@ -12,11 +15,11 @@ interface RecipientFormProps {
 }
 export default function RecipientForm({ onRecipientDataChange }: RecipientFormProps) {
     const [recipientData, setRecipientData] = useState<Address>({
-        id: "", 
+        id: "",
         contactName: "",
         phone: "",
         addressDetail: "",
-        districtId: 0, 
+        districtId: 0,
         stateOrProvinceId: 0,
         countryId: 0,
         city: "",
@@ -24,7 +27,7 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
         districtName: "",
         stateOrProvinceName: "",
         countryName: "",
-        isActive: true, 
+        isActive: true,
         wardId: 0,
     });
 
@@ -42,7 +45,7 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
     }
 
     const handleChange1 = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const {value } = event.target;
+        const { value } = event.target;
         setEmail(value);
     }
 
@@ -88,39 +91,47 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
     //     // }
     //     onRecipientDataChange(recipientData);
     // }, [recipientData]);
-    
+
 
     const [history, setHistory] = useState([]);
     useEffect(() => {
         setHistory([]);
     }, []);
-    const [selectedOption, setSelectedOption] = useState<string>("new"); 
-    const [email , setEmail] = useState<string>("");
-    const handleSaveRecipient = (e: FormEvent) => {
+    const [selectedOption, setSelectedOption] = useState<string>("new");
+    const [email, setEmail] = useState<string>("");
+    const handleSaveRecipient = async (e: FormEvent) => {
         e.preventDefault();
-        
-        // console.log(recipientData);
+
+        console.log(recipientData);
         // console.log(email); 
 
         const payload = {
             "fullName": recipientData.contactName,
             "phoneNumber": recipientData.phone,
             "email": email,
-            "province":  recipientData.stateOrProvinceName,
+            "province": recipientData.stateOrProvinceName,
             "district": recipientData.districtName,
             "ward": recipientData.wardName,
             "street": recipientData.addressDetail,
-            "postalCode": recipientData.zipCode,  
+            "postalCode": recipientData.zipCode,
+            "provinceCode": recipientData.stateOrProvinceId,
+            "districtCode": recipientData.districtId,
+            "communeCode": recipientData.wardId,
         }
-        
+        const isValid = Object.values(payload).every(value => value !== null && value !== undefined && value !== "");
+        if (!isValid) {
+            alert("Vui lòng nhập đầy đủ thông tin");
+            return;
+        }
 
-        // console.log(`Reci Payload: ${JSON.stringify(payload)}`);
+        const receiverHistorys = await sendReceiverData( payload as unknown as CreateReceiverRequest);
 
     };
     const handleSelectHistory = (index) => {
         if (index !== "") {
             setRecipientData(history[index]);
         }
+
     };
 
     return (
@@ -152,7 +163,7 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
             </div>
 
 
-            
+
             <form onSubmit={handleSaveRecipient}>
                 {/* Select Previous Recipient */}
                 {selectedOption === "existing" && history.length == 0 && (
@@ -175,66 +186,66 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
 
                 {selectedOption === "new" ? (
                     <>
-                    {/* Contact Name */}
-                    <div className="mb-4">
-                        <Label htmlFor="contactName">Họ và tên</Label>
-                        <Input
-                            id="contactName"
-                            type="text"
-                            placeholder="Nhập họ và tên"
-                            value={recipientData.contactName}
-                            onChange={handleChange}
-                            className="w-full"
-                        />
-                        {errors.contactName && <p className="text-red-500 text-sm">{errors.contactName}</p>}
-                    </div>
+                        {/* Contact Name */}
+                        <div className="mb-4">
+                            <Label htmlFor="contactName">Họ và tên</Label>
+                            <Input
+                                id="contactName"
+                                type="text"
+                                placeholder="Nhập họ và tên"
+                                value={recipientData.contactName}
+                                onChange={handleChange}
+                                className="w-full"
+                            />
+                            {errors.contactName && <p className="text-red-500 text-sm">{errors.contactName}</p>}
+                        </div>
 
-                    <div className="mb-4">
-                        <Label htmlFor="contactName">Email</Label>
-                        <Input
-                            id="email"
-                            type="text"
-                            placeholder="Nhập email"
-                            value={email}
-                            onChange={handleChange1}
-                            className="w-full"
-                        />
-                        {errors.contactName && <p className="text-red-500 text-sm">{errors.contactName}</p>}
-                    </div> 
+                        <div className="mb-4">
+                            <Label htmlFor="contactName">Email</Label>
+                            <Input
+                                id="email"
+                                type="text"
+                                placeholder="Nhập email"
+                                value={email}
+                                onChange={handleChange1}
+                                className="w-full"
+                            />
+                            {errors.contactName && <p className="text-red-500 text-sm">{errors.contactName}</p>}
+                        </div>
 
-                    {/* Phone */}
-                    <div className="mb-4">
-                        <Label htmlFor="phone">Số điện thoại</Label>
-                        <Input
-                            id="phone"
-                            type="tel"
-                            placeholder="Nhập số điện thoại"
-                            className="w-full"
-                            value={recipientData.phone}
-                            onChange={handleChange}
-                        />
-                        {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
-                    </div>
+                        {/* Phone */}
+                        <div className="mb-4">
+                            <Label htmlFor="phone">Số điện thoại</Label>
+                            <Input
+                                id="phone"
+                                type="tel"
+                                placeholder="Nhập số điện thoại"
+                                className="w-full"
+                                value={recipientData.phone}
+                                onChange={handleChange}
+                            />
+                            {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+                        </div>
 
-                    <AddressForm onAddressChange={handleAddressChange} />
+                        <AddressForm onAddressChange={handleAddressChange} />
 
-                    {/* Zip Code */}
-                    <div className="mb-4">
-                        <Label htmlFor="zipCode">Mã bưu điện</Label>
-                        <Input
-                            id="zipCode"
-                            type="text"
-                            placeholder="Nhập mã bưu điện"
-                            value={recipientData.zipCode}
-                            onChange={handleChange}
-                            className="w-full"
-                        />
-                    </div>
+                        {/* Zip Code */}
+                        <div className="mb-4">
+                            <Label htmlFor="zipCode">Mã bưu điện</Label>
+                            <Input
+                                id="zipCode"
+                                type="text"
+                                placeholder="Nhập mã bưu điện"
+                                value={recipientData.zipCode}
+                                onChange={handleChange}
+                                className="w-full"
+                            />
+                        </div>
 
-                    {errors.zipCode && <p className="text-red-500 text-sm">{errors.zipCode}</p>}
-                    <Button type="submit" className="bg-blue-500 text-white">Gửi ngay</Button>
-                </>
-                ): null}                
+                        {errors.zipCode && <p className="text-red-500 text-sm">{errors.zipCode}</p>}
+                        <Button type="submit" className="bg-blue-500 text-white">Gửi ngay</Button>
+                    </>
+                ) : null}
             </form>
         </div>
     );

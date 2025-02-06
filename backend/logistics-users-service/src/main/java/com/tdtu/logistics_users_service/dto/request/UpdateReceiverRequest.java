@@ -25,4 +25,7 @@ public class UpdateReceiverRequest {
     String street; // Đường.
 
     String postalCode; // Mã bưu chính.
+
+
+
 }
