@@ -129,15 +129,14 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
 
     useEffect(() => {
         // if (product.productName && product.weight > 0 && product.quantity > 0) {
-            onSubmit(product);
-            // console.log(product)
+        onSubmit(product);
+        // console.log(product)
         // }
     }, [product, onSubmit]);
 
     return (
         <div className="border-2 shadow-lg p-4 rounded-lg">
             <h1 className="text-xl font-semibold mb-4">Thông Tin Hàng Hóa</h1>
-
             <div className="form-section mb-4">
                 <Label>Loại Hàng Hóa:</Label>
                 <RadioGroup
@@ -266,7 +265,7 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
                         ))}
                     </div>
                 </div>
-            ) :  (
+            ) : (
                 <div className="form-section mb-4">
                     <Label>Tính Chất Hàng Hóa Đặc Biệt:</Label>
                     <div className="flex flex-wrap gap-4">

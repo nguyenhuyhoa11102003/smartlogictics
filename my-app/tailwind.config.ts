@@ -66,5 +66,13 @@ export default {
 			}
 		}
 	},
+	safelist: [
+        "bg-yellow-200", "text-yellow-800",
+        "bg-blue-200", "text-blue-800",
+        "bg-orange-200", "text-orange-800",
+        "bg-red-200", "text-red-800",
+        "bg-green-200", "text-green-800",
+        "bg-gray-200", "text-gray-800"
+    ],
 	plugins: [require("tailwindcss-animate")],
 } satisfies Config;

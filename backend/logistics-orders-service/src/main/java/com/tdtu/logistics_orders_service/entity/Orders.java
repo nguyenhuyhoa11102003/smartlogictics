@@ -30,7 +30,7 @@ public class Orders extends BaseEntity {
     @Enumerated(EnumType.STRING)
     OrderStatus status; // Trạng thái đơn hàng
 
-    @Column(name = "shipment_code", unique = true, length = 13)
+    @Column(name = "shipment_code", length = 13)
     String shipmentCode; // Mã vận đơn
 
     @Column(name = "order_code")

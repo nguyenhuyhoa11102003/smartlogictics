@@ -3,11 +3,12 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from '@/components/ui/checkbox';
 import { PickupData } from '@/modules/order/models/PickUpData';
 import { Warehouse } from '@/modules/warehouse/models/Warehouse';
-import { getAllWarehouses } from '@/modules/warehouse/services/WarehouseService';
+// import { getAllWarehouses } from '@/modules/warehouse/services/WarehouseService';
 import { Button } from 'react-bootstrap';
 import { useAuth } from '@/context/app.context';
 import { AddressListProps } from '@/modules/address/components/AddressList';
 import axios from 'axios';
+
 
 interface PickupFormProps {
     onPickupDataChange: (data: PickupData) => void;
@@ -16,7 +17,7 @@ interface PickupFormProps {
 export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
     const { accessToken, setAccessToken, clearAccessToken } = useAuth();
     const [pickupData, setPickupData] = useState<PickupData>({
-        sender: '',
+        sender : {},
         pickupLocation: 'Nhận tại nhà',
         pickupDate: '',
         postOfficeId: '',
@@ -30,29 +31,30 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
     const [currentDate, setCurrentDate] = useState<string>('');
     const [showPostOffices, setShowPostOffices] = useState<boolean>(false);
     const [selectedPostOffice, setSelectedPostOffice] = useState<string>("");
-    const [selectedSender, setSelectedSender] = useState<string>('3d04b569-2c6a-41f8-afc5-d443e94ba647');
+    // const [selectedSender, setSelectedSender] = useState<string>("");
+    const [selectedSender, setSelectedSender] = useState(null);
+
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
 
     
     const [addresses, setAddresses] = useState<AddressListProps[]>([]);
 
     const fetchAddresses = async () => {
-        const response = await axios.get(`http://localhost:8082/users/api/sender`, {
-        });
-        console.info(`response:${JSON.stringify(response.data)}`);
+        const response = await axios.get(`http://localhost:8082/users/api/sender`, {});
+        // console.info(`response:${JSON.stringify(response.data)}`);
         if (response.status === 200) {
           const senders = response.data._embedded.sender;
-          console.info(`senders:${JSON.stringify(senders)}`);
+        //   console.info(`senders:${JSON.stringify(senders)}`);
     
           const updatedAddresses = [];
           for (const sender of senders) {
-            console.log('fullname:', sender.fullName);
-            console.log('phone:', sender.phoneNumber);
-            console.log('email:', sender.email);
-            console.log('address:', sender._links.address.href);
+            // console.log('fullname:', sender.fullName);
+            // console.log('phone:', sender.phoneNumber);
+            // console.log('email:', sender.email);
+            // console.log('address:', sender._links.address.href);
             const addressResponse = await axios.get(sender._links.address.href);
             if (addressResponse.status === 200) {
-              console.log('address details:', addressResponse.data);
+            //   console.log('address details:', addressResponse.data);
               updatedAddresses.push({
                 senderName: sender.fullName,
                 senderPhone: sender.phoneNumber,
@@ -65,11 +67,12 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
                 senderCommuneCode: addressResponse.data.wardCode,
                 senderCommuneName: addressResponse.data.ward,
                 senderPostalCode: addressResponse.data.postalCode,
+                senderId: sender.id
               });
             } else {
               console.error('Failed to fetch address:', addressResponse.status);
             }};
-            console.info(`updatedAddresses:${JSON.stringify(updatedAddresses)}`);
+            // console.info(`updatedAddresses:${JSON.stringify(updatedAddresses)}`);
             setAddresses(updatedAddresses);
         }
       }
@@ -77,38 +80,23 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
         fetchAddresses();
       }, []);
 
-    // const accounts = [
-    //     {
-    //         id: 1,
-    //         addressLine: "266/58, Tôn Đản, Quận 1",
-    //         city: "Hồ Chí Minh",
-    //         country: "Việt Nam",
-    //     },
-    //     {
-    //         id: 2,
-    //         addressLine: "123 Đường ABC, Quận 2",
-    //         city: "Hồ Chí Minh",
-    //         country: "Việt Nam",
-    //     }
-    // ];
-
     useEffect(() => {
-        const fetchWarehouses = async () => {
-            try {
-                const response = await getAllWarehouses();
-                setWarehouses(response)
-            }
-            catch (e) {
-                alert('error')
-            }
-            getAllWarehouses()
-                .then((data) => setWarehouses(data))
-                .catch((error) => {
-                    setWarehouses([])
-                    // console.error('Error fetching warehouses:', error);
-                })
-        };
-        fetchWarehouses();
+        // const fetchWarehouses = async () => {
+        //     try {
+        //         const response = await getAllWarehouses();
+        //         setWarehouses(response)
+        //     }
+        //     catch (e) {
+        //         alert('error')
+        //     }
+        //     getAllWarehouses()
+        //         .then((data) => setWarehouses(data))
+        //         .catch((error) => {
+        //             setWarehouses([])
+        //             // console.error('Error fetching warehouses:', error);
+        //         })
+        // };
+        // fetchWarehouses();
     }, []);
 
 
@@ -133,9 +121,9 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
     };
 
     useEffect(() => {
-        const pickupLocation = showPostOffices
-            ? warehouses.find((p) => p.id.toString() === selectedPostOffice)?.name || 'Chưa chọn bưu cục'
-            : 'Nhận tại nhà';
+        // const pickupLocation = showPostOffices
+        //     ? warehouses.find((p) => p.id.toString() === selectedPostOffice)?.name || 'Chưa chọn bưu cục'
+        //     : 'Nhận tại nhà';
 
         const pickupDate = pickupDay && timePeriod
             ? `${pickupDay} - ${(() => {
@@ -153,25 +141,49 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
             : 'Chưa chọn thời gian';
 
         const updatedData: PickupData = {
-            sender: selectedSender,
-            pickupLocation: pickupLocation,
+            sender: {},
+            // pickupLocation: pickupLocation,
+            pickupLocation : "", 
             pickupDate: pickupDate,
             postOfficeId: selectedPostOffice,
             pickupDay: pickupDay,
             timePeriod: timePeriod,
             isPostOfficePickup: showPostOffices,
         };
-        // console.log(updatedData)
+
         setPickupData(updatedData);
-        onPickupDataChange(updatedData);
+        // onPickupDataChange(updatedData);
     }, [showPostOffices, selectedSender, pickupDay, timePeriod, selectedPostOffice]);
+
+    
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        alert('Xac nhan thong tin nguoi gui thanh cong');
+        onPickupDataChange(pickupData)
+    }
+
+    const handleSenderChange = (e : any) => {
+        const senderId = e.target.value
+        const senderInfo = addresses.find(acount => acount.senderId === senderId);
+        
+        if (senderInfo) {
+            setPickupData(prevData => ({
+                ...prevData,
+                sender: senderInfo, 
+            }));
+        }
+    
+    };
+    
+
+    
 
 
     return (
         <div className="border-2 shadow-lg p-4">
             <div className="flex justify-between space-x-2">
                 <h2 className="font-bold text-lg mb-4">NGƯỜI GỬI</h2>
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                     <Checkbox
                         id="terms"
                         checked={showPostOffices}
@@ -183,29 +195,24 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
                     >
                         Gửi tại bưu cục
                     </label>
-                      {/* Nút thêm địa chỉ mới */}
-
                     <Button variant="outline" onClick={() => {}}>
                         + Thêm địa chỉ mới
                     </Button>
-
-                </div>
+                </div> */}
             </div>
-            <form>
+            <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <Label htmlFor="senderName">Người gửi</Label>
                     <select
                         id="senderName"
                         className="w-full border rounded p-2"
-                        value={selectedSender}
-                        onChange={
-                            (e) => setSelectedSender(e.target.value)
-                        }
+                        value={selectedSender || ""}
+                        onChange={handleSenderChange}
                     >
                         {/* <option value="">Chọn người gửi...</option> */}
-                        {/* {addresses.map((acount) => (
-                            <option key={} value={acount.id}>{acount.senderName + "," + acount.senderAddress} </option>
-                        ))} */}
+                        {addresses.map((acount) => (
+                            <option key={acount.senderId} value={acount.senderId}>{acount.senderName + "," + acount.senderAddress} </option>
+                        ))}
                     </select>
                 </div>
 
@@ -247,7 +254,11 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
                     </div>
                 </>)}
 
-                {showPostOffices && (<div className="mb-4">
+                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+                    Xác nhận thông tin người gửi
+                </button>
+
+                {/* {showPostOffices && (<div className="mb-4">
                     <label htmlFor="postOffice" className="block font-bold mb-2">
                         Chọn bưu cục
                     </label>
@@ -264,7 +275,7 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
                             </option>
                         ))}
                     </select>
-                </div>)}
+                </div>)} */}
             </form>
             
         </div>

@@ -8,10 +8,45 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { sendReceiverData } from "@/modules/customer/services/ReceiverService";
 import { CreateReceiverRequest } from "../models/CreateReceiverRequest";
+import http from "@/utils/http";
+import { jwtDecode, JwtPayload } from "jwt-decode";
+import { useAuth } from "@/context/app.context";
+
+interface AddressListProps {
+    senderName: string;
+    senderPhone: string;
+    senderMail: string;
+    senderAddress: string;
+    senderProvinceCode: string;
+    senderProvinceName: string;
+    senderDistrictCode: string;
+    senderDistrictName: string;
+    senderCommuneCode: string;
+    senderCommuneName: string;
+    senderPostalCode: string;
+    senderId: string;
+}
+
+
+interface ReceiverProps {
+    "recipientId": string;
+    "recipientName": "string",
+    "receiverPhone": "string",
+    "receiverAddress": "string",
+    "receiverProvinceCode": "string",
+    "receiverProvinceName": "string",
+    "receiverDistrictCode": "string",
+    "receiverDistrictName": "string",
+    "receiverWard": "string",
+    "receiverWardCode": "string",
+    "receiverStreet": "string",
+    "receiverPostalCode": "string",
+    "receiverEmail": "string",
+}
 
 
 interface RecipientFormProps {
-    onRecipientDataChange: (data: Address) => void;
+    onRecipientDataChange: (data: ReceiverProps) => void;
 }
 export default function RecipientForm({ onRecipientDataChange }: RecipientFormProps) {
     const [recipientData, setRecipientData] = useState<Address>({
@@ -30,8 +65,9 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
         isActive: true,
         wardId: 0,
     });
-
+    const { accessToken } = useAuth();
     const [errors, setErrors] = useState<{ [key in keyof RecipientData]?: string }>({});
+    const [customerInfo, setCustomerInfo] = useState<JwtPayload | null>(null);
 
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,17 +129,71 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
     // }, [recipientData]);
 
 
-    const [history, setHistory] = useState([]);
+    const [history, setHistory] = useState<ReceiverProps[]>([]);
+
     useEffect(() => {
-        setHistory([]);
-    }, []);
+
+        if (!customerInfo)
+            return
+
+        const getReceivers = async () => {
+            try {
+                const response = await http.get(
+                    `http://localhost:8082/users/api/receiver/search/by-customer?customerId=${customerInfo.customerId}`
+                );
+                if (response.status === 200) {
+                    const receivers = response.data._embedded.receiver;
+
+                    let updateReceives = []
+                    for (const receiver of receivers) {
+                        updateReceives.push({
+                            
+                            recipientId: receiver.id,
+                            recipientName: receiver.fullName,
+                            receiverPhone: receiver.phoneNumber,
+                            receiverAddress: receiver.address.street,
+                            receiverProvinceCode: receiver.address.provinceCode,
+                            receiverProvinceName: receiver.address.province,
+                            receiverDistrictCode: receiver.address.districtCode,
+                            receiverDistrictName: receiver.address.district,
+                            receiverWard: receiver.address.ward,
+                            receiverWardCode: receiver.address.wardCode,
+                            receiverStreet: receiver.address.street,
+                            receiverPostalCode: receiver.address.postalCode,
+                            receiverEmail: receiver.email,
+                        })
+                    }
+                    setHistory(updateReceives)
+                }
+
+            }
+            catch (error) {
+                console.error("Lỗi khi lấy receivers:", error);
+            }
+        }
+        getReceivers()
+
+    }, [customerInfo]);
+
+
+    useEffect(() => {
+        if (accessToken) {
+            try {
+                const decodedToken = jwtDecode(accessToken);
+                setCustomerInfo(decodedToken);
+            } catch (error) {
+                console.error("Lỗi giải mã token:", error);
+            }
+        }
+
+        setHistory([]); // Reset history khi component mount
+    }, [accessToken]);
+
+
     const [selectedOption, setSelectedOption] = useState<string>("new");
     const [email, setEmail] = useState<string>("");
     const handleSaveRecipient = async (e: FormEvent) => {
         e.preventDefault();
-
-        console.log(recipientData);
-        // console.log(email); 
 
         const payload = {
             "fullName": recipientData.contactName,
@@ -118,20 +208,26 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
             "districtCode": recipientData.districtId,
             "communeCode": recipientData.wardId,
         }
+
         const isValid = Object.values(payload).every(value => value !== null && value !== undefined && value !== "");
         if (!isValid) {
             alert("Vui lòng nhập đầy đủ thông tin");
             return;
         }
 
-        const receiverHistorys = await sendReceiverData( payload as unknown as CreateReceiverRequest);
+        console.log(JSON.stringify(payload))
 
+        const response = await sendReceiverData(payload as unknown as CreateReceiverRequest);
+        if (response.code === 201) {
+            alert('Tao nguoi nhan thanh cong')
+        }
     };
     const handleSelectHistory = (index) => {
-        if (index !== "") {
-            setRecipientData(history[index]);
-        }
+        const address = index.target.value
+        const selectedHistory = history.find(e => e.receiverAddress === address)
 
+        alert("Xac nhan thong tin nguoi nhan thanh cong")
+        onRecipientDataChange(selectedHistory as ReceiverProps)
     };
 
     return (
@@ -162,27 +258,25 @@ export default function RecipientForm({ onRecipientDataChange }: RecipientFormPr
                 </label>
             </div>
 
-
-
             <form onSubmit={handleSaveRecipient}>
                 {/* Select Previous Recipient */}
-                {selectedOption === "existing" && history.length == 0 && (
+                {selectedOption === "existing" && (
                     <div className="mb-4">
                         <Label htmlFor="historySelect">Chọn người nhận trước đó</Label>
                         <select
                             id="historySelect"
-                            onChange={(e) => handleSelectHistory(e.target.value)}
+                            onChange={handleSelectHistory}
                             className="w-full border p-2"
                         >
                             <option value="">-- Chọn người nhận --</option>
-                            {history.map((item, index) => (
-                                <option key={index} value={index}>
+                            {history.map((receiver, index) => (
+                                <option key={index} value={receiver.receiverStreet}>
+                                    {receiver.recipientName} - {receiver.receiverPhone} - {receiver.receiverStreet}
                                 </option>
                             ))}
                         </select>
                     </div>
                 )}
-
 
                 {selectedOption === "new" ? (
                     <>

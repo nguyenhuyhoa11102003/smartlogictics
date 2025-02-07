@@ -48,3 +48,6 @@ export async function getCheckoutById(id: string) {
   if (response.status >= 200 && response.status < 300) return response.json();
   return Promise.reject(response.status);
 }
+
+
+

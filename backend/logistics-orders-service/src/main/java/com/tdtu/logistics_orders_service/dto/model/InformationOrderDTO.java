@@ -26,6 +26,7 @@ public class InformationOrderDTO {
     private String senderName; // Tên người gửi
 
     // Thông tin người nhận
+    private String receiverId;  // them ma nguoi nhan
     private String recipientName; // Tên người nhận
 
     private String receiverPhone; // Số điện thoại người nhận

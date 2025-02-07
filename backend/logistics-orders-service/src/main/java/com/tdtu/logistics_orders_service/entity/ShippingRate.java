@@ -2,6 +2,7 @@ package com.tdtu.logistics_orders_service.entity;
 
 import com.tdtu.logistics_orders_service.enumrator.DeliveryServiceType;
 import com.tdtu.logistics_orders_service.enumrator.ShippingZone;
+import com.tdtu.logistics_orders_service.enumrator.TransportationType;
 import lombok.*;
 import jakarta.persistence.*;
 
@@ -29,6 +30,10 @@ public class ShippingRate {
 
 	@Column(name = "base_price", precision = 19, scale = 2, nullable = false)
 	private BigDecimal basePrice; // Giá cơ bản
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "transportation_type", nullable = false)
+	private TransportationType transportationType; // XE_MÁY, O_TÔ, XE_TẢI, TÀU_HỎA, MÁY_BAY
 
 	@Column(name = "price_per_km", precision = 19, scale = 2, nullable = false)
 	private BigDecimal pricePerKm; // Giá mỗi km

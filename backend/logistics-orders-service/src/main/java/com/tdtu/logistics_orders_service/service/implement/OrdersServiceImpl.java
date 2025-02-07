@@ -71,6 +71,7 @@ public class OrdersServiceImpl implements OrdersService {
 	final UserServiceClient userServiceClient;
 	final ShipmentServiceClient shipmentServiceClient;
 
+
 	final ShippingMetadataRepository shippingMetadataRepository;
 
 	final PaymentMetadataRepository paymentMetadataRepository;
@@ -87,6 +88,7 @@ public class OrdersServiceImpl implements OrdersService {
 		log.info("Logistic-Order-Service: Order-Service: Method-Create-order: {}", requestDTO);
 
 		String customerId = SecurityContextCustomer.getCustomerId();
+
 		if (customerId == null) {
 			log.error("Logistic-Order-Service: Order-Service: Method-Create-order: Customer not found");
 			throw new RuntimeException("Customer not found");
@@ -100,7 +102,9 @@ public class OrdersServiceImpl implements OrdersService {
 		paymentMetadataRepository.save(paymentMetadata);
 		log.info("Logistic-Order-Service: Order-Service: Method-Create-order: Payment metadata saved");
 
-		String receiverId = createReceiver(customerId, requestDTO);
+		//		String receiverId = createReceiver(customerId, requestDTO);
+		String receiverId = requestDTO.getInformationOrder().getReceiverId();
+		log.info("Logistic-Order-Service: Order-Service: Method-Create-order: receiverId: {}", receiverId);
 		Orders orderEntity = toOrder(customerId, requestDTO, shippingMetadata, paymentMetadata, receiverId);
 
 		if (Objects.nonNull(receiverId)) {
@@ -120,10 +124,9 @@ public class OrdersServiceImpl implements OrdersService {
 			// order created
 			OrderInfResponse orderInfResponse = orderMapper.toOrderInfResponse(ordersRepository.save(orderEntity));
 			// assgin shipment ship for ShipmentMetadata
-			shipmentServiceClient.addOrdersToShipment(requestDTO.getInformationOrder().getShipmentId(), List.of(orderInfResponse.getId()));
+			//			shipmentServiceClient.addOrdersToShipment(requestDTO.getInformationOrder().getShipmentId(), List.of(orderInfResponse.getId()));
 			return orderInfResponse;
 		} else {
-
 			throw new AppException(ErrorCode.CREATE_ORDER_FAILED);
 		}
 	}
@@ -188,22 +191,33 @@ public class OrdersServiceImpl implements OrdersService {
 
 		log.info("Logistic-Order-Service: Order-Service: Method-Create-Order: Request: {}, User: {}, Timestamp: {}", requestDTO, customerId, LocalDateTime.now());
 
-		return Orders.builder().customerId(customerId)
+		return Orders.builder()
+				.customerId(customerId)
 
-				.status(requestDTO.getOrderCreationStatus()).shipmentCode(requestDTO.getInformationOrder().getShipmentId()).note(requestDTO.getInformationOrder().getContentNote()).orderCode(requestDTO.getInformationOrder().getSaleOrderCode()) // check lai cho nay
+				.status(requestDTO.getOrderCreationStatus())
+				.shipmentCode(requestDTO.getInformationOrder().getShipmentId())
+				.note(requestDTO.getInformationOrder().getContentNote())
+				.orderCode(requestDTO.getInformationOrder().getSaleOrderCode()) // check lai cho nay
 				.moreRequire(requestDTO.getInformationOrder().getMoreRequire())
 
 				.senderId(requestDTO.getInformationOrder().getSenderId()).senderName(requestDTO.getInformationOrder().getSenderName())
 
 				.recipientName(requestDTO.getInformationOrder().getRecipientName()).recipientId(receiverId)
 
-				.branchCode(requestDTO.getInformationOrder().getBranchCode()).serviceCode(requestDTO.getInformationOrder().getServiceCode()).receivingMethod(requestDTO.getInformationOrder().getReceivingMethod())
+				.branchCode(requestDTO.getInformationOrder().getBranchCode())
+				.serviceCode(requestDTO.getInformationOrder().getServiceCode())
+				.receivingMethod(requestDTO.getInformationOrder().getReceivingMethod())
 
-				.vehicle(requestDTO.getInformationOrder().getVehicle()).isBroken(requestDTO.getInformationOrder().isBroken()).deliveryRequire(requestDTO.getInformationOrder().getDeliveryRequire())
+				.vehicle(requestDTO.getInformationOrder().getVehicle())
+				.isBroken(requestDTO.getInformationOrder().isBroken())
+				.deliveryRequire(requestDTO.getInformationOrder().getDeliveryRequire())
 
 				.deliveryInstruction(requestDTO.getInformationOrder().getDeliveryInstruction())
 
-				.weight(requestDTO.getInformationOrder().getWeight()).width(requestDTO.getInformationOrder().getWidth()).length(requestDTO.getInformationOrder().getLength()).height(requestDTO.getInformationOrder().getHeight())
+				.weight(requestDTO.getInformationOrder().getWeight())
+				.width(requestDTO.getInformationOrder().getWidth())
+				.length(requestDTO.getInformationOrder().getLength())
+				.height(requestDTO.getInformationOrder().getHeight())
 
 				//				.pickupShipperId(requestDTO.getInformationOrder().getPickupShipperId())
 				//				.deliveryShipperId(requestDTO.getInformationOrder().getDeliveryShipperId())
@@ -234,6 +248,7 @@ public class OrdersServiceImpl implements OrdersService {
 		if (paymentType == null) {
 			throw new IllegalArgumentException("PaymentType không được null.");
 		}
+
 		if (paymentType == PaymentType.POSTPAID) {
 			// Thanh toan sau
 			paymentMetadata.setPaymentType(PaymentType.POSTPAID);

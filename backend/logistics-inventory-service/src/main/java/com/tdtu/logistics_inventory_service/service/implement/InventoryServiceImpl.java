@@ -20,9 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -51,6 +49,7 @@ public class InventoryServiceImpl implements InventoryService {
 
 		// total volume
 		double currentVolumeWarehouse = getPackageByWarehouseId(request.getWarehouseId()).stream().mapToDouble(inv -> inv.getQuantity() * (inv.getLength() * inv.getWidth() * inv.getHeight())).sum();
+
 
 
 		double newWeight = 0;

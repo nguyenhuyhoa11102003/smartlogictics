@@ -1,21 +1,9 @@
-"use client";
+import React, { useState } from "react";
 
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { useEffect, useRef, useState } from "react";
-import { Order } from "@/modules/order/models/Order";
-import { getOrderBySenderId } from "../services/OrderService";
-import { PaginatedResponse } from "../models/PaginatedResponse";
-import { OrderInfResponse } from "../models/OrderInfResponse";
-import { useAuth } from "@/context/app.context";
-import { SuccessResponse } from "@/types/utils.type";
-import { formatToVietnamTime } from "@/utils/utils";
-import { OrderStatus } from "@/modules/order/models/EOrderStatus";
-import Link from "next/link";
 
-const statusColors: Record<OrderStatus, string> = {
-    "Đã tiếp nhận": "bg-yellow-200 text-yellow-800",
+// lười , nhớ làm thì làm , không thì thôi
+const statusColors: Record<string, string> = {
+    "RECEIVED": "bg-yellow-200 text-yellow-800",
     "Đang lấy hàng": "bg-yellow-200 text-yellow-800",
     "Đã lấy hàng": "bg-yellow-200 text-yellow-800",
     "Đang vận chuyển": "bg-blue-200 text-blue-800",
@@ -25,171 +13,114 @@ const statusColors: Record<OrderStatus, string> = {
     "Chờ xử lý": "bg-gray-200 text-gray-800",
 };
 
-const mapStatusToDisplayName = (status: string): string => {
-    const displayNameMapping: Record<string, string> = {
-        PENDING: "Chờ xử lý",
-        APPROVED: "Đã duyệt",
-        REJECTED: "Bị từ chối",
-        COMPLETED: "Hoàn thành",
-        CANCELLED: "Đã hủy",
-        RECEIVED: "Đã tiếp nhận"
+interface Order {
+    id: string;
+    shipmentCode: string;
+    orderCode: string;
+    senderName: string;
+    recipientName: string;
+    goods: string;
+    status: string;
+    createdAt: string;
+    printed: boolean;
+    insurance: boolean;
+}
+
+interface OrdersTableProps {
+    orders: Order[];
+}
+
+export function OrdersTable({ orders }: OrdersTableProps) {
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+    const onView = (order: Order) => {
+        setSelectedOrder(order);
     };
 
-    return displayNameMapping[status] || "Không xác định";
-};
-
-export function OrdersTable() {
-    const [orders, setOrders] = useState<PaginatedResponse<OrderInfResponse> | null>(null);
-    // Save temorary after that use UseContext
-    const [senderId, setSenderId] = useState<string>("9f034bde-ff6b-4cf9-88be-13f24fe0bf25");
-    const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
-    const [selectedItem, setSelectedItem] = useState<string | null>(null);
-
-    const handleRightClick = (event: React.MouseEvent, itemId: string) => {
-        event.preventDefault();
-        setContextMenuPosition({ x: event.clientX, y: event.clientY });
-        setSelectedItem(itemId);
+    const onEdit = (order: Order) => {
+        console.log("Edit order: ", order);
     };
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const fetchedOrders: SuccessResponse<PaginatedResponse<OrderInfResponse>> | null = await getOrderBySenderId(senderId);
-                if (fetchedOrders.result) {
-                    setOrders(fetchedOrders.result)
-                }
-
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        fetchOrders()
-    }, [senderId])
-
-    const handleEdit = () => {
-        if (selectedItem) {
-            alert(`Edit order with ID: ${selectedItem}`);
-        }
-        setContextMenuPosition(null); // Close the context menu
+    const onDelete = (orderId: string) => {
+        console.log("Delete order with ID: ", orderId);
     };
-
-    const handleDelete = () => {
-        if (selectedItem) {
-            alert(`Delete order with ID: ${selectedItem}`);
-        }
-        setContextMenuPosition(null); // Close the context menu
-    };
-
-
-    // Create a reference for the context menu
-    const contextMenuRef = useRef<HTMLDivElement | null>(null);
-
-    // Close the context menu if clicked outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
-                setContextMenuPosition(null); // Close the context menu if clicked outside
-            }
-        };
-
-        // Attach the event listener
-        document.addEventListener("mousedown", handleClickOutside);
-
-        // Clean up the event listener
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
-
 
     return (
-        <div className="overflow-auto border rounded-md">
-            <table className="min-w-full bg-white border border-gray-200">
-                <thead>
-                    <tr className="bg-gray-100">
-                        <th className="p-2 border">Chọn</th>
-                        <th className="p-2 border">Thao tác</th>
-                        <th className="p-2 border">Mã vận đơn</th>
-                        <th className="p-2 border">Mã đơn hàng</th>
-                        <th className="p-2 border">Người gửi</th>
-                        <th className="p-2 border">Người nhận</th>
-                        <th className="p-2 border">Hàng hóa</th>
-                        <th className="p-2 border">Trạng thái</th>
-                        <th className="p-2 border">Ngày lập</th>
-                        <th className="p-2 border">Tổng cước</th>
-                        <th className="p-2 border">IN/CHƯA IN</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {orders?.content.map((item) => (
-                        <tr key={item.id}
-                            className="hover:bg-gray-50 border-t"
-                        >
-                            <td className="p-2 border text-center">
-                                <Checkbox />
-                            </td>
-                            <td className="p-2 border text-center"
-                                onClick={(e) => handleRightClick(e, item.id)}>
-                                Thao tác
-                            </td>
-                            <td className="p-2 border flex flex-col">
-                                {/* Shipment ID with blue color */}
-                                <span className="text-green-500 ">{item.shipmentId}</span>
-
-                                {/* Link to order details */}
-                                <Link href={`/order-details/${item.shipmentId}`} className="text-blue-500 text-right">
-                                    Xem chi tiết
-                                </Link>
-                            </td>
-                            <td className="p-2 border">{item.orderHdrID}</td>
-                            <td className="p-2 border">{item.senderName}</td>
-                            <td className="p-2 border">{item.receiverName}</td>
-                            <td className="p-2 border">{"Tên hàng hóa"}</td>
-                            <td className="p-2 border">
-                                <Badge className={cn(item.status)}>
-                                    {mapStatusToDisplayName(item.status)}
-                                </Badge>
-                            </td>
-                            <td className="p-2 border">{formatToVietnamTime(item.createdDate ?? "2024-12-10T22:37:36.199276")}</td>
-                            <td className="p-2 border">{`12.000 đ`}</td>
-                            <td className="p-2 border">
-                                <Badge className={cn(item.status)}>
-                                    {`Đã in`}
-                                </Badge>
-                            </td>
+        <div>
+            {/* Bảng đơn hàng */}
+            <div className="overflow-auto border rounded-md">
+                <table className="min-w-full bg-white border border-gray-200">
+                    <thead>
+                        <tr className="bg-gray-100">
+                            <th className="p-2 border">Mã vận đơn</th>
+                            <th className="p-2 border">Mã đơn hàng</th>
+                            <th className="p-2 border">Người gửi</th>
+                            <th className="p-2 border">Người nhận</th>
+                            <th className="p-2 border">Hàng hóa</th>
+                            <th className="p-2 border">Trạng thái</th>
+                            <th className="p-2 border">Ngày lập</th>
+                            <th className="p-2 border">Tổng cước</th>
+                            <th className="p-2 border">IN/CHƯA IN</th>
+                            <th className="p-2 border">Hỗ trợ bảo hiểm</th>
+                            <th className="p-2 border">Thao tác</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {orders.map((o) => (
+                            <tr key={o.id} className="hover:bg-gray-50 border-t">
+                                <td className="p-2 border text-center">{o.shipmentCode}</td>
+                                <td className="p-2 border text-center">{o.orderCode}</td>
+                                <td className="p-2 border text-center">{o.senderName}</td>
+                                <td className="p-2 border text-center">{o.recipientName}</td>
+                                <td className="p-2 border text-center">{o.goods}</td>
+                                <td className={`p-2 border text-center font-bold ${statusColors[o.status] || "bg-gray-200 text-gray-800"}`}>
+                                    {o.status}
+                                </td>
+                                <td className="p-2 border text-center">{o.createdAt}</td>
+                                <td className="p-2 border text-center">{100}</td>
+                                <td className="p-2 border text-center">{o.printed ? "Đã in" : "Chưa in"}</td>
+                                <td className="p-2 border text-center">{o.insurance ? "Có" : "Không"}</td>
+                                <td className="p-2 border text-center flex gap-2 justify-center">
+                                    <button className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800" onClick={() => onView(o)}>
+                                        Xem
+                                    </button>
+                                    <button className="px-3 py-1 text-sm text-green-600 hover:text-green-800" onClick={() => onEdit(o)}>
+                                        Sửa
+                                    </button>
+                                    <button className="px-3 py-1 text-sm text-red-600 hover:text-red-800" onClick={() => onDelete(o.id)}>
+                                        Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
-            {/* Context Menu */}
-            {contextMenuPosition && (
-                <div
-                    ref={contextMenuRef} // Attach the ref here
-                    className="absolute z-10 bg-white border rounded-md shadow-md p-2"
-                    style={{
-                        top: contextMenuPosition.y,
-                        left: contextMenuPosition.x,
-                    }}
-                >
-                    <ul>
-                        <li>
-                            <button
-                                className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800"
-                                onClick={handleEdit}
-                            >
-                                Sửa
+            {/* Modal xem chi tiết đơn hàng */}
+            {selectedOrder && (
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-md shadow-lg w-96">
+                        <h2 className="text-lg font-bold mb-4">Chi tiết đơn hàng</h2>
+                        <p><strong>Mã vận đơn:</strong> {selectedOrder.shipmentCode}</p>
+                        <p><strong>Mã đơn hàng:</strong> {selectedOrder.orderCode}</p>
+                        <p><strong>Người gửi:</strong> {selectedOrder.senderName}</p>
+                        <p><strong>Người nhận:</strong> {selectedOrder.recipientName}</p>
+                        <p><strong>Hàng hóa:</strong> {selectedOrder.goods}</p>
+                        <p className={`font-bold ${statusColors[selectedOrder.status] || "bg-gray-200 text-gray-800"} p-1 rounded-md`}>
+                            <strong>Trạng thái:</strong> {selectedOrder.status}
+                        </p>
+                        <p><strong>Ngày lập:</strong> {selectedOrder.createdAt}</p>
+                        <p><strong>Tổng cước:</strong> 100</p>
+                        <p><strong>IN/CHƯA IN:</strong> {selectedOrder.printed ? "Đã in" : "Chưa in"}</p>
+                        <p><strong>Hỗ trợ bảo hiểm:</strong> {selectedOrder.insurance ? "Có" : "Không"}</p>
+
+                        <div className="flex justify-end mt-4">
+                            <button className="px-4 py-2 bg-red-500 text-white rounded-md" onClick={() => setSelectedOrder(null)}>
+                                Đóng
                             </button>
-                        </li>
-                        <li>
-                            <button
-                                className="px-3 py-1 text-sm text-red-600 hover:text-red-800"
-                                onClick={handleDelete}
-                            >
-                                Xóa
-                            </button>
-                        </li>
-                    </ul>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
