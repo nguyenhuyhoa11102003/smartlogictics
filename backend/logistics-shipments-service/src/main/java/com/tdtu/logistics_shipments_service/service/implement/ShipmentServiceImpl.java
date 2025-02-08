@@ -6,10 +6,7 @@ import com.tdtu.logistics_shipments_service.dto.request.CreateShipmentSegmentReq
 import com.tdtu.logistics_shipments_service.dto.request.ShipmentStatusUpdateRequest;
 import com.tdtu.logistics_shipments_service.dto.response.*;
 import com.tdtu.logistics_shipments_service.dto.response.delivery.Route;
-import com.tdtu.logistics_shipments_service.enumrator.SegmentStatus;
-import com.tdtu.logistics_shipments_service.enumrator.ShipmentStatus;
-import com.tdtu.logistics_shipments_service.enumrator.TrafficCondition;
-import com.tdtu.logistics_shipments_service.enumrator.WeatherCondition;
+import com.tdtu.logistics_shipments_service.enumrator.*;
 import com.tdtu.logistics_shipments_service.model.Shipment;
 import com.tdtu.logistics_shipments_service.model.ShipmentSegment;
 import com.tdtu.logistics_shipments_service.repository.ShipmentRepository;
@@ -21,13 +18,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +64,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 	@Transactional
 	@Override
 	public ShipmentInfResponse createShipment(CreateShipmentRequest requestDTO) {
+
 		List<CreateShipmentSegmentRequest> createShipmentSegmentRequests = requestDTO.getShipmentSegmentRequests();
 		// Create shipment entity
 		Shipment shipment = createShipmentEntity(requestDTO);
@@ -102,14 +99,13 @@ public class ShipmentServiceImpl implements ShipmentService {
 
 			// Create shipment segment
 			LocalDateTime endTime = startTime.plusSeconds((long) summaryDuration);
-			ShipmentSegment shipmentSegment = ShipmentSegment.builder().shipment(shipment).fromWarehouseId(fromWarehouse.getId()).toWarehouseId(toWarehouse.getId()).departureTime(startTime).arrivalTime(endTime).weatherCondition(segmentRequest.getWeatherCondition()).trafficCondition(segmentRequest.getTrafficCondition()).segmentStatus(segmentRequest.getSegmentStatus()).notes(segmentRequest.getNotes()).summaryDuration(summaryDuration).summaryLength(summaryLength).summaryBaseDuration(summaryBaseDuration).stopoverDuration(segmentRequest.getStopoverDuration()).build();
+			ShipmentSegment shipmentSegment = ShipmentSegment.builder().shipment(shipment).fromWarehouseId(fromWarehouse.getId()).toWarehouseId(toWarehouse.getId()).departureTime(startTime).arrivalTime(endTime).weatherCondition(WeatherCondition.CLEAR).trafficCondition(TrafficCondition.LIGHT).segmentStatus(SegmentStatus.NOT_STARTED).notes(segmentRequest.getNotes()).summaryDuration(summaryDuration).summaryLength(summaryLength).summaryBaseDuration(summaryBaseDuration).stopoverDuration(segmentRequest.getStopoverDuration()).build();
+
 			shipment.getShipmentSegments().add(shipmentSegment);
 			startTime = endTime.plusMinutes((long) segmentRequest.getStopoverDuration());
 			arrivalTime = startTime;
 		}
 		shipment.setArrivalTime(arrivalTime);
-		shipment.setCreateAt(ZonedDateTime.now().toInstant());
-		shipment.setUpdateAt(ZonedDateTime.now().toInstant());
 		Shipment savedShipment = shipmentRepository.save(shipment);
 		return getShipmentById(savedShipment.getId());
 	}
@@ -118,7 +114,16 @@ public class ShipmentServiceImpl implements ShipmentService {
 	private Shipment createShipmentEntity(CreateShipmentRequest requestDTO) {
 		String message = "Create shipment entity successfully";
 		List<Long> intermediateWarehouseIds = requestDTO.getShipmentSegmentRequests().stream().map(CreateShipmentSegmentRequest::getDestinationWarehouseId).toList();
-		Shipment shipment = Shipment.builder().trackingNumber(requestDTO.getTrackingNumber()).shipper(requestDTO.getShipper()).shipmentMethod(requestDTO.getShipmentMethod()).fromWarehouseId(requestDTO.getFromWarehouseId()).intermediateWarehouseIds(intermediateWarehouseIds).toWarehouseId(requestDTO.getToWarehouseId()).shipmentStatus(requestDTO.getShipmentStatus()).departureTime(requestDTO.getDepartureTime()).orders(requestDTO.getOrders()).shipmentSegments(new ArrayList<>()).shipmentStatus(ShipmentStatus.PENDING).build();
+
+		// handle add capacity
+		if (requestDTO.getShipmentMethod() == ShipmentMethod.XE_TAI) {
+			requestDTO.setCapacity(1000.0);
+		} else if (requestDTO.getShipmentMethod() == ShipmentMethod.XE_MAY) {
+			requestDTO.setCapacity(100.0);
+		}
+
+		Shipment shipment = Shipment.builder().trackingNumber(requestDTO.getTrackingNumber()).shipper(requestDTO.getShipper()).shipmentMethod(requestDTO.getShipmentMethod()).fromWarehouseId(requestDTO.getFromWarehouseId()).intermediateWarehouseIds(intermediateWarehouseIds).toWarehouseId(requestDTO.getToWarehouseId()).shipmentStatus(requestDTO.getShipmentStatus()).departureTime(requestDTO.getDepartureTime()).orders(requestDTO.getOrders()).shipmentSegments(new ArrayList<>()).shipmentStatus(ShipmentStatus.PENDING).shipmentType(ShipmentType.ECONOMY).totalWeight(0.0).capacity(requestDTO.getCapacity()).build();
+
 		log.info("{}: func:{}  , message:{}", "ShipmentServiceImpl", "createShipmentEntity", message);
 		return shipment;
 	}
@@ -159,6 +164,16 @@ public class ShipmentServiceImpl implements ShipmentService {
 		response.setOrders(shipment.getOrders());
 		response.setCreateAt(shipment.getCreateAt().toString());
 		response.setUpdateAt(shipment.getUpdateAt().toString());
+		response.setShipmentSegments(mapShipmentSegmentsToResponse(shipment.getShipmentSegments()));
+
+		ApiResponse<WarehouseInfResponse> fromWarehouse = warehouseServiceFeignClient.getWarehouseById(shipment.getFromWarehouseId());
+		ApiResponse<WarehouseInfResponse> toWarehouse = warehouseServiceFeignClient.getWarehouseById(shipment.getToWarehouseId());
+
+		if (fromWarehouse.isSuccess() && toWarehouse.isSuccess()) {
+			response.setFromWarehouse(fromWarehouse.getResult());
+			response.setToWarehouse(toWarehouse.getResult());
+		}
+
 		return response;
 	}
 
@@ -217,6 +232,11 @@ public class ShipmentServiceImpl implements ShipmentService {
 	@Override
 	public void updateActualDeliveryTime(Long id, ActualDeliveryTimeRequest actualDeliveryTime) {
 
+	}
+
+	@Override
+	public Page<ShipmentInfResponse> getAllPaginated(Pageable pageable) {
+		return shipmentRepository.findAll(pageable).map(this::mapShipmentToResponse);
 	}
 
 

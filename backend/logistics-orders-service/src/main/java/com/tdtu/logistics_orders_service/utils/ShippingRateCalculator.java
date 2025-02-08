@@ -21,23 +21,21 @@ public class ShippingRateCalculator {
 		MAX_DISTANCE_MAP.put(ShippingZone.CAN_TINH, 200.0);
 		MAX_DISTANCE_MAP.put(ShippingZone.LIEN_TINH, 500.0);
 
-		// Giá cơ bản theo phương tiện (ĐÃ GIẢM)
-		BASE_PRICE_MAP.put(TransportationType.XE_MAY, new BigDecimal("20000"));   // 20,000 VND
-		BASE_PRICE_MAP.put(TransportationType.O_TO, new BigDecimal("35000"));     // 35,000 VND
-		BASE_PRICE_MAP.put(TransportationType.XE_TAI, new BigDecimal("70000"));   // 70,000 VND
-		BASE_PRICE_MAP.put(TransportationType.TAU_HOA, new BigDecimal("150000")); // 150,000 VND
-		BASE_PRICE_MAP.put(TransportationType.MAY_BAY, new BigDecimal("700000")); // 700,000 VND
+		// Giá cơ bản theo phương tiện
+		BASE_PRICE_MAP.put(TransportationType.XE_MAY, new BigDecimal("15000"));
+		BASE_PRICE_MAP.put(TransportationType.XE_TAI, new BigDecimal("20000"));
+		BASE_PRICE_MAP.put(TransportationType.MAY_BAY, new BigDecimal("50000"));
 
-		// Giá mỗi km theo phương tiện (ĐÃ GIẢM)
-		PRICE_PER_KM_MAP.put(TransportationType.XE_MAY, new BigDecimal("2000"));  // 2,000 VND/km
-		PRICE_PER_KM_MAP.put(TransportationType.O_TO, new BigDecimal("4000"));    // 4,000 VND/km
-		PRICE_PER_KM_MAP.put(TransportationType.XE_TAI, new BigDecimal("8000"));  // 8,000 VND/km
-		PRICE_PER_KM_MAP.put(TransportationType.TAU_HOA, new BigDecimal("3500")); // 3,500 VND/km
-		PRICE_PER_KM_MAP.put(TransportationType.MAY_BAY, new BigDecimal("15000")); // 15,000 VND/km
+		// Giá mỗi km theo phương tiện
+		PRICE_PER_KM_MAP.put(TransportationType.XE_MAY, new BigDecimal("2000"));
+		PRICE_PER_KM_MAP.put(TransportationType.XE_TAI, new BigDecimal("3000"));
+		PRICE_PER_KM_MAP.put(TransportationType.MAY_BAY, new BigDecimal("10000"));
 	}
 
-	public static ShippingRate generateRate(DeliveryServiceType serviceType, ShippingZone shippingZone, TransportationType transportationType) {
-		BigDecimal basePrice = BASE_PRICE_MAP.getOrDefault(transportationType, new BigDecimal("20000"));
+	public static ShippingRate generateRate(DeliveryServiceType serviceType,
+	                                        ShippingZone shippingZone,
+	                                        TransportationType transportationType) {
+		BigDecimal basePrice = BASE_PRICE_MAP.getOrDefault(transportationType, new BigDecimal("15000"));
 		BigDecimal pricePerKm = PRICE_PER_KM_MAP.getOrDefault(transportationType, new BigDecimal("2000"));
 		Double maxDistance = MAX_DISTANCE_MAP.getOrDefault(shippingZone, 50.0);
 
@@ -50,4 +48,25 @@ public class ShippingRateCalculator {
 				.maxDistance(maxDistance)
 				.build();
 	}
+
+	private static ShippingZone determineShippingZone(double distance) {
+		if (distance <= 50.0) return ShippingZone.NOI_TINH;
+		if (distance <= 200.0) return ShippingZone.CAN_TINH;
+		return ShippingZone.LIEN_TINH;
+	}
+
+	private static TransportationType determineTransportationType(DeliveryServiceType serviceType, double distance) {
+		if (serviceType == DeliveryServiceType.ECONOMY) {
+			return (distance <= 50) ? TransportationType.XE_MAY : TransportationType.XE_TAI;
+		}
+//		if (serviceType == DeliveryServiceType.EXPRESS) {
+//			return (distance <= 200) ? TransportationType.XE_TAI : TransportationType.;
+//		}
+//		if (serviceType == DeliveryServiceType.URGENT_SCHEDULED) {
+//			return (distance <= 500) ? TransportationType.O_TO : TransportationType.MAY_BAY;
+//		}
+		return TransportationType.XE_MAY; // Mặc định nếu không xác định được
+	}
+
+
 }

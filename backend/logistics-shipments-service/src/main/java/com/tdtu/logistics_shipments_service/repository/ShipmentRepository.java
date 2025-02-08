@@ -1,8 +1,8 @@
 package com.tdtu.logistics_shipments_service.repository;
 
 
-import com.tdtu.logistics_shipments_service.enumrator.ShipmentStatus;
 import com.tdtu.logistics_shipments_service.model.Shipment;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,11 +12,11 @@ import java.util.Optional;
 
 @Repository
 public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
-	Page<Shipment> findAll(Pageable pageable);
+	@NotNull Page<Shipment> findAll(@NotNull Pageable pageable);
 
-	Optional<Shipment> findFirstByShipmentStatusAndFromWarehouseIdAndShipmentMethodAndShipper(
-			ShipmentStatus shipmentStatus,
-			Long fromWarehouseId,
-			String shipmentMethod,
-			Long shipper);
+	//	Optional<Shipment> findFirstByShipmentStatusAndFromWarehouseIdAndShipmentMethodAndShipper(
+	//			ShipmentStatus shipmentStatus,
+	//			Long fromWarehouseId,
+	//			String shipmentMethod,
+	//			Long shipper);
 }

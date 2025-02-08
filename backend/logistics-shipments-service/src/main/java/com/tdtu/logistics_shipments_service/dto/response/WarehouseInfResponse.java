@@ -13,13 +13,22 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WarehouseInfResponse {
+
 	Long id;
 	String name;
 	String phoneNumber;
-	double capacity;
 	String status;
 	AddressInfResponse addressDetail;
 	String address;
 	LocalDateTime createdAt;
 	LocalDateTime updatedAt;
+
+	double volumeCapacity;
+	double weightCapacity;
+	double volumeUsed;
+	double weightUsed;
+	double capacityUsed;
+	double capacity;
+
+
 }

@@ -31,11 +31,11 @@ public class Shipment extends AbstractMappedEntity implements java.io.Serializab
 	String trackingNumber;
 
 	@Column(name = "shipper_id", nullable = false)
-	Long shipper;
+	String shipper;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "shipment_method", nullable = false)
-	ShipmentMethod shipmentMethod = ShipmentMethod.ROAD;
+	ShipmentMethod shipmentMethod;
 
 	@Column(name = "from_warehouse_id", nullable = false)
 	Long fromWarehouseId;

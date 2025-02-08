@@ -6,6 +6,9 @@ import com.tdtu.logistics_shipments_service.dto.request.ShipmentStatusUpdateRequ
 import com.tdtu.logistics_shipments_service.dto.response.ShipmentInfResponse;
 import com.tdtu.logistics_shipments_service.enumrator.ShipmentStatus;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 public interface ShipmentService {
@@ -26,4 +29,6 @@ public interface ShipmentService {
 	void deleteShipment(Long id);
 
 	void updateActualDeliveryTime(Long id, ActualDeliveryTimeRequest actualDeliveryTime);
+
+	Page<ShipmentInfResponse> getAllPaginated(Pageable pageable);
 }

@@ -25,7 +25,7 @@ const URL_ADMIN = "/admin"
 const data = {
     navMain: [
         {
-            id :1,
+            id: 1,
             title: "Tạo đơn",
             url: `${URL_ADMIN}/create-order`,
             items: [
@@ -34,7 +34,7 @@ const data = {
             ]
         },
         {
-            id :2,
+            id: 2,
             title: "Quản lý",
             url: `${URL_ADMIN}/quan-ly-van-don`,
             items: [
@@ -43,11 +43,19 @@ const data = {
             ]
         },
         {
-            id:3,
+            id: 3,
             title: "Quản lý lô hàng",
             url: `${URL_ADMIN}/quan-ly-van-don`,
             items: [
                 { title: "Danh sách lô hàng", url: `${URL_ADMIN}/shipments`, content: "Quản lý vận đơn content" },
+            ]
+        },
+        {
+            id: 4,
+            title: "Quản lý nhân viên",
+            url: `${URL_ADMIN}/staffs`,
+            items: [
+                { title: "Danh sách nhân viên", url: `${URL_ADMIN}/staffs`, content: "Quản lý nhân viên" },
             ]
         },
     ]

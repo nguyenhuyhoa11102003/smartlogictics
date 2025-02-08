@@ -24,68 +24,34 @@ public class ShippingRateSeeder implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		// Kiểm tra xem bảng đã có dữ liệu chưa
-		//		if (shippingRateRepository.count() == 0) {
-		// Nếu bảng trống, thêm dữ liệu mới
-
 		shippingRateRepository.deleteAll();
 		List<ShippingRate> shippingRates = new ArrayList<>();
 
-		Arrays.stream(DeliveryServiceType.values()).forEach(serviceType -> Arrays.stream(ShippingZone.values()).forEach(shippingZone -> {
+		Arrays.stream(ShippingZone.values()).forEach(shippingZone -> Arrays.stream(DeliveryServiceType.values()).forEach(serviceType -> {
 			Arrays.stream(TransportationType.values().clone()).forEach(transportationType -> {
+
+				// handle không cho máy bay đi nội tỉnh và cận tỉnh
 				if (transportationType == TransportationType.MAY_BAY && shippingZone != ShippingZone.LIEN_TINH) {
 					return;
 				}
+
+				// handle không cho xe máy đi cận tỉnh và liên tỉnh
+				if (shippingZone == ShippingZone.CAN_TINH || shippingZone == ShippingZone.LIEN_TINH) {
+					if (transportationType == TransportationType.XE_MAY) {
+						return;
+					}
+				}
+
+				// handle không cho xe tải đi nội tỉnh
+				if (shippingZone == ShippingZone.NOI_TINH && transportationType == TransportationType.XE_TAI) {
+					return;
+				}
+
 				ShippingRate shippingRate = ShippingRateCalculator.generateRate(serviceType, shippingZone, transportationType);
 				shippingRates.add(shippingRate);
 			});
 		}));
+
 		this.shippingRateRepository.saveAll(shippingRates);
-
-		//		}
 	}
-
-
-	//	// Hàm tạo giá cơ bản tùy theo loại dịch vụ và khu vực
-	//	private BigDecimal generateBasePrice(DeliveryServiceType serviceType, ShippingZone shippingZone) {
-	//		switch (serviceType) {
-	//			case ECONOMY:
-	//				return new BigDecimal("50000");
-	//			case EXPRESS:
-	//				return new BigDecimal("20000");
-	//			case URGENT_SCHEDULED:
-	//				return new BigDecimal("100000");
-	//			default:
-	//				return new BigDecimal("10000");
-	//		}
-	//	}
-	//
-	//	// Hàm tạo khoảng cách tối đa tùy theo khu vực
-	//	private Double generateMaxDistance(ShippingZone shippingZone) {
-	//		switch (shippingZone) {
-	//			case NOI_TINH:
-	//				return 100.0; // Khoảng cách tối đa cho nội tỉnh
-	//			case CAN_TINH:
-	//				return 200.0; // Khoảng cách tối đa cho cận tỉnh
-	//			case LIEN_TINH:
-	//				return 500.0; // Khoảng cách tối đa cho liên tỉnh
-	//			default:
-	//				return 100.0;
-	//		}
-	//	}
-	//
-	//	// Hàm tạo giá mỗi km tùy theo khu vực
-	//	private BigDecimal generatePricePerKm(ShippingZone shippingZone) {
-	//		switch (shippingZone) {
-	//			case NOI_TINH:
-	//				return new BigDecimal("10000"); // Giá mỗi km cho nội tỉnh
-	//			case CAN_TINH:
-	//				return new BigDecimal("15000"); // Giá mỗi km cho cận tỉnh
-	//			case LIEN_TINH:
-	//				return new BigDecimal("20000"); // Giá mỗi km cho liên tỉnh
-	//			default:
-	//				return new BigDecimal("12000");
-	//		}
-	//	}
-
 }

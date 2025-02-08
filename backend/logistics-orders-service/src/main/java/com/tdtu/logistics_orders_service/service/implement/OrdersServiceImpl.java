@@ -191,33 +191,23 @@ public class OrdersServiceImpl implements OrdersService {
 
 		log.info("Logistic-Order-Service: Order-Service: Method-Create-Order: Request: {}, User: {}, Timestamp: {}", requestDTO, customerId, LocalDateTime.now());
 
-		return Orders.builder()
-				.customerId(customerId)
+		return Orders.builder().customerId(customerId)
 
-				.status(requestDTO.getOrderCreationStatus())
-				.shipmentCode(requestDTO.getInformationOrder().getShipmentId())
-				.note(requestDTO.getInformationOrder().getContentNote())
-				.orderCode(requestDTO.getInformationOrder().getSaleOrderCode()) // check lai cho nay
+				//				.status(requestDTO.getOrderCreationStatus())
+				.status(OrderStatus.PROCESSING).shipmentCode(requestDTO.getInformationOrder().getShipmentId()).note(requestDTO.getInformationOrder().getContentNote()).orderCode(requestDTO.getInformationOrder().getSaleOrderCode()) // check lai cho nay
 				.moreRequire(requestDTO.getInformationOrder().getMoreRequire())
 
 				.senderId(requestDTO.getInformationOrder().getSenderId()).senderName(requestDTO.getInformationOrder().getSenderName())
 
 				.recipientName(requestDTO.getInformationOrder().getRecipientName()).recipientId(receiverId)
 
-				.branchCode(requestDTO.getInformationOrder().getBranchCode())
-				.serviceCode(requestDTO.getInformationOrder().getServiceCode())
-				.receivingMethod(requestDTO.getInformationOrder().getReceivingMethod())
+				.branchCode(requestDTO.getInformationOrder().getBranchCode()).serviceCode(requestDTO.getInformationOrder().getServiceCode()).receivingMethod(requestDTO.getInformationOrder().getReceivingMethod())
 
-				.vehicle(requestDTO.getInformationOrder().getVehicle())
-				.isBroken(requestDTO.getInformationOrder().isBroken())
-				.deliveryRequire(requestDTO.getInformationOrder().getDeliveryRequire())
+				.vehicle(requestDTO.getInformationOrder().getVehicle()).isBroken(requestDTO.getInformationOrder().isBroken()).deliveryRequire(requestDTO.getInformationOrder().getDeliveryRequire())
 
 				.deliveryInstruction(requestDTO.getInformationOrder().getDeliveryInstruction())
 
-				.weight(requestDTO.getInformationOrder().getWeight())
-				.width(requestDTO.getInformationOrder().getWidth())
-				.length(requestDTO.getInformationOrder().getLength())
-				.height(requestDTO.getInformationOrder().getHeight())
+				.weight(requestDTO.getInformationOrder().getWeight()).width(requestDTO.getInformationOrder().getWidth()).length(requestDTO.getInformationOrder().getLength()).height(requestDTO.getInformationOrder().getHeight())
 
 				//				.pickupShipperId(requestDTO.getInformationOrder().getPickupShipperId())
 				//				.deliveryShipperId(requestDTO.getInformationOrder().getDeliveryShipperId())

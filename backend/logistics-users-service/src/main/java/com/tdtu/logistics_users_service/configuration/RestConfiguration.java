@@ -1,9 +1,6 @@
 package com.tdtu.logistics_users_service.configuration;
 
-import com.tdtu.logistics_users_service.entity.Address;
-import com.tdtu.logistics_users_service.entity.Customer;
-import com.tdtu.logistics_users_service.entity.Receiver;
-import com.tdtu.logistics_users_service.entity.Sender;
+import com.tdtu.logistics_users_service.entity.*;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
@@ -19,6 +16,7 @@ public class RestConfiguration implements RepositoryRestConfigurer {
                 .exposeIdsFor(Address.class)
                 .exposeIdsFor(Customer.class)
                 .exposeIdsFor(Receiver.class)
+                .exposeIdsFor(Shipper.class)
         ;
 
     }

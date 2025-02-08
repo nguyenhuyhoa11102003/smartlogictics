@@ -1,9 +1,7 @@
 package com.tdtu.logistics_users_service.entity;
 
 import com.tdtu.logistics_users_service.enumrators.VehicleType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,6 +12,7 @@ import lombok.EqualsAndHashCode;
 public class Shipper extends Staff {
 
 	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
 	private VehicleType vehicleType; // Loại phương tiện (VD: Xe máy, Xe tải).
 
 	@Column(nullable = false)
@@ -22,10 +21,9 @@ public class Shipper extends Staff {
 	@Column(nullable = false)
 	private String deliveryArea; // Khu vực giao hàng.
 
-	@Column(nullable = false)
 	private String warehouseId; // Thuộc kho nào.
 
 	@Column(name = "available")
-	private boolean available;
+	private boolean available = Boolean.TRUE;
 
 }

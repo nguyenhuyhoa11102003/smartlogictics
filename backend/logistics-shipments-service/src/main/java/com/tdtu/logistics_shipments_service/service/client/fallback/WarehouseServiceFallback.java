@@ -1,9 +1,7 @@
 package com.tdtu.logistics_shipments_service.service.client.fallback;
 
 import com.tdtu.logistics_shipments_service.dto.response.ApiResponse;
-import com.tdtu.logistics_shipments_service.dto.response.OrderInfResponse;
 import com.tdtu.logistics_shipments_service.dto.response.WarehouseInfResponse;
-import com.tdtu.logistics_shipments_service.service.client.OrderServiceFeignClient;
 import com.tdtu.logistics_shipments_service.service.client.WarehouseServiceFeignClient;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,5 +19,10 @@ public class WarehouseServiceFallback implements WarehouseServiceFeignClient {
 				.message("Service unavailable, please try again later")
 				.result(Collections.emptyList())
 				.build();
+	}
+
+	@Override
+	public ApiResponse<WarehouseInfResponse> getWarehouseById(Long id) {
+		return null;
 	}
 }

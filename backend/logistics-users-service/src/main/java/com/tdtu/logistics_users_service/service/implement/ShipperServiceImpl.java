@@ -31,12 +31,10 @@ public class ShipperServiceImpl implements ShipperService {
 	public ShipperInfResponse getShipperInfById(String id) {
 		log.info("Logistics-Users-Service -> Shipper-Service -> Get-Shipper-By-ID: Get shipper by id: {}", id);
 
-		Shipper shipper = shipperRepository.findById(id).orElseThrow(
-				() -> {
-					log.error("Logistics-Users-Service -> Shipper-Service -> Get-Shipper: Shipper not found with id: {}", id);
-					return new AppException(ErrorCode.SHIPPER_NOT_EXISTED);
-				}
-		);
+		Shipper shipper = shipperRepository.findById(id).orElseThrow(() -> {
+			log.error("Logistics-Users-Service -> Shipper-Service -> Get-Shipper: Shipper not found with id: {}", id);
+			return new AppException(ErrorCode.SHIPPER_NOT_EXISTED);
+		});
 
 		return shipperMapper.toShipperInfResponse(shipper);
 	}
@@ -45,12 +43,10 @@ public class ShipperServiceImpl implements ShipperService {
 	public ShipperInfResponse getShipperInfByStaffId(String staffId) {
 		log.info("Logistics-Users-Service -> Shipper-Service -> Get-Shipper-By-Staff-ID: Get shipper by staff id: {}", staffId);
 
-		Shipper shipper = shipperRepository.findByEmployeeCode(staffId).orElseThrow(
-				() -> {
-					log.error("Logistics-Users-Service -> Shipper-Service -> Get-Shipper: Shipper not found with staff id: {}", staffId);
-					return new AppException(ErrorCode.SHIPPER_NOT_EXISTED);
-				}
-		);
+		Shipper shipper = shipperRepository.findByEmployeeCode(staffId).orElseThrow(() -> {
+			log.error("Logistics-Users-Service -> Shipper-Service -> Get-Shipper: Shipper not found with staff id: {}", staffId);
+			return new AppException(ErrorCode.SHIPPER_NOT_EXISTED);
+		});
 
 		return shipperMapper.toShipperInfResponse(shipper);
 	}
@@ -61,8 +57,8 @@ public class ShipperServiceImpl implements ShipperService {
 
 		Shipper shipper = shipperMapper.toShipper(createShipperRequest);
 
-		shipper.setEmployeeCode(
-				GenerateStaffId.generate(String.valueOf(shipper.getDepartment().getId()), shipper.getPosition()));
+		Long departmentId = 1L; // test
+		shipper.setEmployeeCode(GenerateStaffId.generate(String.valueOf(departmentId), shipper.getPosition()));
 
 		return shipperMapper.toShipperInfResponse(shipperRepository.save(shipper));
 	}

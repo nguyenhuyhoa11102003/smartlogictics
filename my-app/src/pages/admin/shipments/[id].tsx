@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Container, Spinner } from "react-bootstrap"; // Import Bootstrap components
 import LayoutDashboard from '@/components/LayoutDashboard';
-import ShipmentTracking from '@/modules/shipment/components/ShipmentTracking';
 import ShippingDetails from "@/modules/shipment/components/ShippingDetails";
 
 const ShipmentDetail = () => {

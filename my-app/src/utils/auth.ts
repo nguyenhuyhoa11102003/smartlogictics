@@ -7,6 +7,10 @@ export const setAccessTokenToLS = (accessToken: string) => {
 export const setRefreshTokenToLS = (refreshToken: string) => {
   localStorage.setItem('refreshToken', refreshToken)
 }
+export const setProfileToLS = (profile: any) => {
+  // because profile is object, so we need to converts a js value stringify it to json
+  localStorage.setItem('profile', JSON.stringify(profile))
+}
 
 export const clearLS = () => {
   localStorage.removeItem('accessToken')

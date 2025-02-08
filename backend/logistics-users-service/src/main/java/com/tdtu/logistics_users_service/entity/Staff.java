@@ -13,16 +13,17 @@ import java.time.LocalDate;
 @Table(name = "staff")
 public class Staff extends User {
 
-    @Column(nullable = false)
-    private String employeeCode; // Mã nhân viên.
+	@Column(nullable = false)
+	private String employeeCode; // Mã nhân viên.
 
-    @ManyToOne
-    @JoinColumn(name = "department_id", nullable = false)
-    private Department department; // Phòng ban.
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private StaffPosition position; // Vị trí công việc (VD: Manager, Employee).
 
-    @Column(nullable = false)
-    private StaffPosition position; // Vị trí công việc (VD: Manager, Employee).
+	@Column(nullable = false)
+	private LocalDate startDate; // Ngày bắt đầu làm việc.
 
-    @Column(nullable = false)
-    private LocalDate startDate; // Ngày bắt đầu làm việc.
+	//    @ManyToOne
+	//    @JoinColumn(name = "department_id", nullable = false)
+	//    private Department department; // Phòng ban.
 }

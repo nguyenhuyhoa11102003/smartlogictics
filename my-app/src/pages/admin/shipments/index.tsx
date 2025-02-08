@@ -1,7 +1,6 @@
 import LayoutDashboard from '@/components/LayoutDashboard/LayoutDashboard';
 import { Shipment } from '@/modules/shipment/models/Shipment';
 import ShipmentStatus from '@/modules/shipment/models/ShipmentStatus';
-import { vehicles, warehouses } from '@/utils/utils';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import React, { useEffect, useState } from 'react';
@@ -11,6 +10,7 @@ import ReactPaginate from 'react-paginate';
 import { Truck, Plus, Minus, Clock, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { CreateShipmentRequest } from '@/modules/shipment/dto/request/CreateShipmentRequest';
+import { jwtDecode, JwtPayload } from "jwt-decode";
 
 
 // react datepicker
@@ -19,32 +19,55 @@ import "react-datepicker/dist/react-datepicker.css";
 import { setHours, setMinutes } from "date-fns";
 import { Warehouse } from '@/modules/warehouse/models/Warehouse';
 import { getAllWarehouses } from '@/modules/warehouse/services/WarehouseService';
+import { useAuth } from '@/context/app.context';
+import { generateTrackingNumber } from '@/utils/utils';
+import axios from 'axios';
+
 
 const ShipmentManagement = () => {
-    const [showModal, setShowModal] = useState(false);
+
+    const { accessToken } = useAuth();
+    const [userInfo, setUserInfo] = useState<JwtPayload | null>(null);
     const [shipments, setShipments] = useState<Shipment[]>([]);
-    const [warehouses, setWarehouse] = useState<Warehouse[]>([]);
+    const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+    const [showModal, setShowModal] = useState(false);
+    const [shipmentMethod, setShipmentMethod] = useState<string>('TRUCK');
+    const [shippers, setShippers] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (accessToken) {
+            try {
+                const decodedToken = jwtDecode(accessToken);
+                setUserInfo(decodedToken);
+            } catch (error) {
+                console.error("Lỗi giải mã token:", error);
+            }
+        }
+    }, [accessToken]);
+
     const [newShipment, setNewShipment] = useState<CreateShipmentRequest>({
-        trackingNumber: "",
-        shipper: 0,
-        shipmentMethod: "road",
+        trackingNumber: generateTrackingNumber(),
+        shipmentMethod: "TRUCK",
         fromWarehouseId: 0,
-        intermediateWarehouseIds: [],
         toWarehouseId: 0,
         shipmentStatus: ShipmentStatus.PENDING,
         departureTime: new Date().toISOString(),
         orders: [],
         shipmentSegmentRequests: [],
-        vehicle: {
-            id: 0,
-            name: "",
-            employee: { id: 0, name: "", role: "" }
-        }
+
+        shipper: "",
+        // vehicle: {
+        //     id: 0,
+        //     name: "",
+        //     employee: { id: 0, name: "", role: "" }
+        // }
+
     });
 
     const [startDate, setStartDate] = useState(
         setHours(setMinutes(new Date(), 0), 9),
     );
+
     const filterPassedTime = (time: Date): boolean => {
         const currentDate = new Date();
         const selectedDate = new Date(time);
@@ -53,50 +76,81 @@ const ShipmentManagement = () => {
     };
 
     useEffect(() => {
-        const fetchShipmentDetails = async () => {
+        const fetchShipments = async () => {
             try {
-                const response = await fetch(`/api/shipments`);
-                const data: Shipment[] = await response.json();
-                if (data) {
+                const url = `http://localhost:8087/shipment-service/shipments/all?page=0&size=10&sortBy=createAt&sortDir=asc`;
+                const res = await axios.get(url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (res.status === 200) {
+                    const data = res.data.result.content;
+                    console.log("Shipment: ", JSON.stringify(data));
+                    const newData: Shipment[] = data.map((shipment: any) => ({
+                        id: shipment.id,
+                        trackingNumber: shipment.trackingNumber,
+                        shipmentMethod: shipment.shipmentMethod,
+                        fromWarehouse: shipment.fromWarehouse,
+                        toWarehouse: shipment.toWarehouse,
+                        shipmentStatus: shipment.shipmentStatus,
+                        departureTime: shipment.departureTime,
+                        estimatedDeliveryDate: shipment.arrivalTime,
+                        orders: [],
+                        shipmentSegmentRequests: [],
+                        shipper: "",
+                    }));
+                    // console.log("Shipmentssssss: ", newData);
                     setShipments((prevShipments) => [...prevShipments, ...data]);
                 }
+
+
+
+                // const response = await fetch(`http://localhost:8087/shipment-service/shipments/all?page=0&size=10&sortBy=createAt&sortDir=asc`, {
+                //     method: 'GET',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //         'Authorization': `Bearer ${accessToken}`
+                //     }
+                // });
+                // const data: Shipment[] = await response.json();
+                // if (data) {
+                //     // setShipments((prevShipments) => [...prevShipments, ...data]);
+                // }
             } catch (err) {
                 console.error("Error" + err)
             }
         };
-        fetchShipmentDetails();
-    }, []);
+        fetchShipments();
+    }, [accessToken]);
 
     useEffect(() => {
         const fetchWarehouses = async () => {
             try {
                 const response: Warehouse[] = await getAllWarehouses();
                 if (response) {
-                    setWarehouse((prevWarehouses) => [...prevWarehouses, ...response]);
+                    setWarehouses((prevWarehouses) => [...prevWarehouses, ...response]);
                 }
             } catch (err) {
                 console.error("Error" + err)
             }
         }
-
         fetchWarehouses();
     }, []);
 
-
-
-
     const handleAddShipment = async () => {
-        console.log(newShipment)
-        // const { fromWarehouseId, toWarehouseId, intermediateWarehouseIds } = newShipment;
-        // if (fromWarehouseId === 0 || toWarehouseId === 0) {
-        //     alert("Both fromWarehouseId and toWarehouseId must be selected.");
-        //     return;
-        // }
+        const { fromWarehouseId, toWarehouseId, intermediateWarehouseIds } = newShipment;
+        if (fromWarehouseId === 0 || toWarehouseId === 0) {
+            alert("Both fromWarehouseId and toWarehouseId must be selected.");
+            return;
+        }
 
-        // if (fromWarehouseId === toWarehouseId) {
-        //     alert("From warehouse and To warehouse must be different.");
-        //     return;
-        // }
+        if (fromWarehouseId === toWarehouseId) {
+            alert("From warehouse and To warehouse must be different.");
+            return;
+        }
 
         // if (intermediateWarehouseIds.length > 0) {
         //     const hasDuplicate = new Set(intermediateWarehouseIds).size !== intermediateWarehouseIds.length;
@@ -111,30 +165,33 @@ const ShipmentManagement = () => {
         //     }
         // }
 
-        setNewShipment({
-            trackingNumber: "TN001",
-            shipper: 501,
-            shipmentMethod: "road",
-            fromWarehouseId: 0,
-            intermediateWarehouseIds: [],
-            toWarehouseId: 0,
-            shipmentStatus: ShipmentStatus.IN_TRANSIT,
-            departureTime: "2024-12-15T00:00:00",
-            orders: ["ORD-001", "ORD-002"],
-            shipmentSegmentRequests: [],
-            vehicle: {
-                id: 0,
-                name: "",
-                employee: { id: 0, name: "", role: "" }
-            }
-        });
-        console.log(JSON.stringify(newShipment));
+        const payload = {
+            ...newShipment,
+            shipmentMethod: convertShipmentMethod(shipmentMethod),
+            departureTime: startDate.toISOString()
+        }
+
+        console.info("Payload: ", JSON.stringify(payload));
 
         // setShowModal(false);
-        // alert('Add shipment successfull')
 
     };
 
+    const convertShipmentMethod = (method: string) => {
+        switch (method) {
+            case 'TRUCK':
+                return 'XE_TAI';
+            case 'MOTORBIKE':
+                return 'XE_MAY  ';
+            case 'AIR':
+                return 'MAY_BAY';
+            default:
+                return 'Không xác định';
+        }
+    }
+
+
+    // Add intermediate stop
     const addIntermediateStop = () => {
         setNewShipment((prevState) => ({
             ...prevState,
@@ -147,6 +204,20 @@ const ShipmentManagement = () => {
             ]
         }));
     };
+
+    useEffect(() => {
+
+        const fetchVehicles = async () => {
+            const res = await fetch(`http://localhost:8082/users/api/shipper/search/findByVehicleType?vehicleType=${shipmentMethod}`);
+
+            if (res.status === 200) {
+                const data = await res.json();
+                setShippers(data._embedded.shipper);
+            }
+        };
+        fetchVehicles();
+
+    }, [shipmentMethod]);
 
     return (
         // <LayoutDashboard>
@@ -215,11 +286,11 @@ const ShipmentManagement = () => {
                         <tr key={shipment.id}>
                             <td>{shipment.trackingNumber}</td>
                             <td>{shipment.shipmentMethod}</td>
-                            <td>{shipment.fromWarehouse.name}</td>
-                            <td>{shipment.toWarehouse.name}</td>
+                            <td>{shipment.fromWarehouse?.name}</td>
+                            <td>{shipment.toWarehouse?.name}</td>
                             <td>{shipment.shipmentStatus}</td>
-                            <td>{new Date(shipment.shipmentStartDate).toLocaleDateString()}</td>
-                            <td>{new Date(shipment.estimatedDeliveryDate).toLocaleDateString()}</td>
+                            <td>{shipment.departureTime}</td>
+                            <td>{shipment.arrivalTime}</td>
                             <td>
                                 <Link href={`/admin/shipments/${shipment.id}`}>
                                     <Button variant="primary" size="sm" className="me-2">
@@ -265,6 +336,7 @@ const ShipmentManagement = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
+
                         {/* Phương tiện vận chuyển */}
                         <Row className="mb-3">
                             <Col>
@@ -272,41 +344,48 @@ const ShipmentManagement = () => {
                                     <Form.Label className="fw-medium mb-3 d-flex align-items-center gap-2">
                                         Phương tiện vận chuyển</Form.Label>
                                     <Form.Select
-                                        value={newShipment.shipmentMethod}
-                                        onChange={(e) => setNewShipment({
-                                            ...newShipment,
-                                            shipmentMethod: e.target.value
-                                        })}
+                                        value={shipmentMethod}
+                                        onChange={(e) => {
+                                            // setNewShipment({
+                                            //     ...newShipment,
+                                            //     shipmentMethod: e.target.value
+                                            // })
+                                            setShipmentMethod(e.target.value);
+                                        }}
                                     >
-                                        <option value="road">Đường bộ</option>
-                                        <option value="air">Máy bay (hỏa tốc)</option>
+                                        <option value="TRUCK">Xe Tải</option>
+                                        <option value="MOTORBIKE">Xe máy</option>
+                                        <option value="MOTORBIKE">Máy Bay</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
                         </Row>
-                        {/* Chọn xe (only for road transport) */}
-                        {newShipment.shipmentMethod === 'road' && (
+
+                        {/* Chọn xe */}
+                        {shipmentMethod === 'TRUCK' && (
                             <Row className="mb-3">
                                 <Col>
                                     <Form.Group>
                                         <Form.Label className="fw-medium mb-3 d-flex align-items-center gap-2">Chọn xe</Form.Label>
                                         <Form.Select
-                                            value={newShipment.vehicle.id}
+                                            value={newShipment.shipperId}
                                             onChange={(e) => {
-                                                const id = Number(e.target.value);
-                                                const selectedVehicel = vehicles.find(a => a.id === id)
+                                                const id = e.target.value;
+                                                const selectedVehicel = shippers.find(a => a.id === id)
                                                 if (selectedVehicel) {
                                                     setNewShipment({
                                                         ...newShipment,
-                                                        vehicle: selectedVehicel
+                                                        shipperId: selectedVehicel.id
                                                     })
                                                 }
+
                                             }}
                                         >
                                             <option value={0}>Chọn xe</option>
-                                            {vehicles.map((vehicle) => (
+                                            {shippers?.map((vehicle) => (
                                                 <option key={vehicle.id} value={vehicle.id}>
-                                                    {vehicle.name} - {vehicle.employee.name} ({vehicle.employee.role})
+                                                    {/* {vehicle.name} - {vehicle.employee.name} ({vehicle.employee.role}) */}
+                                                    Lisence: {vehicle.licensePlate} - Area: {vehicle.deliveryArea} - Tên: {vehicle.fullName} - SĐT: {vehicle.phoneNumber}
                                                 </option>
                                             ))}
                                         </Form.Select>
@@ -314,6 +393,7 @@ const ShipmentManagement = () => {
                                 </Col>
                             </Row>
                         )}
+
                         {/* Tracking Number and Shipment Start */}
                         <Row className="mb-3">
                             <Col>
@@ -333,6 +413,7 @@ const ShipmentManagement = () => {
                                 </Form.Group>
                             </Col>
                         </Row>
+
                         {/* Origin Warehouse */}
                         <div className="pb-4">
                             <Row className="d-flex justify-center align-items-center">
@@ -395,6 +476,7 @@ const ShipmentManagement = () => {
                                 </Col>
                             </Row>
                         </div>
+
                         {/* Intermediate Stops */}
                         <div className="border-top pt-4">
                             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -485,6 +567,7 @@ const ShipmentManagement = () => {
                                 </Row>
                             ))}
                         </div>
+
                         {/* Destination Warehouse */}
                         <div className="border-top pt-4">
                             <Row className="d-flex justify-start align-items-center">
@@ -569,3 +652,7 @@ const ShipmentManagement = () => {
 };
 
 export default ShipmentManagement;
+
+function uuidv4(): string {
+    throw new Error('Function not implemented.');
+}

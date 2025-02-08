@@ -40,4 +40,5 @@ public class ShippingRate {
 
 	@Column(name = "max_distance")
 	private Double maxDistance; // Khoảng cách tối đa áp dụng mức giá này (km)
+
 }

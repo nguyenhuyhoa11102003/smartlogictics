@@ -4,12 +4,12 @@ import React, { createContext, useState, useEffect, ReactNode, useContext } from
 interface AuthContextType {
     accessToken: string | null;
     setAccessToken: (token: string) => void;
-    clearAccessToken: () => void;
+    clearAccessToken: () => void; 
+
 }
 
 // Tạo context với giá trị mặc định là undefined
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 
 // Provider cho phép các component con sử dụng context
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -27,12 +27,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.setItem('accessToken', token); // Lưu token vào localStorage
     };
 
-
     const clearAccessToken = () => {
         setAccessToken(null);
         localStorage.removeItem('accessToken');
     };
-
 
     return (
         <AuthContext.Provider value={{

@@ -12,6 +12,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Slf4j
 @RestController
@@ -32,104 +38,88 @@ public class ShipmentController {
 	// Post: Api to create a shipment
 	@PostMapping("/create")
 	public ApiResponse<ShipmentInfResponse> createShipment(@RequestBody CreateShipmentRequest request) {
+
 		ShipmentInfResponse response = shipmentService.createShipment(request);
-		return ApiResponse.<ShipmentInfResponse>builder()
-				.code(HttpStatus.CREATED.value())
-				.message("Shipment created successfully")
-				.result(response)
-				.build();
+		return ApiResponse.<ShipmentInfResponse>builder().code(HttpStatus.CREATED.value()).message("Shipment created successfully").result(response).build();
+	}
+
+	// Get: Api to get all shipments
+	@GetMapping("/all")
+	public ApiResponse<Page<ShipmentInfResponse>> getAllShipments(@RequestParam(defaultValue = "0") int page,
+	                                                              @RequestParam(defaultValue = "10") int size,
+	                                                              @RequestParam(defaultValue = "createAt") String sortBy,
+	                                                              @RequestParam(defaultValue = "asc") String sortDir) {
+
+		Pageable pageable = PageRequest.of(page, size);
+		Page<ShipmentInfResponse> responses = shipmentService.getAllPaginated(pageable);
+		return ApiResponse.<Page<ShipmentInfResponse>>builder()
+				.code(HttpStatus.OK.value())
+				.message("Shipments fetched successfully")
+				.result(responses).build();
 	}
 
 	// Post: Api to add orders to shipment
 	@Transactional
 	@PostMapping("/add-orders")
 	public ApiResponse<?> addOrdersToShipment(@RequestBody AddOrdersToShipmentRequest request) {
+
 		shipmentService.addOrdersToShipment(request.getShipmentId(), request.getOrderIds());
 		Map<String, Object> response = new HashMap<>();
 		response.put("shipmentId", request.getShipmentId());
 		response.put("status", "UPDATED");
 		response.put("message", "Đơn hàng đã được thêm vào lô hàng thành công");
-		return ApiResponse.builder()
-				.code(HttpStatus.OK.value())
-				.message("Orders added to shipment successfully")
-				.result(response)
-				.build();
+		return ApiResponse.builder().code(HttpStatus.OK.value()).message("Orders added to shipment successfully").result(response).build();
 	}
 
 	@GetMapping("/detail/{shipmentId}")
 	public ApiResponse<ShipmentInfResponse> getShipment(@PathVariable Long shipmentId) {
+
 		ShipmentInfResponse shipment = shipmentService.getShipmentById(shipmentId);
-		return ApiResponse.<ShipmentInfResponse>builder()
-				.code(HttpStatus.OK.value())
-				.message("Shipment details fetched successfully")
-				.result(shipment)
-				.build();
+		return ApiResponse.<ShipmentInfResponse>builder().code(HttpStatus.OK.value()).message("Shipment details fetched successfully").result(shipment).build();
 	}
 
 	@PutMapping("/{shipmentId}/status")
-	public ApiResponse<ShipmentInfResponse> updateShipmentStatus(
-			@PathVariable Long shipmentId,
-			@RequestBody ShipmentStatusUpdateRequest statusUpdateRequest) {
+	public ApiResponse<ShipmentInfResponse> updateShipmentStatus(@PathVariable Long shipmentId, @RequestBody ShipmentStatusUpdateRequest statusUpdateRequest) {
 
 		ShipmentInfResponse response = shipmentService.updateShipmentStatus(shipmentId, statusUpdateRequest);
-		return ApiResponse.<ShipmentInfResponse>builder()
-				.code(HttpStatus.OK.value())
-				.message("Shipment status updated successfully")
-				.result(response)
-				.build();
+		return ApiResponse.<ShipmentInfResponse>builder().code(HttpStatus.OK.value()).message("Shipment status updated successfully").result(response).build();
 	}
 
 	@GetMapping("/track/{trackingNumber}")
 	public ApiResponse<ShipmentInfResponse> trackShipment(@PathVariable String trackingNumber) {
+
 		ShipmentInfResponse response = shipmentService.trackShipmentByTrackingNumber(trackingNumber);
-		return ApiResponse.<ShipmentInfResponse>builder()
-				.code(HttpStatus.OK.value())
-				.message("Shipment tracking details fetched successfully")
-				.result(response)
-				.build();
+		return ApiResponse.<ShipmentInfResponse>builder().code(HttpStatus.OK.value()).message("Shipment tracking details fetched successfully").result(response).build();
 	}
 
 	@GetMapping("/orders/{orderId}/shipments")
 	public ApiResponse<List<ShipmentInfResponse>> getShipmentsByOrder(@PathVariable Long orderId) {
+
 		List<ShipmentInfResponse> responses = shipmentService.getShipmentsByOrderId(orderId);
-		return ApiResponse.<List<ShipmentInfResponse>>builder()
-				.code(HttpStatus.OK.value())
-				.message("Shipments for order fetched successfully")
-				.result(responses)
-				.build();
+		return ApiResponse.<List<ShipmentInfResponse>>builder().code(HttpStatus.OK.value()).message("Shipments for order fetched successfully").result(responses).build();
 	}
 
 	@GetMapping("/status/{status}")
 	public ApiResponse<List<ShipmentInfResponse>> getShipmentsByStatus(@PathVariable ShipmentStatus status) {
+
 		List<ShipmentInfResponse> responses = shipmentService.getShipmentsByStatus(status);
 
-		return ApiResponse.<List<ShipmentInfResponse>>builder()
-				.code(HttpStatus.OK.value())
-				.message("Shipments fetched by status successfully")
-				.result(responses)
-				.build();
+		return ApiResponse.<List<ShipmentInfResponse>>builder().code(HttpStatus.OK.value()).message("Shipments fetched by status successfully").result(responses).build();
 	}
 
 	@DeleteMapping("/{shipmentId}")
 	public ApiResponse<Void> deleteShipment(@PathVariable Long shipmentId) {
+
 		shipmentService.deleteShipment(shipmentId);
-		return ApiResponse.<Void>builder()
-				.code(HttpStatus.NO_CONTENT.value())
-				.message("Shipment deleted successfully")
-				.build();
+		return ApiResponse.<Void>builder().code(HttpStatus.NO_CONTENT.value()).message("Shipment deleted successfully").build();
 	}
 
 	@PutMapping("/{shipmentId}/actual-delivery")
-	public ApiResponse<ShipmentInfResponse> updateActualDeliveryTime(
-			@PathVariable Long shipmentId,
-			@RequestBody ActualDeliveryTimeRequest actualDeliveryTimeRequest) {
+	public ApiResponse<ShipmentInfResponse> updateActualDeliveryTime(@PathVariable Long shipmentId, @RequestBody ActualDeliveryTimeRequest actualDeliveryTimeRequest) {
+
 		shipmentService.updateActualDeliveryTime(shipmentId, actualDeliveryTimeRequest);
 		ShipmentInfResponse response = shipmentService.getShipmentById(shipmentId);
-		return ApiResponse.<ShipmentInfResponse>builder()
-				.code(HttpStatus.OK.value())
-				.message("Actual delivery time updated successfully")
-				.result(response)
-				.build();
+		return ApiResponse.<ShipmentInfResponse>builder().code(HttpStatus.OK.value()).message("Actual delivery time updated successfully").result(response).build();
 	}
 
 }

@@ -12,6 +12,8 @@ import java.util.Optional;
 public class ShippingService {
 
 	private final ShippingRateRepository shippingRateRepository;
+	private static final double EARTH_RADIUS = 6371;
+
 
 	public ShippingService(ShippingRateRepository shippingRateRepository) {
 		this.shippingRateRepository = shippingRateRepository;
@@ -41,4 +43,21 @@ public class ShippingService {
 		return totalCost;
 	}
 
+
+
+
+	public double calculateDistance(String pickupLatitude, String pickupLongitude, String deliveryLatitude, String deliveryLongitude) {
+		double lat1Double = Double.parseDouble(pickupLatitude);
+		double lon1Double = Double.parseDouble(pickupLongitude);
+		double lat2Double = Double.parseDouble(deliveryLatitude);
+		double lon2Double = Double.parseDouble(deliveryLongitude);
+
+		double dLat = Math.toRadians(lat2Double - lat1Double);
+		double dLon = Math.toRadians(lon2Double - lon1Double);
+		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+				Math.cos(Math.toRadians(lat1Double)) * Math.cos(Math.toRadians(lat2Double)) *
+						Math.sin(dLon / 2) * Math.sin(dLon / 2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		return EARTH_RADIUS * c;
+	}
 }

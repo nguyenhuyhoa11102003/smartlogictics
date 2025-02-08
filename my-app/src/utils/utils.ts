@@ -170,7 +170,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const generateTrackingNumber = () => {
   const uuidPart = uuidv4().replace(/-/g, '').slice(0, 8); // 8 ký tự từ UUID
-  return `VN-${uuidPart}`; // Định dạng tùy chỉnh
+  return `VN-SHIPMENT-${uuidPart}`; // Định dạng tùy chỉnh
 }
 
 

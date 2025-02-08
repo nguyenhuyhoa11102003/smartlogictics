@@ -1,5 +1,6 @@
 package com.tdtu.logistics_shipments_service.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tdtu.logistics_shipments_service.enumrator.ShipmentMethod;
 import com.tdtu.logistics_shipments_service.enumrator.ShipmentStatus;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateShipmentRequest {
 	String trackingNumber;
-	Long shipper;
+	String shipper;
 	ShipmentMethod shipmentMethod;
 	Long fromWarehouseId;
 	Long toWarehouseId;
@@ -26,4 +27,5 @@ public class CreateShipmentRequest {
 	LocalDateTime departureTime;
 	List<String> orders;
 	List<CreateShipmentSegmentRequest> shipmentSegmentRequests;
+	Double capacity;
 }

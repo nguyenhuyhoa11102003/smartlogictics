@@ -1,6 +1,7 @@
 package com.tdtu.logistics_users_service.repository;
 
 import com.tdtu.logistics_users_service.entity.Shipper;
+import com.tdtu.logistics_users_service.enumrators.VehicleType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -22,6 +23,9 @@ public interface ShipperRepository extends PagingAndSortingRepository<Shipper, S
 	@Query("SELECT s FROM Shipper s WHERE s.available = true")
 	List<Shipper> findAvailableShippers();
 
+	@Query("SELECT s FROM Shipper s WHERE s.available = true AND s.vehicleType = ?1")
+	List<Shipper> findByVehicleType(VehicleType vehicleType);
+
 	@RestResource(exported = false)
 	<S extends Shipper> S save(S entity);
 
@@ -30,4 +34,6 @@ public interface ShipperRepository extends PagingAndSortingRepository<Shipper, S
 
 	@RestResource(exported = false)
 	void delete(Shipper entity);
+
+
 }
