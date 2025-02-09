@@ -116,7 +116,7 @@ public class OrdersServiceImpl implements OrdersService {
 			//				.to(customerInfResponse.getEmail())
 			//				.subject("Dear" + customerInfResponse.getFullName() + "Your order have bean status update: " + orders.getOrderCode())
 			//				.build();
-			//		kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
+//					kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
 			// 		FIXME: 2025-01-20 : Notification service
 
 			log.info("Logistic-Order-Service: Order-Service: Method-Create-order: Receiver created");

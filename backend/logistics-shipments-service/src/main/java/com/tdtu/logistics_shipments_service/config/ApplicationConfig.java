@@ -23,16 +23,4 @@ public class ApplicationConfig {
 		return mapper;
 	}
 
-	@Bean
-	public WebMvcConfigurer corsConfigure() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**")
-						.allowedMethods("*")
-						.allowedOrigins("*")
-						.allowedHeaders("*");
-			}
-		};
-	}
 }

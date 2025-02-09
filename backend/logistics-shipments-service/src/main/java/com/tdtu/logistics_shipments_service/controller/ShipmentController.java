@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -45,17 +43,11 @@ public class ShipmentController {
 
 	// Get: Api to get all shipments
 	@GetMapping("/all")
-	public ApiResponse<Page<ShipmentInfResponse>> getAllShipments(@RequestParam(defaultValue = "0") int page,
-	                                                              @RequestParam(defaultValue = "10") int size,
-	                                                              @RequestParam(defaultValue = "createAt") String sortBy,
-	                                                              @RequestParam(defaultValue = "asc") String sortDir) {
+	public ApiResponse<Page<ShipmentInfResponse>> getAllShipments(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "createAt") String sortBy, @RequestParam(defaultValue = "asc") String sortDir) {
 
 		Pageable pageable = PageRequest.of(page, size);
 		Page<ShipmentInfResponse> responses = shipmentService.getAllPaginated(pageable);
-		return ApiResponse.<Page<ShipmentInfResponse>>builder()
-				.code(HttpStatus.OK.value())
-				.message("Shipments fetched successfully")
-				.result(responses).build();
+		return ApiResponse.<Page<ShipmentInfResponse>>builder().code(HttpStatus.OK.value()).message("Shipments fetched successfully").result(responses).build();
 	}
 
 	// Post: Api to add orders to shipment

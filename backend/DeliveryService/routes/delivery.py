@@ -12,8 +12,6 @@ import pandas as pd
 from dto.response.ApiResponse import ApiResponse
 from dto.response.coordinatesResponse import CoordinatesResponse
 
-# from services.services import predict
-
 router = APIRouter()
 
 
