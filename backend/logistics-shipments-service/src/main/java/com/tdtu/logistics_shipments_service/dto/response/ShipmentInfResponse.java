@@ -29,4 +29,6 @@ public class ShipmentInfResponse {
 
 	WarehouseInfResponse fromWarehouse;
 	WarehouseInfResponse toWarehouse;
+	List<WarehouseInfResponse> intermediateWarehouses;
+
 }

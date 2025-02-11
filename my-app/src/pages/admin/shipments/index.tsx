@@ -16,12 +16,13 @@ import { jwtDecode, JwtPayload } from "jwt-decode";
 // react datepicker
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { setHours, setMinutes } from "date-fns";
+import { set, setHours, setMinutes } from "date-fns";
 import { Warehouse } from '@/modules/warehouse/models/Warehouse';
 import { getAllWarehouses } from '@/modules/warehouse/services/WarehouseService';
 import { useAuth } from '@/context/app.context';
 import { generateTrackingNumber } from '@/utils/utils';
 import axios from 'axios';
+import http from '@/utils/http';
 
 
 const ShipmentManagement = () => {
@@ -165,15 +166,29 @@ const ShipmentManagement = () => {
         //     }
         // }
 
+        console.info("ADD NEW SHIPMENT");
+
         const payload = {
             ...newShipment,
             shipmentMethod: convertShipmentMethod(shipmentMethod),
             departureTime: startDate.toISOString()
         }
 
-        console.info("Payload: ", JSON.stringify(payload));
+        // console.info("Payload: ", JSON.stringify(payload));
 
-        // setShowModal(false);
+        if (payload.shipper === "") {
+            alert("Chưa chọn phương tiện vận chuyển");
+            return;
+        }
+
+        const res = await http.post('http://localhost:8087/shipment-service/shipments/create', JSON.stringify(payload));
+        if(res.data.code === 201){
+            alert("Thêm vận chuyển thành công");
+            setShowModal(false);    
+        }        
+        else{
+            alert("Thêm vận chuyển thất bại");
+        }
 
     };
 
@@ -220,7 +235,7 @@ const ShipmentManagement = () => {
     }, [shipmentMethod]);
 
     return (
-        // <LayoutDashboard>
+        <LayoutDashboard>
         <Container fluid className="p-4">
             {/* Header */}
             <Row className="mb-4 align-items-center">
@@ -368,14 +383,14 @@ const ShipmentManagement = () => {
                                     <Form.Group>
                                         <Form.Label className="fw-medium mb-3 d-flex align-items-center gap-2">Chọn xe</Form.Label>
                                         <Form.Select
-                                            value={newShipment.shipperId}
+                                            value={newShipment.shipper}
                                             onChange={(e) => {
                                                 const id = e.target.value;
                                                 const selectedVehicel = shippers.find(a => a.id === id)
                                                 if (selectedVehicel) {
                                                     setNewShipment({
                                                         ...newShipment,
-                                                        shipperId: selectedVehicel.id
+                                                        shipper: selectedVehicel.id
                                                     })
                                                 }
 
@@ -646,7 +661,7 @@ const ShipmentManagement = () => {
                 </Modal.Footer>
             </Modal>
         </Container >
-        // </LayoutDashboard>
+        </LayoutDashboard>
 
     );
 };

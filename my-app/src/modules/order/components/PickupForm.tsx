@@ -1,10 +1,8 @@
 import { useState, useEffect, Fragment } from 'react';
 import { Label } from "@/components/ui/label";
-import { Checkbox } from '@/components/ui/checkbox';
 import { PickupData } from '@/modules/order/models/PickUpData';
 import { Warehouse } from '@/modules/warehouse/models/Warehouse';
 // import { getAllWarehouses } from '@/modules/warehouse/services/WarehouseService';
-import { Button } from 'react-bootstrap';
 import { useAuth } from '@/context/app.context';
 import { AddressListProps } from '@/modules/address/components/AddressList';
 import axios from 'axios';

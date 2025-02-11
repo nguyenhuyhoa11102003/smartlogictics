@@ -1,5 +1,6 @@
 package com.tdtu.logistics_shipments_service.service.implement;
 
+import com.google.gson.Gson;
 import com.tdtu.logistics_shipments_service.dto.request.ActualDeliveryTimeRequest;
 import com.tdtu.logistics_shipments_service.dto.request.CreateShipmentRequest;
 import com.tdtu.logistics_shipments_service.dto.request.CreateShipmentSegmentRequest;
@@ -13,6 +14,7 @@ import com.tdtu.logistics_shipments_service.repository.ShipmentRepository;
 import com.tdtu.logistics_shipments_service.service.ShipmentService;
 import com.tdtu.logistics_shipments_service.service.client.DeliveryServiceFeignClient;
 import com.tdtu.logistics_shipments_service.service.client.OrderServiceFeignClient;
+import com.tdtu.logistics_shipments_service.service.client.UserServiceFeignClient;
 import com.tdtu.logistics_shipments_service.service.client.WarehouseServiceFeignClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 	OrderServiceFeignClient orderServiceFeignClient;
 	WarehouseServiceFeignClient warehouseServiceFeignClient;
 	DeliveryServiceFeignClient deliveryServiceFeignClient;
+	UserServiceFeignClient userServiceFeignClient;
 
 	// Add orders to shipment
 	@Override
@@ -66,6 +69,16 @@ public class ShipmentServiceImpl implements ShipmentService {
 	public ShipmentInfResponse createShipment(CreateShipmentRequest requestDTO) {
 
 		List<CreateShipmentSegmentRequest> createShipmentSegmentRequests = requestDTO.getShipmentSegmentRequests();
+
+		createShipmentSegmentRequests.add(CreateShipmentSegmentRequest.builder()
+						.weatherCondition(WeatherCondition.CLEAR)
+						.trafficCondition(TrafficCondition.LIGHT)
+						.segmentStatus(SegmentStatus.NOT_STARTED)
+						.notes("Giao hàng")
+						.destinationWarehouseId(requestDTO.getToWarehouseId())
+						.stopoverDuration(0)
+				.build());
+
 		// Create shipment entity
 		Shipment shipment = createShipmentEntity(requestDTO);
 		log.info(" {}: func:{}", "ShipmentServiceImpl", "createShipment");
@@ -141,9 +154,10 @@ public class ShipmentServiceImpl implements ShipmentService {
 
 	@Override
 	public ShipmentInfResponse getShipmentById(Long id) {
-		Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Shipment not found"));
+		Shipment shipment = shipmentRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Shipment not found"));
 		ShipmentInfResponse response = mapShipmentToResponse(shipment);
-		List<ShipmentSegmentInfResponse> shipmentSegmentInfResponses = mapShipmentSegmentsToResponse(shipment.getShipmentSegments());
+		List<ShipmentSegmentInfResponse> shipmentSegmentInfResponses = mapShipmentSegmentsToResponse(shipment);
 		response.setShipmentSegments(shipmentSegmentInfResponses);
 		return response;
 	}
@@ -164,22 +178,25 @@ public class ShipmentServiceImpl implements ShipmentService {
 		response.setOrders(shipment.getOrders());
 		response.setCreateAt(shipment.getCreateAt().toString());
 		response.setUpdateAt(shipment.getUpdateAt().toString());
-		response.setShipmentSegments(mapShipmentSegmentsToResponse(shipment.getShipmentSegments()));
+		response.setShipmentSegments(mapShipmentSegmentsToResponse(shipment));
 
 		ApiResponse<WarehouseInfResponse> fromWarehouse = warehouseServiceFeignClient.getWarehouseById(shipment.getFromWarehouseId());
 		ApiResponse<WarehouseInfResponse> toWarehouse = warehouseServiceFeignClient.getWarehouseById(shipment.getToWarehouseId());
-
 		if (fromWarehouse.isSuccess() && toWarehouse.isSuccess()) {
 			response.setFromWarehouse(fromWarehouse.getResult());
 			response.setToWarehouse(toWarehouse.getResult());
 		}
-
+		ApiResponse<List<WarehouseInfResponse>> intermediateWarehouses = warehouseServiceFeignClient.getWarehousesByIds(shipment.getIntermediateWarehouseIds());
+		if (intermediateWarehouses.isSuccess()) {
+			response.setIntermediateWarehouses(intermediateWarehouses.getResult());
+		}
 		return response;
 	}
 
 
 	// map shipment segments to response
-	private List<ShipmentSegmentInfResponse> mapShipmentSegmentsToResponse(List<ShipmentSegment> shipmentSegments) {
+	private List<ShipmentSegmentInfResponse> mapShipmentSegmentsToResponse(Shipment shipment) {
+		List<ShipmentSegment> shipmentSegments  =  shipment.getShipmentSegments();
 		List<ShipmentSegmentInfResponse> shipmentSegmentInfResponses = new ArrayList<>();
 		shipmentSegments.forEach(t -> {
 			ShipmentSegmentInfResponse shipmentInfResponse = new ShipmentSegmentInfResponse();
@@ -197,6 +214,13 @@ public class ShipmentServiceImpl implements ShipmentService {
 			shipmentInfResponse.setSummaryLength(t.getSummaryLength());
 			shipmentInfResponse.setSummaryBaseDuration(t.getSummaryBaseDuration());
 			shipmentInfResponse.setHoliday(t.isHoliday());
+
+			ApiResponse<WarehouseInfResponse> fromWarehouse = warehouseServiceFeignClient.getWarehouseById(t.getFromWarehouseId());
+			ApiResponse<WarehouseInfResponse> toWarehouse = warehouseServiceFeignClient.getWarehouseById(t.getToWarehouseId());
+			if (fromWarehouse.isSuccess() && toWarehouse.isSuccess()) {
+				shipmentInfResponse.setFromWarehouse(fromWarehouse.getResult());
+				shipmentInfResponse.setToWarehouse(toWarehouse.getResult());
+			}
 
 			shipmentSegmentInfResponses.add(shipmentInfResponse);
 		});

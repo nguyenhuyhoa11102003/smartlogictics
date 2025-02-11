@@ -28,5 +28,9 @@ public class ShipmentSegmentInfResponse {
 	float summaryLength;
 	float summaryBaseDuration;
 	boolean isHoliday;
+
+	WarehouseInfResponse fromWarehouse;
+	WarehouseInfResponse toWarehouse;
+
 }
 

@@ -67,7 +67,9 @@ public class ShipmentController {
 	public ApiResponse<ShipmentInfResponse> getShipment(@PathVariable Long shipmentId) {
 
 		ShipmentInfResponse shipment = shipmentService.getShipmentById(shipmentId);
-		return ApiResponse.<ShipmentInfResponse>builder().code(HttpStatus.OK.value()).message("Shipment details fetched successfully").result(shipment).build();
+		return ApiResponse.<ShipmentInfResponse>builder()
+				.code(HttpStatus.OK.value())
+				.message("Shipment details fetched successfully").result(shipment).build();
 	}
 
 	@PutMapping("/{shipmentId}/status")

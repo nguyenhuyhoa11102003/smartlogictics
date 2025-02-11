@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Container, Spinner } from "react-bootstrap"; // Import Bootstrap components
 import LayoutDashboard from '@/components/LayoutDashboard';
 import ShippingDetails from "@/modules/shipment/components/ShippingDetails";
+import http from "@/utils/http";
 
 const ShipmentDetail = () => {
     const { query } = useRouter();
@@ -12,11 +13,11 @@ const ShipmentDetail = () => {
 
     useEffect(() => {
         if (id) {
+
             const fetchShipmentDetails = async () => {
-                const response = await fetch(`/api/shipments/${id}`);
-                const data: Shipment = await response.json();
-                setShipment(data);
-            };
+                const response = await http.get(`http://localhost:8087/shipment-service/shipments/detail/${id}`);
+                setShipment(response.data.result as Shipment); 
+            }
 
             fetchShipmentDetails();
         }
@@ -24,10 +25,12 @@ const ShipmentDetail = () => {
 
     if (!shipment) {
         return (
-            <Container className="text-center mt-5">
-                <Spinner animation="border" role="status" />
-                <span className="ms-2">Loading...</span>
-            </Container>
+            <LayoutDashboard>
+                <Container className="text-center mt-5">
+                    <Spinner animation="border" role="status" />
+                    <span className="ms-2">Loading...</span>
+                </Container>
+            </LayoutDashboard>
         );
     }
 

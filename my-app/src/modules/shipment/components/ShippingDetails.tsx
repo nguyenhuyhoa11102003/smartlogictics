@@ -56,7 +56,7 @@ const ShippingDetails = ({ shipment }: Props) => {
     if (!shipment.intermediateWarehouses || !Array.isArray(shipment.intermediateWarehouses)) {
       return "N/A";
     }
-    return shipment.intermediateWarehouses.map(warehouse => warehouse?.name || "N/A").join(', ') || "N/A";
+    return shipment.intermediateWarehouses.map(warehouse => warehouse?.name + "-" + warehouse?.address || "N/A").join(', ') || "N/A";
   };
 
   return (
@@ -87,12 +87,12 @@ const ShippingDetails = ({ shipment }: Props) => {
               <DetailItem
                 icon={MapPin}
                 title="Kho xuất phát"
-                value={shipment.fromWarehouse?.name}
+                value={shipment.fromWarehouse?.name   + " - " + shipment.fromWarehouse?.address}  
               />
               <DetailItem
                 icon={MapPin}
                 title="Kho đích"
-                value={shipment.toWarehouse?.name}
+                value={shipment.toWarehouse?.name  + " - " + shipment.toWarehouse?.address}
               />
             </div>
           </div>
@@ -105,12 +105,12 @@ const ShippingDetails = ({ shipment }: Props) => {
               <DetailItem
                 icon={Calendar}
                 title="Ngày bắt đầu"
-                value={formatDate(shipment.shipmentStartDate)}
+                value={shipment.departureTime}
               />
               <DetailItem
                 icon={Calendar}
                 title="Ngày dự kiến"
-                value={formatDate(shipment.estimatedDeliveryDate)}
+                value={shipment.arrivalTime}
               />
             </div>
 
@@ -145,7 +145,7 @@ const ShippingDetails = ({ shipment }: Props) => {
             />
           </div>
 
-          <ShipmentTracking />
+          <ShipmentTracking shipment ={shipment} />
         </CardContent>
       </Card>
     </div>

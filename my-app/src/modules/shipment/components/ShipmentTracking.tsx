@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Truck, Sun, Cloud, CloudRain, AlertTriangle } from 'lucide-react';
 import {
     Card,
@@ -6,47 +6,54 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-const ShipmentTracking = () => {
+
+import { Shipment } from '@/modules/shipment/models/Shipment';
+
+interface Props {
+    shipment: Shipment;
+  }
+
+const ShipmentTracking = ({ shipment }: Props) => {
     const [segments, setSegments] = useState([
-        {
-            id: 1,
-            from: "Kho Hà Nội",
-            to: "Kho Đà Nẵng",
-            status: 'completed',
-            plannedStart: "2024-12-10T08:00",
-            plannedDuration: 15, // hours
-            actualStart: "2024-12-10T08:00",
-            actualDuration: 17,
-            weather: "sunny",
-            traffic: "normal",
-            notes: ""
-        },
-        {
-            id: 2,
-            from: "Kho Đà Nẵng",
-            to: "Kho HCM",
-            status: 'in_progress',
-            plannedStart: "2024-12-11T01:00",
-            plannedDuration: 12,
-            actualStart: "2024-12-11T01:00",
-            actualDuration: null,
-            weather: "rainy",
-            traffic: "heavy",
-            notes: "Mưa lớn, đường đông"
-        },
-        {
-            id: 3,
-            from: "Kho HCM",
-            to: "Kho Cần Thơ",
-            status: 'pending',
-            plannedStart: "2024-12-11T13:00",
-            plannedDuration: 4,
-            actualStart: null,
-            actualDuration: null,
-            weather: "cloudy",
-            traffic: "normal",
-            notes: ""
-        }
+        // {
+        //     id: 1,
+        //     from: "Kho Hà Nội",
+        //     to: "Kho Đà Nẵng",
+        //     status: 'completed',
+        //     plannedStart: "2024-12-10T08:00",
+        //     plannedDuration: 15, // hours
+        //     actualStart: "2024-12-10T08:00",
+        //     actualDuration: 17,
+        //     weather: "sunny",
+        //     traffic: "normal",
+        //     notes: ""
+        // },
+        // {
+        //     id: 2,
+        //     from: "Kho Đà Nẵng",
+        //     to: "Kho HCM",
+        //     status: 'in_progress',
+        //     plannedStart: "2024-12-11T01:00",
+        //     plannedDuration: 12,
+        //     actualStart: "2024-12-11T01:00",
+        //     actualDuration: null,
+        //     weather: "rainy",
+        //     traffic: "heavy",
+        //     notes: "Mưa lớn, đường đông"
+        // },
+        // {
+        //     id: 3,
+        //     from: "Kho HCM",
+        //     to: "Kho Cần Thơ",
+        //     status: 'pending',
+        //     plannedStart: "2024-12-11T13:00",
+        //     plannedDuration: 4,
+        //     actualStart: null,
+        //     actualDuration: null,
+        //     weather: "cloudy",
+        //     traffic: "normal",
+        //     notes: ""
+        // }
     ]);
 
     const formatDateTime = (dateTime: string | null) => {
@@ -88,6 +95,27 @@ const ShipmentTracking = () => {
             )
         );
     };
+
+    useEffect(() => {       
+        // setSegments(shipment.shipmentSegments);
+
+        setSegments(pre =>  [ ...pre ,  ...shipment.shipmentSegments.map((segment) => ({
+            id: segment.id,
+            from: segment.fromWarehouse.name,
+            to: segment.toWarehouse.name,   
+            status: segment.segmentStatus,
+            plannedStart: segment.departureTime,
+            plannedDuration: 15, // hours
+            actualStart: segment.arrivalTime,
+            actualDuration: 17,
+            weather: "sunny",
+            traffic: "normal",
+            notes: ""
+        }))]);
+
+        
+
+    }, [shipment]); 
 
     return (
         <Card className="w-full pt-4 bg-white border-white">
