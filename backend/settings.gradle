@@ -1,6 +1,6 @@
 rootProject.name = 'smartlogistics'
 
-include 'logistics-goods-service',
+include 'logistics-payments-service',
         'logistics-identity-service',
         'common',
         'logistics-shipments-service',

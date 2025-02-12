@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
 @FeignClient(
-		value = "order",
+		value = "orders-service",
 		url = "${order-service.url}",
 		configuration = ClientConfig.class,
 		fallback = OrderServiceFallback.class
 )
 public interface OrderServiceFeignClient {
-	@GetMapping("/orders/{id}")
+	@GetMapping("/orders/get/{id}")
 	ApiResponse<OrderInfResponse> getOrderById(@PathVariable("id") String orderId);
 
 	@PutMapping("/{orderId}/update-shipping-meta-data/{shipmentId}")

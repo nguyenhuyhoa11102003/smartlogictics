@@ -1,16 +1,14 @@
 package com.tdtu.logistics_shipments_service.service.implement;
 
 import com.google.gson.Gson;
-import com.tdtu.logistics_shipments_service.dto.request.ActualDeliveryTimeRequest;
-import com.tdtu.logistics_shipments_service.dto.request.CreateShipmentRequest;
-import com.tdtu.logistics_shipments_service.dto.request.CreateShipmentSegmentRequest;
-import com.tdtu.logistics_shipments_service.dto.request.ShipmentStatusUpdateRequest;
+import com.tdtu.logistics_shipments_service.dto.request.*;
 import com.tdtu.logistics_shipments_service.dto.response.*;
 import com.tdtu.logistics_shipments_service.dto.response.delivery.Route;
 import com.tdtu.logistics_shipments_service.enumrator.*;
 import com.tdtu.logistics_shipments_service.model.Shipment;
 import com.tdtu.logistics_shipments_service.model.ShipmentSegment;
 import com.tdtu.logistics_shipments_service.repository.ShipmentRepository;
+import com.tdtu.logistics_shipments_service.repository.ShipmentSegmentRepository;
 import com.tdtu.logistics_shipments_service.service.ShipmentService;
 import com.tdtu.logistics_shipments_service.service.client.DeliveryServiceFeignClient;
 import com.tdtu.logistics_shipments_service.service.client.OrderServiceFeignClient;
@@ -36,6 +34,7 @@ import java.util.List;
 @Transactional
 public class ShipmentServiceImpl implements ShipmentService {
 	ShipmentRepository shipmentRepository;
+	ShipmentSegmentRepository shipmentSegmentRepository;
 	OrderServiceFeignClient orderServiceFeignClient;
 	WarehouseServiceFeignClient warehouseServiceFeignClient;
 	DeliveryServiceFeignClient deliveryServiceFeignClient;
@@ -50,6 +49,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 		if (shipmentId == null) {
 			throw new RuntimeException("ID lô hàng không được để trống");
 		}
+		log.info("addOrdersToShipment >> pass 1 ");
 		Shipment shipmentEntity = getShipmentEntityById(shipmentId);
 		// Get info of orders
 		for (String orderId : orderIds) {
@@ -71,12 +71,12 @@ public class ShipmentServiceImpl implements ShipmentService {
 		List<CreateShipmentSegmentRequest> createShipmentSegmentRequests = requestDTO.getShipmentSegmentRequests();
 
 		createShipmentSegmentRequests.add(CreateShipmentSegmentRequest.builder()
-						.weatherCondition(WeatherCondition.CLEAR)
-						.trafficCondition(TrafficCondition.LIGHT)
-						.segmentStatus(SegmentStatus.NOT_STARTED)
-						.notes("Giao hàng")
-						.destinationWarehouseId(requestDTO.getToWarehouseId())
-						.stopoverDuration(0)
+				.weatherCondition(WeatherCondition.CLEAR)
+				.trafficCondition(TrafficCondition.LIGHT)
+				.segmentStatus(SegmentStatus.NOT_STARTED)
+				.notes("Giao hàng")
+				.destinationWarehouseId(requestDTO.getToWarehouseId())
+				.stopoverDuration(0)
 				.build());
 
 		// Create shipment entity
@@ -112,7 +112,22 @@ public class ShipmentServiceImpl implements ShipmentService {
 
 			// Create shipment segment
 			LocalDateTime endTime = startTime.plusSeconds((long) summaryDuration);
-			ShipmentSegment shipmentSegment = ShipmentSegment.builder().shipment(shipment).fromWarehouseId(fromWarehouse.getId()).toWarehouseId(toWarehouse.getId()).departureTime(startTime).arrivalTime(endTime).weatherCondition(WeatherCondition.CLEAR).trafficCondition(TrafficCondition.LIGHT).segmentStatus(SegmentStatus.NOT_STARTED).notes(segmentRequest.getNotes()).summaryDuration(summaryDuration).summaryLength(summaryLength).summaryBaseDuration(summaryBaseDuration).stopoverDuration(segmentRequest.getStopoverDuration()).build();
+			ShipmentSegment shipmentSegment = ShipmentSegment.builder()
+					.shipment(shipment)
+					.fromWarehouseId(fromWarehouse.getId())
+					.toWarehouseId(toWarehouse.getId())
+					.departureTime(startTime)
+					.arrivalTime(endTime)
+					.weatherCondition(WeatherCondition.CLEAR)
+					.trafficCondition(TrafficCondition.LIGHT)
+					.segmentStatus(SegmentStatus.NOT_STARTED)
+					.notes(segmentRequest.getNotes())
+					.summaryDuration(summaryDuration)
+					.summaryLength(summaryLength)
+					.summaryBaseDuration(summaryBaseDuration)
+					.stopoverDuration(segmentRequest.getStopoverDuration())
+					.sequenceOrder(i + 1)
+					.build();
 
 			shipment.getShipmentSegments().add(shipmentSegment);
 			startTime = endTime.plusMinutes((long) segmentRequest.getStopoverDuration());
@@ -150,7 +165,6 @@ public class ShipmentServiceImpl implements ShipmentService {
 		}
 		return route;
 	}
-
 
 	@Override
 	public ShipmentInfResponse getShipmentById(Long id) {
@@ -196,7 +210,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 
 	// map shipment segments to response
 	private List<ShipmentSegmentInfResponse> mapShipmentSegmentsToResponse(Shipment shipment) {
-		List<ShipmentSegment> shipmentSegments  =  shipment.getShipmentSegments();
+		List<ShipmentSegment> shipmentSegments = shipment.getShipmentSegments();
 		List<ShipmentSegmentInfResponse> shipmentSegmentInfResponses = new ArrayList<>();
 		shipmentSegments.forEach(t -> {
 			ShipmentSegmentInfResponse shipmentInfResponse = new ShipmentSegmentInfResponse();
@@ -227,15 +241,28 @@ public class ShipmentServiceImpl implements ShipmentService {
 		return shipmentSegmentInfResponses;
 	}
 
-
 	@Override
-	public ShipmentInfResponse updateShipmentStatus(Long id, ShipmentStatusUpdateRequest requestDTO) {
-		return null;
+	public ShipmentInfResponse updateShipmentStatus(Long id, ShipmentStatusUpdateRequest statusUpdateRequest) {
+		Shipment existingShipment = getShipmentEntityById(id);
+		ShipmentStatus shipmentStatus = statusUpdateRequest.getStatus();
+
+		if (shipmentStatus == ShipmentStatus.DELIVERED) {
+			List<ShipmentSegment> shipmentSegments = existingShipment.getShipmentSegments();
+			for (ShipmentSegment shipmentSegment : shipmentSegments) {
+				if (shipmentSegment.getSegmentStatus() != SegmentStatus.COMPLETED) {
+					throw new RuntimeException("Các segment chưa hoàn thành");
+				}
+			}
+		}
+		existingShipment.setShipmentStatus(shipmentStatus);
+		return mapShipmentToResponse(shipmentRepository.save(existingShipment));
 	}
 
 	@Override
 	public ShipmentInfResponse trackShipmentByTrackingNumber(String trackingNumber) {
-		return null;
+		Shipment shipment = shipmentRepository.findByTrackingNumber(trackingNumber)
+				.orElseThrow(() -> new RuntimeException("Shipment not found"));
+		return mapShipmentToResponse(shipment);
 	}
 
 	@Override
@@ -250,7 +277,9 @@ public class ShipmentServiceImpl implements ShipmentService {
 
 	@Override
 	public void deleteShipment(Long id) {
-
+		Shipment shipment = getShipmentEntityById(id);
+		shipment.setIsDeleted(true);
+		shipmentRepository.save(shipment);
 	}
 
 	@Override
@@ -263,8 +292,58 @@ public class ShipmentServiceImpl implements ShipmentService {
 		return shipmentRepository.findAll(pageable).map(this::mapShipmentToResponse);
 	}
 
+	@Override
+	public ShipmentInfResponse updateSegmentStatus(Long segmentId, SegmentStatus newStatus) {
+		// get shipment segment
+		ShipmentSegment segment = this.shipmentSegmentRepository.findById(segmentId)
+				.orElseThrow(() -> new RuntimeException("Segment not found"));
 
-	// Get shipment entity by id
+		List<ShipmentSegment> beforeSegments = this.shipmentSegmentRepository.
+				findByShipmentAndSequenceOrderLessThan(segment.getShipment(), segment.getSequenceOrder());
+
+		if (beforeSegments.stream().anyMatch(t -> t.getSegmentStatus() != SegmentStatus.COMPLETED)) {
+			throw new RuntimeException("Các segment trước chưa hoàn thành");
+		}
+
+		segment.setSegmentStatus(newStatus);
+
+		Shipment shipment = segment.getShipment();
+		if (newStatus == SegmentStatus.ARRIVED_AT_WAREHOUSE) {
+			shipment.setShipmentStatus(ShipmentStatus.ARRIVED_AT_WAREHOUSE);
+			this.shipmentSegmentRepository.save(segment);
+		} else if (newStatus == SegmentStatus.DEPARTED_WAREHOUSE) {
+			shipment.setShipmentStatus(ShipmentStatus.DEPARTED_WAREHOUSE);
+			this.shipmentSegmentRepository.save(segment);
+		} else if (newStatus == SegmentStatus.WAREHOUSE_CHECKED_IN) {
+			shipment.setShipmentStatus(ShipmentStatus.WAREHOUSE_CHECKED_IN);
+			this.shipmentSegmentRepository.save(segment);
+		}
+
+		List<ShipmentSegment> nextSegments = this.shipmentSegmentRepository.
+				findByShipmentAndSequenceOrderGreaterThan(segment.getShipment(), segment.getSequenceOrder());
+
+		// Nếu trạng thái mới của segment hiện tại là COMPLETED, cập nhật trạng thái segment tiếp theo
+		for (ShipmentSegment nextSegment : nextSegments) {
+			if (newStatus == SegmentStatus.COMPLETED) {
+				if (nextSegment.getSegmentStatus() == SegmentStatus.NOT_STARTED) {
+					nextSegment.setSegmentStatus(SegmentStatus.IN_PROGRESS);
+					this.shipmentSegmentRepository.save(nextSegment);
+				}
+			}
+		}
+
+		// Nếu tất cả các segment đã hoàn thành, cập nhật trạng thái của shipment
+		List<ShipmentSegment> allSegments = this.shipmentSegmentRepository.findByShipment(shipment);
+
+		if (allSegments.stream().allMatch(s -> s.getSegmentStatus() == SegmentStatus.COMPLETED)) {
+			shipment.setShipmentStatus(ShipmentStatus.DELIVERED);
+			this.shipmentRepository.save(shipment);
+		}
+
+		return getShipmentById(segment.getShipment().getId());
+	}
+
+
 	private Shipment getShipmentEntityById(Long id) {
 		return shipmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Shipment not found"));
 	}

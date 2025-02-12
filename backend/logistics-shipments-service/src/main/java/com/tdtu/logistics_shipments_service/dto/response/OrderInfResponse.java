@@ -1,6 +1,8 @@
 package com.tdtu.logistics_shipments_service.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.tdtu.logistics_shipments_service.enumrator.OrderStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderInfResponse {
 	private String id; // ID
 	private String orderHdrID; // ID tiêu đề đơn hàng
@@ -21,7 +24,7 @@ public class OrderInfResponse {
 	private String itemCode; // Mã vận đơn
 	private String shipmentId; // Mã vận đơn
 	private String originalItemCode; // Mã vận đơn gốc
-//	private OrderStatus status; // Trạng thái đơn hàng
+	private OrderStatus status; // Trạng thái đơn hàng
 	private String saleOrderCode; // Mã đơn bán hàng
 	private String senderCode; // Mã người gửi
 	private String senderContractNumber; // Mã hợp đồng của người gửi
@@ -56,8 +59,8 @@ public class OrderInfResponse {
 	private Integer mainTax; // Thuế chính
 	private Integer vasFee; // Phí dịch vụ gia tăng
 	private Integer codAmount; // Số tiền thu hộ
-//	private List<AddonServiceResponse> addonService; // Danh sách dịch vụ bổ sung
-//	private List<AdditionRequestResponse> additionRequest; // Danh sách yêu cầu bổ sung
+	private List<AddonServiceResponse> addonService; // Danh sách dịch vụ bổ sung
+	private List<AdditionRequestResponse> additionRequest; // Danh sách yêu cầu bổ sung
 	private Integer weight; // Trọng lượng
 	private Integer length; // Chiều dài
 	private Integer width; // Chiều rộng
@@ -91,5 +94,6 @@ public class OrderInfResponse {
 	private String inputMethod; // Phương thức đầu vào
 	private List<Object> documents; // Tài liệu
 	private List<Object> packageInfo; // Thông tin gói hàng
+
 
 }

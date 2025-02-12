@@ -3,6 +3,9 @@ plugins {
 	id 'org.springframework.boot' version '3.3.6'
 	id 'io.spring.dependency-management' version '1.1.6'
 }
+ext {
+	set('springCloudVersion', "2023.0.3") // Cập nhật version Spring Cloud
+}
 
 group = 'com.tdtu'
 version = '0.0.1-SNAPSHOT'
@@ -70,6 +73,19 @@ dependencies {
 	// Test dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	implementation('org.springframework.boot:spring-boot-starter-actuator')
+
+	// Thêm OpenFeign
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation 'com.squareup.okhttp3:okhttp'
+	}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
 }
 
 tasks.named('test') {

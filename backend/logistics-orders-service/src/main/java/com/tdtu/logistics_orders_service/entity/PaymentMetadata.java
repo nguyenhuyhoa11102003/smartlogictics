@@ -39,14 +39,27 @@ public class PaymentMetadata {
 	@Column(name = "totalAmount")
 	BigDecimal totalAmount; // Tổng giá trị đơn hàng
 
-	@Column(name = "payment_code")
-	String paymentCode; // Lien ket voi Payment-Service
-
 	@Column(name = "payment_status")
 	@Enumerated(EnumType.STRING)
 	PaymentStatus paymentStatus = PaymentStatus.UNPAID; // Trạng thái thanh toán
 
 	@Column(name = "payment_type", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private PaymentType paymentType = PaymentType.PREPAID; // Loại thanh toán (PREPAID, POSTPAID)
+	PaymentType paymentType = PaymentType.PREPAID; // Loại thanh toán (PREPAID, POSTPAID)
+
+	@Column(name = "payment_method")
+	String paymentMethod; // Phương thức thanh toán
+
+	@Column(name = "payment_time")
+	String paymentTime; // Thời gian thanh toán
+
+	@Column(name = "payment_remarks")
+	String paymentRemarks; // Ghi chú thanh toán
+
+	@Column(name = "payment_id")
+	String paymentId; // Liên kết đến thông tin thanh toán
+
+	@Column(name = "payment_code")
+	String paymentCode; // Lien ket voi Payment-Service
+
 }

@@ -1,6 +1,7 @@
 package com.tdtu.logistics_orders_service.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,15 +14,19 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
-    @Builder.Default
-    int code = 200;
+	@Builder.Default
+	int code = 200;
 
-    @Builder.Default
-    boolean isSuccess = Boolean.TRUE;
+	@Builder.Default
+	@JsonProperty("isSuccess")
+	boolean isSuccess = Boolean.TRUE;
 
-    T result;
+	@JsonProperty("result")
+	T result;
 
-    String message;
+	@JsonProperty("message")
+	String message;
 
-    LocalDate timestamp;
+	@JsonProperty("timestamp")
+	LocalDate timestamp;
 }

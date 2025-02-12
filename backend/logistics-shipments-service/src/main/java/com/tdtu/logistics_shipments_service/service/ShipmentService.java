@@ -3,7 +3,9 @@ package com.tdtu.logistics_shipments_service.service;
 import com.tdtu.logistics_shipments_service.dto.request.ActualDeliveryTimeRequest;
 import com.tdtu.logistics_shipments_service.dto.request.CreateShipmentRequest;
 import com.tdtu.logistics_shipments_service.dto.request.ShipmentStatusUpdateRequest;
+import com.tdtu.logistics_shipments_service.dto.request.UpdateSegmentStatusRequest;
 import com.tdtu.logistics_shipments_service.dto.response.ShipmentInfResponse;
+import com.tdtu.logistics_shipments_service.enumrator.SegmentStatus;
 import com.tdtu.logistics_shipments_service.enumrator.ShipmentStatus;
 
 import org.springframework.data.domain.Page;
@@ -18,7 +20,7 @@ public interface ShipmentService {
 
 	ShipmentInfResponse getShipmentById(Long id);
 
-	ShipmentInfResponse updateShipmentStatus(Long id, ShipmentStatusUpdateRequest requestDTO);
+	ShipmentInfResponse updateShipmentStatus(Long id, ShipmentStatusUpdateRequest statusUpdateRequest);
 
 	ShipmentInfResponse trackShipmentByTrackingNumber(String trackingNumber);
 
@@ -31,4 +33,6 @@ public interface ShipmentService {
 	void updateActualDeliveryTime(Long id, ActualDeliveryTimeRequest actualDeliveryTime);
 
 	Page<ShipmentInfResponse> getAllPaginated(Pageable pageable);
+
+	ShipmentInfResponse updateSegmentStatus(Long segmentId, SegmentStatus newStatus);
 }

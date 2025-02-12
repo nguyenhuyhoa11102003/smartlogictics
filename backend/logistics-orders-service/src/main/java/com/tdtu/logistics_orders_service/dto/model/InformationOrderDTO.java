@@ -2,10 +2,7 @@ package com.tdtu.logistics_orders_service.dto.model;
 
 import com.tdtu.common.orders_service.enums.AddOnService;
 import com.tdtu.common.orders_service.enums.ShippingMethod;
-import com.tdtu.logistics_orders_service.enumrator.DeliveryServiceType;
-import com.tdtu.logistics_orders_service.enumrator.PaymentType;
-import com.tdtu.logistics_orders_service.enumrator.ReceivingMethod;
-import com.tdtu.logistics_orders_service.enumrator.ShippingZone;
+import com.tdtu.logistics_orders_service.enumrator.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -111,5 +108,12 @@ public class InformationOrderDTO {
 
     PaymentType paymentType; // Loại thanh toán (PREPAID, POSTPAID)
 
+    String packageType;
+    String pickupDay;
+    String pickupTime;
+
+    TransportationType transportationType;
+    String shipmentCode;
+    String orderCode;
 
 }

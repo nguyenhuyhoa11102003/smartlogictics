@@ -50,6 +50,7 @@ public class ShipmentSegment extends AbstractMappedEntity implements java.io.Ser
 	TrafficCondition trafficCondition = TrafficCondition.LIGHT;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "segment_status", length = 50)
 	SegmentStatus segmentStatus = SegmentStatus.NOT_STARTED;
 
 	@Column(name = "notes", columnDefinition = "TEXT")
@@ -66,4 +67,7 @@ public class ShipmentSegment extends AbstractMappedEntity implements java.io.Ser
 
 	@Column(name = "isHoliday", nullable = false)
 	boolean isHoliday = Boolean.FALSE;
+
+	@Column(name = "sequence_order", nullable = false)
+	int sequenceOrder; // Số thứ tự của chặng trong lộ trình
 }

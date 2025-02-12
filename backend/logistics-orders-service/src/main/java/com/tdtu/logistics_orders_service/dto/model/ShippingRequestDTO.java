@@ -2,6 +2,7 @@ package com.tdtu.logistics_orders_service.dto.model;
 
 import com.tdtu.logistics_orders_service.enumrator.DeliveryServiceType;
 import com.tdtu.logistics_orders_service.enumrator.ShippingZone;
+import com.tdtu.logistics_orders_service.enumrator.TransportationType;
 import lombok.*;
 
 @Getter
@@ -11,6 +12,7 @@ import lombok.*;
 @Builder
 public class ShippingRequestDTO {
 
+	private TransportationType transportationType; // Phương tiện vận chuyển (đường bộ, đường biển, đường hàng không)
 	private DeliveryServiceType serviceType; // Loại dịch vụ (hỏa tốc, thường...)
 	private ShippingZone shippingZone; // Khu vực (nội tỉnh, cận tỉnh, liên tỉnh)
 	private double weight; // Trọng lượng

@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
 	@NotNull Page<Shipment> findAll(@NotNull Pageable pageable);
 
+	@NotNull Optional<Shipment> findByTrackingNumber(@NotNull String trackingNumber);
+
 	//	Optional<Shipment> findFirstByShipmentStatusAndFromWarehouseIdAndShipmentMethodAndShipper(
 	//			ShipmentStatus shipmentStatus,
 	//			Long fromWarehouseId,

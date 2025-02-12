@@ -3,6 +3,7 @@ package com.tdtu.logistics_orders_service.service.implement;
 import com.google.api.Http;
 import com.tdtu.common.constant.KafkaTopic;
 import com.tdtu.common.dto.MailUpdateOrderStatus;
+import com.tdtu.common.dto.OrderEvent;
 import com.tdtu.common.orchestration.workflow.CreateReceiverWorkflow;
 import com.tdtu.common.orchestration.workflow.WorkerHelper;
 import com.tdtu.common.user_service.dto.CreateReceiverRequest;
@@ -108,6 +109,25 @@ public class OrdersServiceImpl implements OrdersService {
 		Orders orderEntity = toOrder(customerId, requestDTO, shippingMetadata, paymentMetadata, receiverId);
 
 		if (Objects.nonNull(receiverId)) {
+			log.info("Logistic-Order-Service: Order-Service: Method-Create-order: Receiver created");
+			log.info("Logistic-Order-Service: Order-Service: Method-Create-order: Order created");
+			Orders createdOrder = ordersRepository.save(orderEntity);
+
+			if (createdOrder != null) {
+				log.info("Logistic-Order-Service: Order-Service: Method-Create-order: Order saved successfully");
+				OrderEvent orderEvent = new OrderEvent();
+				orderEvent.setId(createdOrder.getId());
+				orderEvent.setOrderCode(createdOrder.getOrderCode());
+				orderEvent.setTotalAmount(createdOrder.getTotalCost());
+				kafkaTemplate.send(KafkaTopic.CREATE_ORDER, orderEvent);
+			} else {
+				log.error("Logistic-Order-Service: Order-Service: Method-Create-order: Order not saved");
+				throw new AppException(ErrorCode.CREATE_ORDER_FAILED);
+			}
+
+			// send to kafka to handle create payment
+
+
 
 			// 		FIXME: 2025-01-20 : Notification service
 			//		CustomerInfResponse customerInfResponse = userServiceClient.getCustomerById(orders.getSenderId()).getResult();
@@ -116,16 +136,9 @@ public class OrdersServiceImpl implements OrdersService {
 			//				.to(customerInfResponse.getEmail())
 			//				.subject("Dear" + customerInfResponse.getFullName() + "Your order have bean status update: " + orders.getOrderCode())
 			//				.build();
-//					kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
+			//					kafkaTemplate.send(KafkaTopic.UPDATE_ORDER, mailUpdateOrderStatus);
 			// 		FIXME: 2025-01-20 : Notification service
-
-			log.info("Logistic-Order-Service: Order-Service: Method-Create-order: Receiver created");
-
-			// order created
-			OrderInfResponse orderInfResponse = orderMapper.toOrderInfResponse(ordersRepository.save(orderEntity));
-			// assgin shipment ship for ShipmentMetadata
-			//			shipmentServiceClient.addOrdersToShipment(requestDTO.getInformationOrder().getShipmentId(), List.of(orderInfResponse.getId()));
-			return orderInfResponse;
+			return orderMapper.toOrderInfResponse(createdOrder);
 		} else {
 			throw new AppException(ErrorCode.CREATE_ORDER_FAILED);
 		}
@@ -193,37 +206,54 @@ public class OrdersServiceImpl implements OrdersService {
 
 		return Orders.builder().customerId(customerId)
 
-				//				.status(requestDTO.getOrderCreationStatus())
-				.status(OrderStatus.PROCESSING).shipmentCode(requestDTO.getInformationOrder().getShipmentId()).note(requestDTO.getInformationOrder().getContentNote()).orderCode(requestDTO.getInformationOrder().getSaleOrderCode()) // check lai cho nay
+				.status(requestDTO.getOrderCreationStatus())
+				.shipmentCode(requestDTO.getInformationOrder().getShipmentCode())
+				.note(requestDTO.getInformationOrder().getContentNote())
+				.orderCode(requestDTO.getInformationOrder().getOrderCode())
 				.moreRequire(requestDTO.getInformationOrder().getMoreRequire())
 
-				.senderId(requestDTO.getInformationOrder().getSenderId()).senderName(requestDTO.getInformationOrder().getSenderName())
+				.senderId(requestDTO.getInformationOrder().getSenderId())
+				.senderName(requestDTO.getInformationOrder().getSenderName())
 
-				.recipientName(requestDTO.getInformationOrder().getRecipientName()).recipientId(receiverId)
+				.recipientName(requestDTO.getInformationOrder().getRecipientName())
+				.recipientId(receiverId)
 
-				.branchCode(requestDTO.getInformationOrder().getBranchCode()).serviceCode(requestDTO.getInformationOrder().getServiceCode()).receivingMethod(requestDTO.getInformationOrder().getReceivingMethod())
+				.branchCode(requestDTO.getInformationOrder().getBranchCode())
+				.serviceCode(requestDTO.getInformationOrder().getServiceCode())
+				.receivingMethod(requestDTO.getInformationOrder().getReceivingMethod())
 
-				.vehicle(requestDTO.getInformationOrder().getVehicle()).isBroken(requestDTO.getInformationOrder().isBroken()).deliveryRequire(requestDTO.getInformationOrder().getDeliveryRequire())
+				.vehicle(requestDTO.getInformationOrder().getVehicle())
+				.isBroken(requestDTO.getInformationOrder().isBroken())
+				.deliveryRequire(requestDTO.getInformationOrder().getDeliveryRequire())
 
 				.deliveryInstruction(requestDTO.getInformationOrder().getDeliveryInstruction())
 
-				.weight(requestDTO.getInformationOrder().getWeight()).width(requestDTO.getInformationOrder().getWidth()).length(requestDTO.getInformationOrder().getLength()).height(requestDTO.getInformationOrder().getHeight())
+				.weight(requestDTO.getInformationOrder().getWeight())
+				.width(requestDTO.getInformationOrder().getWidth())
+				.length(requestDTO.getInformationOrder().getLength())
+				.height(requestDTO.getInformationOrder().getHeight())
 
 				//				.pickupShipperId(requestDTO.getInformationOrder().getPickupShipperId())
 				//				.deliveryShipperId(requestDTO.getInformationOrder().getDeliveryShipperId())
 
-				.shippingMetadata(shippingMetadata).paymentMetadata(paymentMetadata)
-
-				.addOnServices(requestDTO.getInformationOrder().getAddOnServices()).build();
+				.pickupDate(requestDTO.getInformationOrder().getPickupDay())
+				.pickUptime(requestDTO.getInformationOrder().getPickupTime())
+				.packageType(requestDTO.getInformationOrder().getPackageType())
+				.shippingMetadata(shippingMetadata)
+				.paymentMetadata(paymentMetadata)
+				.addOnServices(requestDTO.getInformationOrder().getAddOnServices())
+				.totalCost(paymentMetadata.getTotalCost())
+				.build();
 	}
 
+	// HANDLE PAYMENT METADATA
 	private PaymentMetadata toPaymentMetadata(CreateOrderRequest requestDTO) {
 		log.debug("Logistic-Order-Service: Order-Service: Method-To-payment-metadata: {}", requestDTO);
 		BigDecimal totalCost = calculateTotalCost(requestDTO);
 
 		PaymentMetadata paymentMetadata = new PaymentMetadata();
 		paymentMetadata.setCustomerCode(requestDTO.getCustomerCode());
-		paymentMetadata.setTotalCost(totalCost); // tien van chuyen
+		paymentMetadata.setTotalCost(totalCost);
 		paymentMetadata.setPayer(requestDTO.getInformationOrder().getRecipientName());
 
 		// Kiểm tra `codAmount`
@@ -238,7 +268,6 @@ public class OrdersServiceImpl implements OrdersService {
 		if (paymentType == null) {
 			throw new IllegalArgumentException("PaymentType không được null.");
 		}
-
 		if (paymentType == PaymentType.POSTPAID) {
 			// Thanh toan sau
 			paymentMetadata.setPaymentType(PaymentType.POSTPAID);
@@ -252,6 +281,7 @@ public class OrdersServiceImpl implements OrdersService {
 			paymentMetadata.setPaymentStatus(PaymentStatus.PAID);
 			paymentMetadata.setTotalAmount(totalCost);
 		}
+
 		return paymentMetadata;
 	}
 
@@ -263,7 +293,8 @@ public class OrdersServiceImpl implements OrdersService {
 				//.deliveryStatus(requestDTO.getInformationOrder().getDeliveryStatus())
 				//.deliveryEstimateTime(requestDTO.getInformationOrder().getDeliveryTime())
 				//.desiredDeliveryTime(requestDTO.getInformationOrder().getDeliveryTime())
-				.deliveryRemarks(requestDTO.getInformationOrder().getDeliveryInstruction()).deliveryId(requestDTO.getInformationOrder().getShipmentId()).build();
+				.deliveryRemarks(requestDTO.getInformationOrder().getDeliveryInstruction()).
+				deliveryId(requestDTO.getInformationOrder().getShipmentId()).build();
 	}
 
 	@Transactional
@@ -302,12 +333,15 @@ public class OrdersServiceImpl implements OrdersService {
 	// xu ly tinh toan chi phi van chuyen
 	private BigDecimal calculateTotalCost(CreateOrderRequest requestDTO) {
 		log.debug("Logistic-Order-Service: Order-Service: Method-Calculate-total-cost: {}", requestDTO);
-
-		ShippingRequestDTO shippingRequestDTO = ShippingRequestDTO.builder().serviceType(requestDTO.getInformationOrder().getServiceCode()).shippingZone(requestDTO.getInformationOrder().getShippingZone()).weight(requestDTO.getInformationOrder().getWeight()).width(requestDTO.getInformationOrder().getWidth()).length(requestDTO.getInformationOrder().getLength()).height(requestDTO.getInformationOrder().getHeight()).build();
-
-		// Tính toán chi phí vận chuyển
-		BigDecimal shippingCost = shippingService.calculateShippingCost(shippingRequestDTO);
-		return shippingCost;
+		ShippingRequestDTO shippingRequestDTO = ShippingRequestDTO.builder()
+				.transportationType(requestDTO.getInformationOrder().getTransportationType())
+				.serviceType(requestDTO.getInformationOrder().getServiceCode())
+				.shippingZone(requestDTO.getInformationOrder().getShippingZone())
+				.weight(requestDTO.getInformationOrder().getWeight())
+				.width(requestDTO.getInformationOrder().getWidth())
+				.length(requestDTO.getInformationOrder().getLength())
+				.height(requestDTO.getInformationOrder().getHeight()).build();
+		return shippingService.calculateShippingCost(shippingRequestDTO);
 	}
 
 	@Override
@@ -363,7 +397,7 @@ public class OrdersServiceImpl implements OrdersService {
 			return new AppException(ErrorCode.ORDER_NOT_FOUND);
 		});
 
-		orderEntity.setPickupDate(pickupRequest.getPickupDate()); // Ngày pickup
+		//		orderEntity.setPickupDate(pickupRequest.getPickupDate()); // Ngày pickup
 		orderEntity.setPickupStatus("PENDING");  // Trạng thái pickup
 		orderEntity.setPickupRemarks(pickupRequest.getRemarks());  // Ghi chú pickup
 

@@ -6,6 +6,7 @@ import com.tdtu.logistics_shipments_service.dto.request.CreateShipmentRequest;
 import com.tdtu.logistics_shipments_service.dto.request.ShipmentStatusUpdateRequest;
 import com.tdtu.logistics_shipments_service.dto.response.ApiResponse;
 import com.tdtu.logistics_shipments_service.dto.response.ShipmentInfResponse;
+import com.tdtu.logistics_shipments_service.enumrator.SegmentStatus;
 import com.tdtu.logistics_shipments_service.enumrator.ShipmentStatus;
 import com.tdtu.logistics_shipments_service.service.ShipmentService;
 import lombok.AccessLevel;
@@ -50,7 +51,6 @@ public class ShipmentController {
 		return ApiResponse.<Page<ShipmentInfResponse>>builder().code(HttpStatus.OK.value()).message("Shipments fetched successfully").result(responses).build();
 	}
 
-	// Post: Api to add orders to shipment
 	@Transactional
 	@PostMapping("/add-orders")
 	public ApiResponse<?> addOrdersToShipment(@RequestBody AddOrdersToShipmentRequest request) {
@@ -60,7 +60,11 @@ public class ShipmentController {
 		response.put("shipmentId", request.getShipmentId());
 		response.put("status", "UPDATED");
 		response.put("message", "Đơn hàng đã được thêm vào lô hàng thành công");
-		return ApiResponse.builder().code(HttpStatus.OK.value()).message("Orders added to shipment successfully").result(response).build();
+		return ApiResponse.builder()
+				.code(HttpStatus.OK.value())
+				.message("Orders added to shipment successfully")
+				.result(response)
+				.build();
 	}
 
 	@GetMapping("/detail/{shipmentId}")
@@ -72,18 +76,36 @@ public class ShipmentController {
 				.message("Shipment details fetched successfully").result(shipment).build();
 	}
 
-	@PutMapping("/{shipmentId}/status")
-	public ApiResponse<ShipmentInfResponse> updateShipmentStatus(@PathVariable Long shipmentId, @RequestBody ShipmentStatusUpdateRequest statusUpdateRequest) {
-
-		ShipmentInfResponse response = shipmentService.updateShipmentStatus(shipmentId, statusUpdateRequest);
+	@PutMapping("/{shipmentId}/status/{status}")
+	public ApiResponse<ShipmentInfResponse> updateShipmentStatus(
+			@PathVariable Long shipmentId,
+			@RequestParam ShipmentStatus status
+	) {
+		ShipmentStatusUpdateRequest statusUpdateRequest = ShipmentStatusUpdateRequest.builder().status(status).build();
+		ShipmentInfResponse response = shipmentService
+				.updateShipmentStatus(shipmentId, statusUpdateRequest);
 		return ApiResponse.<ShipmentInfResponse>builder().code(HttpStatus.OK.value()).message("Shipment status updated successfully").result(response).build();
 	}
 
-	@GetMapping("/track/{trackingNumber}")
+	@PutMapping("/segments/{segmentId}/status")
+	public ApiResponse<ShipmentInfResponse> updateSegmentStatus(@PathVariable Long segmentId, SegmentStatus newStatus) {
+		// TODO Auto-generated method stub
+		ShipmentInfResponse response = shipmentService.updateSegmentStatus(segmentId, newStatus);
+		return ApiResponse.<ShipmentInfResponse>builder()
+				.code(HttpStatus.OK.value())
+				.message("Segment status updated successfully")
+				.result(response)
+				.build();
+	}
+
+	@GetMapping("/findByTrackingNumber/{trackingNumber}")
 	public ApiResponse<ShipmentInfResponse> trackShipment(@PathVariable String trackingNumber) {
 
 		ShipmentInfResponse response = shipmentService.trackShipmentByTrackingNumber(trackingNumber);
-		return ApiResponse.<ShipmentInfResponse>builder().code(HttpStatus.OK.value()).message("Shipment tracking details fetched successfully").result(response).build();
+		return ApiResponse.<ShipmentInfResponse>builder()
+				.code(HttpStatus.OK.value())
+				.message("Shipment tracking details fetched successfully")
+				.result(response).build();
 	}
 
 	@GetMapping("/orders/{orderId}/shipments")
@@ -110,7 +132,6 @@ public class ShipmentController {
 
 	@PutMapping("/{shipmentId}/actual-delivery")
 	public ApiResponse<ShipmentInfResponse> updateActualDeliveryTime(@PathVariable Long shipmentId, @RequestBody ActualDeliveryTimeRequest actualDeliveryTimeRequest) {
-
 		shipmentService.updateActualDeliveryTime(shipmentId, actualDeliveryTimeRequest);
 		ShipmentInfResponse response = shipmentService.getShipmentById(shipmentId);
 		return ApiResponse.<ShipmentInfResponse>builder().code(HttpStatus.OK.value()).message("Actual delivery time updated successfully").result(response).build();

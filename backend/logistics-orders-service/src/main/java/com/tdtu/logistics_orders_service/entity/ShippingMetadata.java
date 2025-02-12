@@ -1,6 +1,7 @@
 package com.tdtu.logistics_orders_service.entity;
 
 import com.tdtu.common.orders_service.enums.ShippingMethod;
+import com.tdtu.logistics_orders_service.enumrator.ShippingZone;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -47,4 +48,8 @@ public class ShippingMetadata {
 
 	@Column(name = "shipment_id")
 	Long shipmentId;
+
+	@Enumerated(EnumType.STRING)
+	ShippingZone shippingZone; // Khu vực vận chuyển
+
 }

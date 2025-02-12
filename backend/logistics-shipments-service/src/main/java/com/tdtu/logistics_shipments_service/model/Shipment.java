@@ -74,6 +74,9 @@ public class Shipment extends AbstractMappedEntity implements java.io.Serializab
 	@Column(name = "capacity", nullable = false)
 	Double capacity;
 
+	@Column(name = "is_deleted", nullable = false)
+	Boolean isDeleted = false;
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {

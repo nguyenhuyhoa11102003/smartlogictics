@@ -4,11 +4,14 @@ import com.tdtu.common.orders_service.enums.AddOnService;
 import com.tdtu.logistics_orders_service.enumrator.DeliveryServiceType;
 import com.tdtu.logistics_orders_service.enumrator.OrderStatus;
 import com.tdtu.logistics_orders_service.enumrator.ReceivingMethod;
+import com.tdtu.logistics_orders_service.enumrator.ShippingZone;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.LastModifiedBy;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,17 +29,6 @@ public class Orders extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	String id; // UUID của đơn hàng
-
-	@Enumerated(EnumType.STRING)
-	OrderStatus status; // Trạng thái đơn hàng
-
-	@Enumerated(EnumType.STRING)
-	@Column(name = "service_code")
-	DeliveryServiceType serviceCode; // Mã dịch vụ giao hàng
-
-	@Enumerated(EnumType.STRING)
-	@Column(name = "receiving_method")
-	ReceivingMethod receivingMethod; // Phương thức nhận hàng
 
 	@Column(name = "shipment_code", length = 13)
 	String shipmentCode; // Mã vận đơn
@@ -67,7 +59,6 @@ public class Orders extends BaseEntity {
 
 	@Column(name = "branch_code")
 	String branchCode; // Mã chi nhánh warehouse
-
 
 	@Column(name = "vehicle")
 	String vehicle; // Loại phương tiện vận chuyển
@@ -112,18 +103,32 @@ public class Orders extends BaseEntity {
 	@JoinColumn(name = "payment_metadata_id") // Thêm cột để liên kết
 	PaymentMetadata paymentMetadata; // Thông tin thanh toán
 
-	private LocalDateTime pickupDate;  // Thời gian pickup
-	private String pickupStatus;  // Trạng thái pickup (PENDING, COMPLETED, FAILED)
-	private String pickupRemarks;  // Ghi chú pick
-
-	Boolean isCustomerCreate = Boolean.FALSE; // Flag for checking customer create or staff create
+	//	LocalDate pickupDate;  // Thời gian pickup
+	String pickupDate;  // Thời gian pickup
+	String pickupStatus;  // Trạng thái pickup (PENDING, COMPLETED, FAILED)
+	String pickupRemarks;  // Ghi chú pick
+	String packageType; // Loại hàng hóa
+	String pickUptime; // Thời gian nhận hàng
 
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-	private List<OrderGoodDetail> orderGoodDetails = new ArrayList();
+	List<OrderGoodDetail> orderGoodDetails = new ArrayList();
 
 	@LastModifiedBy
 	String createBy;
 
+	@Enumerated(EnumType.STRING)
+	OrderStatus status; // Trạng thái đơn hàng
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "service_code")
+	DeliveryServiceType serviceCode; // Mã dịch vụ giao hàng
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "receiving_method")
+	ReceivingMethod receivingMethod; // Phương thức nhận hàng
+
+	@Enumerated(EnumType.STRING)
+	ShippingZone shippingZone; // Khu vực vận chuyển
 
 	// Chuyen deliveredDate sang bang ShippingMetadata roi nha'
 	// private LocalDateTime deliveredDate;  // Thời gian giao hàng
@@ -135,5 +140,6 @@ public class Orders extends BaseEntity {
 	//	@Column(name = "totalAmount")
 	//	BigDecimal totalAmount; // Tổng giá trị đơn hàng
 
-
+	@Column(name = "total_cost")
+	BigDecimal totalCost; // Tổng cước
 }

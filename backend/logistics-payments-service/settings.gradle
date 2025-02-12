@@ -1,0 +1,4 @@
+rootProject.name = 'logistics-payments-service'
+
+include ':common'
+project(':common').projectDir = file('../common')

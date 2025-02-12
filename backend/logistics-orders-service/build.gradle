@@ -57,6 +57,7 @@ dependencies {
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	implementation 'com.squareup.okhttp3:okhttp'
+
 	// Thêm OpenFeign
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0' // Thêm SpringDoc
 	runtimeOnly 'com.mysql:mysql-connector-j' // Thay PostgreSQL bằng MySQL
