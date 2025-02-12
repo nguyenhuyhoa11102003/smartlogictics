@@ -68,13 +68,12 @@ interface ReceiverProps {
 export default function OrderForm() {
     const { accessToken, setAccessToken, clearAccessToken } = useAuth();
     const [pickupData, setPickupData] = useState<PickupData>({
-        sender: '3d04b569-2c6a-41f8-afc5-d443e94ba647',
-        pickupLocation: 'Nhận tại nhà',
+        sender: {},
+        pickupLocation: '',
         pickupDate: '',
         postOfficeId: '',
         pickupDay: '',
         timePeriod: '',
-        isPostOfficePickup: false,
     });
     const [recipientData, setRecipientData] = useState<ReceiverProps | null>(null);
 
@@ -89,6 +88,11 @@ export default function OrderForm() {
 
     async function add(data: any): Promise<ResponseData> {
         console.log(JSON.stringify(data))
+   
+        if (data.informationOrder.senderId === undefined) {
+            alert('Vui lòng chọn lai thông tin người gửi');
+        }
+
         const response = await http.post('http://localhost:8086/order/orders/create', data, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -96,7 +100,11 @@ export default function OrderForm() {
 
             },
         });
-        console.log(response)
+
+        if(response.status === 200) {
+            alert('Tạo đơn hàng thành công');
+        }
+        // console.log(response)
 
     }
 
@@ -107,9 +115,10 @@ export default function OrderForm() {
             return;
         }
 
-        // console.log(JSON.stringify(pickupData))
+        console.log(JSON.stringify(pickupData))
         // console.log(JSON.stringify(recipientData))
         // console.log(JSON.stringify(paymentInfo))
+        // console.log(JSON.stringify(productData))
 
         const payload = {
             orderCreationStatus: "RECEIVED",
@@ -117,6 +126,9 @@ export default function OrderForm() {
             informationOrder: {
                 senderId: pickupData?.data?.sender?.senderId,
                 senderName: pickupData?.data?.sender?.senderName,
+
+                timePickup: pickupData?.data?.timePeriod,
+                pickupDate: pickupData?.data?.pickupDay,
 
                 receiverId: recipientData?.recipientId,
                 recipientName: recipientData?.recipientName,
@@ -139,8 +151,9 @@ export default function OrderForm() {
 
                 branchCode: "string",
                 serviceCode: "ECONOMY",
-                shippingZone: "NOI_TINH",
-                vehicle: "string",
+                shippingZone: "CAN_TINH",
+                transportationType: "XE_TAI",
+                vehicle: "chua handle tro vao shipper id",
                 receivingMethod: "CUSTOMER_ADDRESS",
 
                 deliveryRequire: paymentInfo?.deliveryRequire,
@@ -148,29 +161,34 @@ export default function OrderForm() {
                 moreRequire: paymentInfo?.moreRequire,
                 contentNote: paymentInfo?.contentNote,
 
-                weight: 1,
-                width: 0,
-                length: 0,
-                height: 0,
+                weight: productData?.weight,
+                width: productData?.width,
+                length: productData?.length,
+                height: productData?.height,
+                quantity: productData?.quantity,
+                productType: productData?.productType,
+                shipmentCode: productData?.shipmenCode,
+                orderCode: productData?.orderCode,
 
                 shipmentId: "string",
                 saleOrderCode: "string",
                 paymentType: "PREPAID",
-                broken: true,
+                
+                packageType: productData?.productType,
+                pickupDay: pickupData?.data?.pickupDay,
+                pickupTime: pickupData?.data?.timePeriod,
 
+                broken: true, 
             }
         };
         mutation.mutate(payload);
     }
-
-
 
     const handlePickupDataChange = (data: any) => {
         setPickupData((prev) => ({
             ...prev,
             data
         }))
-
     };
 
     const handleAddressChange = (address: ReceiverProps) => {

@@ -53,12 +53,16 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
         },
         dimensions: { length: 0, width: 0, height: 0 },
         orderId: '',
+        shipmenCode : "", 
+        orderCode : "",
+        length: "",
+        width: "",
+        height: "",
     });
 
     useEffect(() => {
         setProduct((prev) => ({
             ...prev,
-            orderId: uuidv4(), // Tạo mã UUID mới
         }));
     }, []);
 
@@ -94,7 +98,6 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
             },
         }));
     };
-
     const handleAddProduct = () => {
         const { productName, weight, value, quantity } = product;
 
@@ -128,10 +131,7 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
     };
 
     useEffect(() => {
-        // if (product.productName && product.weight > 0 && product.quantity > 0) {
-        onSubmit(product);
-        // console.log(product)
-        // }
+            onSubmit(product);
     }, [product, onSubmit]);
 
     return (
@@ -141,7 +141,7 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
                 <Label>Loại Hàng Hóa:</Label>
                 <RadioGroup
                     value={product.productType}
-                    onValueChange={(value) => handleInputChange('productType', value)}
+                    onValueChange={(value) =>  ({...product, productType: value})}
                     className='flex'>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="buu_kien" id="buu kien" />
@@ -285,36 +285,46 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
                 <Label>Kích Thước (cm):</Label>
                 <div className="flex gap-4">
                     <Input
-                        type="number"
+                        type="text"
                         placeholder="Dài (cm)"
-                        value={product.dimensions.length}
-                        onChange={(e) => handleDimensionChange('length', Number(e.target.value))}
+                        value={product.length}
+                        onChange={(e) =>  handleInputChange('length', e.target.value)}
                         className="w-full"
                     />
                     <Input
-                        type="number"
+                        type="text"
                         placeholder="Rộng (cm)"
-                        value={product.dimensions.width}
-                        onChange={(e) => handleDimensionChange('width', Number(e.target.value))}
+                        value={product.width}
+                        onChange={(e) => handleInputChange('width', e.target.value)}
                         className="w-full"
                     />
                     <Input
-                        type="number"
+                        type="text"
                         placeholder="Cao (cm)"
-                        value={product.dimensions.height}
-                        onChange={(e) => handleDimensionChange('height', Number(e.target.value))}
+                        value={product.height}
+                        onChange={(e) =>handleInputChange('height', e.target.value)}
                         className="w-full"
                     />
                 </div>
 
                 <div className="form-section mb-4">
-                    <Label>Mã Đơn Hàng:</Label>
+                    <Label>Mã Order</Label>
                     <Input
                         type="text"
-                        placeholder="Nhập mã đơn hàng tự tạo"
-                        value={product.orderId}
+                        placeholder="Nhập mã đơn hàng ban muon"
+                        value={product.orderCode}
                         className="w-full"
-                        disabled
+                        onChange={(e) => handleInputChange('orderCode', e.target.value)}
+                    />
+                </div>
+                <div className="form-section mb-4">
+                    <Label>Mã Tracking:</Label>
+                    <Input
+                        type="text"
+                        placeholder="Nhập mã theo doi ban muon"
+                        value={product.shipmenCode}
+                        className="w-full"
+                        onChange={(e) => handleInputChange('shipmenCode', e.target.value)}
                     />
                 </div>
             </div>

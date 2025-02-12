@@ -72,12 +72,12 @@ export function OrdersTable({ orders }: OrdersTableProps) {
                                 <td className="p-2 border text-center">{o.orderCode}</td>
                                 <td className="p-2 border text-center">{o.senderName}</td>
                                 <td className="p-2 border text-center">{o.recipientName}</td>
-                                <td className="p-2 border text-center">{o.goods}</td>
+                                <td className="p-2 border text-center">{o.packageType}</td>
                                 <td className={`p-2 border text-center font-bold ${statusColors[o.status] || "bg-gray-200 text-gray-800"}`}>
                                     {o.status}
                                 </td>
                                 <td className="p-2 border text-center">{o.createdAt}</td>
-                                <td className="p-2 border text-center">{100}</td>
+                                <td className="p-2 border text-center">{o.totalCost ?? 100}</td>
                                 <td className="p-2 border text-center">{o.printed ? "Đã in" : "Chưa in"}</td>
                                 <td className="p-2 border text-center">{o.insurance ? "Có" : "Không"}</td>
                                 <td className="p-2 border text-center flex gap-2 justify-center">

@@ -25,6 +25,12 @@ export interface Product {
   documentCharacteristics: DocumentCharacteristics; // Các đặc tính của tài liệu
   dimensions: Dimensions; // Kích thước sản phẩm (dài, rộng, cao)
   orderId: string; // Mã đơn hàng liên quan
+  shipmenCode :  string,
+  orderCode : string, 
+  length: string,
+  width: string,
+  height: string,
+  
 }
 
 

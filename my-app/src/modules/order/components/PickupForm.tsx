@@ -6,6 +6,7 @@ import { Warehouse } from '@/modules/warehouse/models/Warehouse';
 import { useAuth } from '@/context/app.context';
 import { AddressListProps } from '@/modules/address/components/AddressList';
 import axios from 'axios';
+import { set } from 'react-hook-form';
 
 
 interface PickupFormProps {
@@ -97,7 +98,6 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
         // fetchWarehouses();
     }, []);
 
-
     useEffect(() => {
         // Get today's date in format DD/MM/YYYY
         const today = new Date();
@@ -139,8 +139,7 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
             : 'Chưa chọn thời gian';
 
         const updatedData: PickupData = {
-            sender: {},
-            // pickupLocation: pickupLocation,
+            sender: pickupData.sender,
             pickupLocation : "", 
             pickupDate: pickupDate,
             postOfficeId: selectedPostOffice,
@@ -149,33 +148,26 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
             isPostOfficePickup: showPostOffices,
         };
 
-        setPickupData(updatedData);
-        // onPickupDataChange(updatedData);
+        setPickupData({ ...pickupData, ...updatedData });
     }, [showPostOffices, selectedSender, pickupDay, timePeriod, selectedPostOffice]);
 
     
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        alert('Xac nhan thong tin nguoi gui thanh cong');
-        onPickupDataChange(pickupData)
+        alert('Xac nhan thong tin nguoi gui thanh cong '  + JSON.stringify(pickupData));    
+        onPickupDataChange(pickupData);
     }
-
-    const handleSenderChange = (e : any) => {
+    
+    const handleSenderChange = (e : any) => {            
         const senderId = e.target.value
         const senderInfo = addresses.find(acount => acount.senderId === senderId);
-        
-        if (senderInfo) {
-            setPickupData(prevData => ({
-                ...prevData,
-                sender: senderInfo, 
-            }));
-        }
-    
+        setPickupData( pre => {
+            return {
+                ...pre,
+                sender: senderInfo
+            }
+        });
     };
-    
-
-    
-
 
     return (
         <div className="border-2 shadow-lg p-4">
@@ -204,7 +196,7 @@ export default function PickupForm({ onPickupDataChange }: PickupFormProps) {
                     <select
                         id="senderName"
                         className="w-full border rounded p-2"
-                        value={selectedSender || ""}
+                        value={pickupData.sender.senderId || ""}
                         onChange={handleSenderChange}
                     >
                         {/* <option value="">Chọn người gửi...</option> */}

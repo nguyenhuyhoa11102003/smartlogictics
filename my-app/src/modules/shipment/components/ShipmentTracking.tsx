@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card"
 
 import { Shipment } from '@/modules/shipment/models/Shipment';
+import http from '@/utils/http';
 
 interface Props {
     shipment: Shipment;
@@ -86,14 +87,30 @@ const ShipmentTracking = ({ shipment }: Props) => {
         }
     };
 
-    const updateSegment = (id: number) => {
+    const updateSegment = async(id: number) => {
+
+         // Lấy segment cần cập nhật
+        const segmentToUpdate = segments.find((segment) => segment.id === id);
+        if (!segmentToUpdate) return console.error(`Segment ${id} không tồn tại`);
+
+        // Xác định trạng thái tiếp theo
+        const newStatus = getNextStatus(segmentToUpdate.status);
+
         setSegments((prevSegments) =>
             prevSegments.map((segment) =>
                 segment.id === id
-                    ? { ...segment, status: segment.status === 'in_progress' ? 'completed' : 'in_progress' }
+                    ? { ...segment, status: getNextStatus(segment.status), }
                     : segment
             )
         );
+
+        try {
+            await http.put(`http://localhost:8087/shipment-service/shipments/segments/${id}/status?newStatus=${newStatus}`);
+            console.log(`✅ Cập nhật thành công segment ${id} -> ${newStatus}`);
+        } catch (error) {
+            console.error(`❌ Lỗi cập nhật segment ${id}:`, error);
+        }
+
     };
 
     useEffect(() => {       
@@ -111,11 +128,24 @@ const ShipmentTracking = ({ shipment }: Props) => {
             weather: "sunny",
             traffic: "normal",
             notes: ""
-        }))]);
-
-        
+        }))]);        
 
     }, [shipment]); 
+
+
+    const getNextStatus = (currentStatus: string): string => {
+        switch (currentStatus) {
+            case 'NOT_STARTED': return 'IN_PROGRESS';
+            case 'IN_PROGRESS': return 'ARRIVED_AT_WAREHOUSE';
+            case 'ARRIVED_AT_WAREHOUSE': return 'WAREHOUSE_CHECKED_IN';
+            case 'WAREHOUSE_CHECKED_IN': return 'DEPARTED_WAREHOUSE';
+            case 'DEPARTED_WAREHOUSE': return 'COMPLETED';
+            case 'COMPLETED': return 'COMPLETED'; // Không thay đổi nếu đã hoàn thành
+            case 'CANCELLED': return 'CANCELLED'; // Không thay đổi nếu đã hủy
+            default: return currentStatus; // Tránh lỗi nếu có trạng thái không hợp lệ
+        }
+    };
+
 
     return (
         <Card className="w-full pt-4 bg-white border-white">
@@ -134,23 +164,37 @@ const ShipmentTracking = ({ shipment }: Props) => {
                                 <div className="absolute left-6 top-full w-0.5 h-6 bg-gray-300" />
                             )}
 
-                            <div className={`p-4 rounded-lg border   ${segment.status === 'completed' ? 'bg-green-200 border-green-200' :
-                                segment.status === 'in_progress' ? 'bg-blue-50 border-blue-200' :
-                                    'bg-gray-50 border-gray-200'
+                            <div className={`p-4 rounded-lg border   ${
+                                segment.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
+                                segment.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700' :
+                                segment.status === 'ARRIVED_AT_WAREHOUSE' ? 'bg-yellow-100 text-yellow-700' :
+                                segment.status === 'WAREHOUSE_CHECKED_IN' ? 'bg-purple-100 text-purple-700' :
+                                segment.status === 'DEPARTED_WAREHOUSE' ? 'bg-orange-100 text-orange-700' :
+                                segment.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                                'bg-gray-100 text-gray-700'
                                 }`}>
                                 {/* Header */}
                                 <div className="flex justify-between items-center mb-4">
                                     <div className="font-medium">{segment.from} → {segment.to}</div>
                                     <button
                                         onClick={() => updateSegment(segment.id)}
-                                        className={`px-3 py-1 rounded-full text-sm ${segment.status === 'completed' ? 'bg-green-100 text-green-700' :
-                                            segment.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                                                'bg-gray-100 text-gray-700'
-                                            }`}
+                                        className={`px-3 py-1 rounded-full text-sm ${
+                                            segment.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
+                                            segment.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700' :
+                                            segment.status === 'ARRIVED_AT_WAREHOUSE' ? 'bg-yellow-100 text-yellow-700' :
+                                            segment.status === 'WAREHOUSE_CHECKED_IN' ? 'bg-purple-100 text-purple-700' :
+                                            segment.status === 'DEPARTED_WAREHOUSE' ? 'bg-orange-100 text-orange-700' :
+                                            segment.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                                            'bg-gray-100 text-gray-700'
+                                        }`}
                                     >
-                                        {segment.status === 'completed' ? 'Hoàn thành' :
-                                            segment.status === 'in_progress' ? 'Đang chạy' :
-                                                'Chưa bắt đầu'}
+                                        {segment.status === 'COMPLETED' ? 'Hoàn thành' :
+                                        segment.status === 'IN_PROGRESS' ? 'Đang chạy' :
+                                        segment.status === 'ARRIVED_AT_WAREHOUSE' ? 'Vừa đến kho' :
+                                        segment.status === 'WAREHOUSE_CHECKED_IN' ? 'Đã nhập kho' :
+                                        segment.status === 'DEPARTED_WAREHOUSE' ? 'Đã rời kho' :
+                                        segment.status === 'CANCELLED' ? 'Đã hủy' :
+                                        'Chưa bắt đầu'}
                                     </button>
                                 </div>
 
